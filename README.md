@@ -2,7 +2,7 @@
 
 ## 1. Integrantes del Equipo 
 
-- Apellido, Nombre 
+- Cabrera, Joel 
 - Apellido, Nombre 
 - Apellido, Nombre 
 - Apellido, Nombre
