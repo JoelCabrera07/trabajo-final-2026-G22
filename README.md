@@ -1,4 +1,4 @@
-# Proyecto: Tower Defense - El Último Bastión
+# Proyecto: Jumping Hero
 
 ## 1. Integrantes del Equipo 
 
