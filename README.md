@@ -2,7 +2,7 @@
 
 ## 1. Integrantes del Equipo 
 
-- Cabrera, Joel 
+- Cabrera, Joel. 
 - Hidalgo,Lautaro.
 - Millar,Juan Cruz.
 - Valentino,Ernesto Paez.
