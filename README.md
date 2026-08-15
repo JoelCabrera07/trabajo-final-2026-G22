@@ -63,6 +63,6 @@ FALTA DIAGRAMA.
 
 - **Lenguaje:** Java (Versión 17 o superior)
 - **IDE:** Eclipse IDE
-- **Persistencia de Datos:** Sistema de Archivos / Serialización de Objetos en Java (para el guardado de la sesión y coordenadas).
-- **Framework de IGU:** Java Swing (o JavaFX)
+- **Persistencia de Datos:** Sistema de Archivos / Persistencia basada en Archivos Locales (para el guardado de la sesión y coordenadas).
+- **Framework de IGU:** Java Swing 
 - **Control de Versiones:** Git y GitHub
