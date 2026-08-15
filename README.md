@@ -55,7 +55,9 @@ FALTA DIAGRAMA.
 
 #### **Prototipo de la IGU (Wireframe)**
 
-(FALTA IMAGEN)
+<img width="590" height="336" alt="91e7c1b2-f1e7-46ec-9d11-460316710a72" src="https://github.com/user-attachments/assets/df5ce34c-46ac-40f3-a9f9-c1df09deb125" />
+<img width="1920" height="1440" alt="thumb-1920-1348538" src="https://github.com/user-attachments/assets/fd7d6031-8971-43e2-adfe-e0671501f65d" />
+
 
 ## 4. Stack Tecnológico
 
