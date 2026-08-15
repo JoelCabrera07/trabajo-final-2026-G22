@@ -3,55 +3,64 @@
 ## 1. Integrantes del Equipo 
 
 - Cabrera, Joel 
-- Apellido, Nombre 
-- Apellido, Nombre 
-- Apellido, Nombre
+- Hidalgo,Lautaro.
+- Millar,Juan Cruz.
+- Valentino,Ernesto Paez.
 
-## 2. Dominio y Alcance del Sistema 
+## 2.Dominio y Alcance del Sistema.
 
-### Descripción del Problema
-Se busca desarrollar una aplicación de escritorio del clásico videojuego **Tower Defense**. El jugador debe utilizar recursos limitados para construir torres defensivas en un mapa con un camino predefinido. Oleadas de enemigos avanzarán por este camino, y el objetivo es destruir a todos los enemigos antes de que lleguen al final del recorrido.
+###Descripcion del problema
 
-### Objetivo del Sistema
-El sistema será un juego funcional y extensible que permitirá al jugador experimentar las mecánicas básicas del género. El diseño debe ser modular para facilitar la adición de nuevos tipos de torres, enemigos o mapas en el futuro, aplicando rigurosamente los conceptos del paradigma orientado a objetos.
+Buscamos desarrollar una aplicacion de escritorio del juego Jump king. El jugador debera controlar al personaje usando el salto como su principal movimiento,subiendo las plataformas,esquivando enemigos y calculando los saltos ya que entre mas tiempo tenga pulsado el boton de salto la distancia sera mayor para llegar a la cima.
 
-### Funcionalidades Principales (Features)
-- **Gestión de Torres:**
-    - El jugador puede seleccionar distintos tipos de torres desde un panel.
-    - El jugador puede posicionar las torres en ubicaciones válidas del mapa.
-    - Cada torre tiene un costo, un rango de ataque y un daño específico.
-- **Sistema de Oleadas de Enemigos:**
-    - Los enemigos aparecen en oleadas de dificultad creciente.
-    - Existen diferentes tipos de enemigos (ej: rápidos pero débiles, lentos pero resistentes).
-    - Los enemigos siguen un camino preestablecido en el mapa.
-- **Mecánicas de Juego:**
-    - El jugador cuenta con una cantidad inicial de "recursos" (oro) para construir torres.
-    - Destruir enemigos otorga recursos adicionales.
-    - El jugador tiene un número limitado de "vidas", que disminuyen si un enemigo llega al final del camino. El juego termina si las vidas llegan a cero.
-- **Interfaz Gráfica (IGU):**
-    - Visualización del mapa, el camino, las torres y los enemigos.
-    - Panel de control para seleccionar torres, ver recursos, vidas y número de oleada.
-    - Botón para iniciar la siguiente oleada.
-- **Persistencia:**
-    - Sistema de guardado y carga de los puntajes más altos (High Scores) en una base de datos.
+### Objetivo del Sistema.
 
-## 3. Arquitectura y Diseño 
+El sistema sera un videojuego funcional desarrollado bajo el paradigma de Programa Orientado a Objetos(POO).Su diseño debe ser modular, asi se facilitara futuras incorporaciones de nuevos tipo de plataformas (ej: resbaladizas, rompibles,etc),comportamiento de enemigos y escenarios.Tambien se dara mucha importancia a la correcta implementacion de fisicas basicas(gravedad,calculo de trayectorias) y en la deteccion de colisones en tiempo real entre las distintas entidades del juego(Jugador - Enemigo-Escenario).
 
-### Patrón de Diseño Adicional: Factory Method
-- **Nombre del Patrón:** **Factory Method (Método de Fábrica)**.
-- **Justificación:** Se utilizará este patrón para la creación de los objetos `Enemigo`. Tendremos una clase abstracta `EnemigoFactory` con un método `crearEnemigo()`. Se crearán subclases concretas como `OrcoFactory` y `GoblinFactory` que implementarán este método para instanciar los enemigos correspondientes. Esto **desacopla** la lógica del juego (que solo necesita pedir un enemigo de un tipo) de la lógica de instanciación de cada enemigo concreto. Así, añadir un nuevo tipo de enemigo (ej. `DragonFactory`) no requerirá modificar el código que gestiona las oleadas.
+### Funcionalidades principales (Features).
+
+- **Mecanicas del Jugador y Fisicas: **
+-El jugador puede moverse horizontalmente.
+-El sistema de salto sera dinamico, ya que la altura y distancia de la parabola se calcula en base al tiempo que se mantenga pulsado el boton de salto.
+-Se aplica constante de gravedad y mecanicas de caida libre.
+
+- **Entorno y Colisiones**
+-Posicionamiento estatico de plataformas para crear  un mapa de progresion vertical.
+-Sistema de deteccion de colisiones(hitboxes) preciso entre el jugador,los limites de la pantalla y las superficies de las plataformas.
+
+- **Sistema de Obstaculos y Enemigos: **
+-Generacion de entidades hostiles en el mapa con patrones de movimiento simple.
+-Deteccion de colisiones con enemigos que penalicen al jugador (ej: interrumpiendo el salto, empujandolo hacia abajo o quitando vida).
+
+-**Interfaz Grafica(IGU):**
+-Renderizado visualdel personaje , los enemigos, las plataformas y el entorno.
+-Indicador visual en pantalla (barra de potencia) que muestre la fuerza de carga del salto en tiempo real.
+
+- **Condiciones de Juego: **
+-Ausencia de Game over tradicional: el castigo por fallar es la perdida de progreso al caer o poner Game Over si aplicamos vidas.
+-Condicion de victoria al alcanzar la plataforma mas alta del nivel.
+
+- **Persistencia**
+-Sistema de guardado y carga del estado de la pantalla.
+-Almacenamiento local de los datos del jugador(como las coordenadas exactas del personaje) para permitir retomar el ascenso en sesiones futuras
+
+
+## 3. Arquitectura y Diseño
+
 
 ### Diagramas de Diseño
 
 #### **Diagrama de Clases UML (Conceptual)**
-
+FALTA DIAGRAMA.
 
 #### **Prototipo de la IGU (Wireframe)**
 
-## 4. Stack Tecnológico 
+(FALTA IMAGEN)
 
-- **Lenguaje:** Java 17
-- **IDE:** Visual Studio Code
-- **Base de Datos:** MySQL 8.0 (para persistencia de High Scores)
-- **Framework de IGU:** Java Swing
-- **Control de Versiones:** Git y GitHub Classroom
+## 4. Stack Tecnológico
+
+- **Lenguaje:** Java (Versión 17 o superior)
+- **IDE:** Eclipse IDE
+- **Persistencia de Datos:** Sistema de Archivos / Serialización de Objetos en Java (para el guardado de la sesión y coordenadas).
+- **Framework de IGU:** Java Swing (o JavaFX)
+- **Control de Versiones:** Git y GitHub
