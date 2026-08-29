@@ -3,15 +3,17 @@ import java.awt.Color;
 public class Entidad {
     
 private String nombre;
-    private int x;//tamaño de la hitbox
-    private int y;//tamaño de la hitbox
+    private double x;//posicion en el eje x
+    private double y;//posicion en el eje y
+    private int ancho = 50;//tamaño de la hitbox
+    private int alto = 50;//tamaño de la hitbox
     private Color color;//necesario para poder ponerle colores al programa
     private int hp;//hp actual
     private int hpMax;//limite de hp
     private int ataque;//cantidad de hp que pueden quitar 
 
 
-    public Entidad (String nombre, int x, int y, Color color, int hp, int ataque) {
+    public Entidad(String nombre, double x, double y, Color color, int hp, int ataque) {
         this.nombre = nombre;
         this.x = x;
         this.y = y;
@@ -36,20 +38,28 @@ private String nombre;
         return nombre;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(double y) {
         this.y = y;
+    }
+
+    public int getAncho() {
+        return ancho;
+    }
+
+    public int getAlto() {
+        return alto;
     }
 
     public Color getColor() {
