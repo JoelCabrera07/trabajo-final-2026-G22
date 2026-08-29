@@ -5,8 +5,8 @@ public class Entidad {
 private String nombre;
     private double x;//posicion en el eje x
     private double y;//posicion en el eje y
-    private int ancho = 50;//tamaño de la hitbox
-    private int alto = 50;//tamaño de la hitbox
+    private int ancho;//tamaño de la hitbox
+    private int alto;//tamaño de la hitbox
     private Color color;//necesario para poder ponerle colores al programa
     private int hp;//hp actual
     private int hpMax;//limite de hp
