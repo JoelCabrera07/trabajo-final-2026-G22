@@ -13,10 +13,12 @@ private String nombre;
     private int ataque;//cantidad de hp que pueden quitar 
 
 
-    public Entidad(String nombre, double x, double y, Color color, int hp, int ataque) {
+    public Entidad(String nombre, double x, double y,int ancho, int alto, Color color, int hp, int ataque) {
         this.nombre = nombre;
         this.x = x;
         this.y = y;
+        this.ancho = ancho;
+        this.alto = alto;
         this.color = color;
         this.hpMax = hp;
         this.hp = hp;
