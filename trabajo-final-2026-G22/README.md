@@ -55,3 +55,16 @@ El sistema será un juego funcional y extensible que permitirá al jugador exper
 - **Base de Datos:** MySQL 8.0 (para persistencia de High Scores)
 - **Framework de IGU:** Java Swing
 - **Control de Versiones:** Git y GitHub Classroom
+
+## 5. Herencia y Polimorfismo
+
+1. Herencia (Para no repetir código)
+Básicamente aplicamos herencia simple para no escribir mil veces los mismos atributos y mantener la arquitectura ordenada.
+
+Sistema de Entidades: En vez de programarle la vida, el nombre y las coordenadas al Héroe y después hacer lo mismo de cero para el Enemigo, creamos una clase abstracta padre llamada Entidad. De ahí heredan Heroe y Enemigo, llevándose toda esa base y sumando solo sus mecánicas específicas.
+
+Plataformas: Hicimos la misma jugada. Tenemos una clase base Plataforma que se encarga de lo genérico (dibujarse en pantalla, detectar colisiones). De ahí sacamos las clases hijas como PlataformaHielo o PlataformaBarro, que heredan toda la física base pero modifican cosas puntuales como la fricción o la velocidad del jugador.
+
+2. Polimorfismo
+Lo implementamos más que nada en el sistema de interacciones y colisiones para mantener el motor del juego limpio.
+En lugar de armar una cadena enorme de if/else preguntando con qué tipo de bloque o entidad chocó el jugador, usamos un método general. Gracias a la sobrescritura en las clases hijas, cuando ocurre una colisión, es el propio objeto el que define qué efecto aplicar (por ejemplo, alterar la velocidad si es hielo ). De esta forma, el bucle principal del juego solo llama a la acción genérica, y si el día de mañana agregamos un obstáculo nuevo, no necesitamos modificar la lógica del motor, solo creamos la clase nueva.
