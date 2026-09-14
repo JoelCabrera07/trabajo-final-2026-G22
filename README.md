@@ -207,7 +207,7 @@ classDiagram
     Enemigo <|-- EnemigoTorreta
     Enemigo <|-- EnemigoAcorazado
     Enemigo <|-- EnemigoAcechador
-    ```
+```
 
 #### **Prototipo de la IGU (Wireframe)**
 
