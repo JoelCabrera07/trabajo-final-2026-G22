@@ -2,18 +2,25 @@ import java.awt.Color;
 
 public class PlataformaHielo extends Plataforma {
     
-    private double nivelFriccion; // Variable exclusiva del hielo
+    private double nivelFriccion;
 
     public PlataformaHielo(double x, double y, int ancho, int alto) {
-        // Llamamos a Plataforma (que a su vez llama a Entidad)
-        // Le clavamos el nombre y el color CYAN para identificarla fácil en la pantalla
-        super("Plataforma de Hielo", x, y, ancho, alto, Color.CYAN);
+        // Le mandamos un color celestito, 100 de HP y 0 de ataque
+        super("Plataforma de Hielo", x, y, ancho, alto, new Color(173, 216, 230), 100, 0);
         
-        // 0.2 de fricción (patina mucho). Una normal tendría 1.0 por ejemplo.
-        this.nivelFriccion = 0.2; 
+        // Friccion baja para que el personaje patine cuando intente frenar
+        this.nivelFriccion = 0.2;
     }
 
     public double getNivelFriccion() {
         return nivelFriccion;
+    }
+
+    @Override
+    public void aplicarEfectoColision(Heroe h) {
+        // 1. Frenamos la caída apenas toca el piso
+        h.setVelocidadY(0); 
+        
+        // (Aca va la lógica matemática para que el héroe patine con la inercia )
     }
 }

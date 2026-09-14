@@ -1,6 +1,6 @@
 import java.awt.Color;
-
-public class Entidad {
+import java.awt.Rectangle;
+public abstract class Entidad {
     
 private String nombre;
     private double x;//posicion en el eje x
@@ -80,6 +80,9 @@ private String nombre;
     public int getAtaque() { 
         return ataque; 
     }
-
-
+    //lo mejor es poner el metodo aca, para que todos lo aprendan automáticamente.
+    public Rectangle getHitbox() {
+        // Rectangle trabaja con números enteros
+        return new Rectangle((int) x, (int) y, ancho, alto);
+    }
 }

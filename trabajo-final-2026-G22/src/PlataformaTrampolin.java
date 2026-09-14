@@ -5,14 +5,20 @@ public class PlataformaTrampolin extends Plataforma {
     private double multiplicadorRebote;
 
     public PlataformaTrampolin(double x, double y, int ancho, int alto) {
-        // Un color rosa/magenta típico de trampolines en los juegos
-        super("Plataforma Trampolín", x, y, ancho, alto, Color.MAGENTA);
+        // Un verde llamativo, 100 de HP y 0 de ataque
+        super("Trampolín", x, y, ancho, alto, Color.GREEN, 100, 0);
         
-        // Multiplica la fuerza de salto (por ejemplo, 1.8 = 80% más alto)
-        this.multiplicadorRebote = 1.8; 
+        // Multiplica la fuerza del salto por 1.5
+        this.multiplicadorRebote = 1.5;
     }
 
     public double getMultiplicadorRebote() {
         return multiplicadorRebote;
+    }
+
+    @Override
+    public void aplicarEfectoColision(Heroe h) {
+        // En vez de frenarlo, le mandamos una velocidad negativa (hacia arriba) para que rebote
+        h.setVelocidadY(-15.0 * multiplicadorRebote); 
     }
 }
