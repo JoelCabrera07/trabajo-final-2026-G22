@@ -51,7 +51,161 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 ### Diagramas de Diseño
 
 #### **Diagrama de Clases UML (Conceptual)**
-FALTA DIAGRAMA.
+classDiagram
+    class JuegoManager {
+        <<Singleton>>
+        -JuegoManager instance
+        -Escenario escenarioActual
+        -Heroe heroe
+        +getInstance() JuegoManager
+        +iniciarJuego() void
+        +buclePrincipal() void
+    }
+
+    class Escenario {
+        -List~Plataforma~ plataformas
+        -List~Enemigo~ enemigos
+        -List~Entidad~ entidadesInteractuables
+        +cargarMapa() void
+    }
+
+    class Entidad {
+        <<abstract>>
+        -String nombre
+        -double x
+        -double y
+        -int alto
+        -int ancho
+        -int hp
+        +getHitbox() Rectangle
+        +recibirDanio(int cantidad) void
+    }
+
+    class Heroe {
+        -double velocidadY
+        -double velocidadX
+        -double cargaSaltoActual
+        +cargarSalto(long tiempoPulsado) void
+        +soltarSalto() void
+        +predecirTrayectoria() List~Point~
+    }
+
+    class Cofre {
+        -boolean abierto
+        +abrir(Heroe h) void
+    }
+
+    class Booster {
+        <<abstract>>
+        +aplicarEfecto(Heroe h) void
+    }
+
+    class BoosterImpulso {
+        +aplicarEfecto(Heroe h) void
+    }
+
+    class Plataforma {
+        <<abstract>>
+        +aplicarEfectoColision(Heroe h) void
+    }
+
+    class PlataformaBarro {
+        -double reduccionVelocidad
+        +aplicarEfectoColision(Heroe h) void
+    }
+
+    class PlataformaHielo {
+        -double nivelFriccion
+        +aplicarEfectoColision(Heroe h) void
+    }
+
+    class PlataformaTrampolin {
+        -double multiplicadorRebote
+        +aplicarEfectoColision(Heroe h) void
+    }
+
+    class PlataformaRompible {
+        -boolean destruida
+        +romper() void
+    }
+
+    class PlataformaMovil {
+        -double velocidadX
+        -double limiteIzquierdo
+        -double limiteDerecho
+        -boolean moviendoDerecha
+        +mover() void
+        +aplicarEfectoColision(Heroe h) void
+    }
+
+    class Enemigo {
+        <<abstract>>
+        +aplicarEfectoColision(Heroe h) void
+    }
+
+    class EnemigoTerrestre {
+        -double velocidadPatrullaje
+        +patrullar() void
+    }
+
+    class EnemigoVolador {
+        -double amplitudVuelo
+        +volarEnCirculos() void
+    }
+
+    class EnemigoTorreta {
+        -int cadenciaDisparo
+        +disparar() void
+    }
+
+    class EnemigoAcorazado {
+        -boolean superArmadura
+    }
+
+    class EnemigoAcechador {
+        -int tiempoDeteccion
+        +perseguir(Heroe h) void
+    }
+
+    class PartidaDAO {
+        <<interface>>
+        +guardarPartida(Heroe h, Escenario e) boolean
+    }
+    
+    class PartidaDAOMySQL {
+        +guardarPartida(Heroe h, Escenario e) boolean
+    }
+
+    %% Relaciones de uso y composición
+    JuegoManager --> "1" Escenario : gestiona
+    JuegoManager --> "1" Heroe : controla
+    JuegoManager ..> PartidaDAO : usa para base de datos
+    PartidaDAO <|.. PartidaDAOMySQL
+    Escenario --> "*" Plataforma : contiene
+    Escenario --> "*" Enemigo : contiene
+    Escenario --> "*" Entidad : contiene cofres
+    Cofre ..> Booster : suelta
+
+    %% Relaciones de Herencia Base
+    Entidad <|-- Heroe
+    Entidad <|-- Cofre
+    Entidad <|-- Plataforma
+    Entidad <|-- Enemigo
+    Booster <|-- BoosterImpulso
+    
+    %% Herencia de Plataformas
+    Plataforma <|-- PlataformaBarro
+    Plataforma <|-- PlataformaHielo
+    Plataforma <|-- PlataformaTrampolin
+    Plataforma <|-- PlataformaRompible
+    Plataforma <|-- PlataformaMovil
+
+    %% Herencia de Enemigos
+    Enemigo <|-- EnemigoTerrestre
+    Enemigo <|-- EnemigoVolador
+    Enemigo <|-- EnemigoTorreta
+    Enemigo <|-- EnemigoAcorazado
+    Enemigo <|-- EnemigoAcechador
 
 #### **Prototipo de la IGU (Wireframe)**
 
