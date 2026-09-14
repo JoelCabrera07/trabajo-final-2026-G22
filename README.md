@@ -51,6 +51,7 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 ### Diagramas de Diseño
 
 #### **Diagrama de Clases UML (Conceptual)**
+```mermaid
 classDiagram
     class JuegoManager {
         <<Singleton>>
