@@ -12,6 +12,17 @@ public class Heroe extends Entidad{
     public void setVelocidadY(double velocidadY) {
         this.velocidadY = velocidadY;
     }
+
+    public double getVelocidadY() {
+        return this.velocidadY;
+    }
     
+    public double getVelocidadX() {
+        return this.velocidadX;
+    }
+
+    public void setVelocidadX(double velocidadX) {
+        this.velocidadX = velocidadX;
+    }
     
 }

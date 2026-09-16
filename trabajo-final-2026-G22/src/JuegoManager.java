@@ -1,19 +1,22 @@
+import java.awt.Rectangle;
+
 public class JuegoManager {
-    
+
     private static JuegoManager instance;
-    
-    // Los atributos que maneja (Modelo)
+
     private Escenario escenarioActual;
     private Heroe heroe;
     private boolean juegoCorriendo;
 
-    // Constructor PRIVADO: Nadie desde afuera puede hacer un "new JuegoManager()"
+    // Guarda donde estaba el heroe en el frame anterior, para poder detectar
+    // si "recien" aterrizo sobre una plataforma (y no aplicar el efecto en
+    // cada frame que se solapen).
+    private double yAnteriorHeroe;
+
     private JuegoManager() {
-        // Acá prepararemos el mapa inicial y al personaje más adelante
         this.juegoCorriendo = false;
     }
 
-    //  Metodo estatico para obtener la unica instancia permitida
     public static JuegoManager getInstance() {
         if (instance == null) {
             instance = new JuegoManager();
@@ -21,33 +24,24 @@ public class JuegoManager {
         return instance;
     }
 
-    // Arranca el motor
     public void iniciarJuego() {
         this.juegoCorriendo = true;
         System.out.println("¡Iniciando el motor del juego!");
         buclePrincipal();
     }
 
-    // El corazón del juego
     private void buclePrincipal() {
-        // Este while(true) es el que va a mantener el juego vivo
         while (juegoCorriendo) {
-            
-            // PASO A: Actualizar lógicas (físicas, movimiento, trayectoria)
-            // actualizarFisicas();
-            
-            // PASO B: Chequear colisiones (Héroe tocando cofres, enemigos o plataformas)
-            // verificarColisiones();
 
-        }
-        
-        // Aca.... agregar el "for" 
-        // para chequear los choques con las plataformas de la misma manera).
-    
-    
+            // PASO A: Actualizar logicas (fisicas, movimiento, trayectoria)
+            // actualizarFisicas();
+
+            // PASO B: Chequear colisiones (Heroe tocando cofres, enemigos o plataformas)
+            verificarColisiones();
+
             // PASO C: Mandar a redibujar la pantalla (La Vista)
             // repintarPantalla();
-            
+
             // Un pequeño freno para que la compu no explote calculando a la velocidad de la luz
             try {
                 Thread.sleep(16); // 16 milisegundos = aprox 60 FPS
@@ -55,27 +49,52 @@ public class JuegoManager {
                 e.printStackTrace();
             }
         }
-        private void verificarColisiones() {
-        // Verificamos si el héroe no es nulo y si el escenario ya está cargado para evitar errores
+    }
+
+    private void verificarColisiones() {
+        // Verificamos si el heroe no es nulo y si el escenario ya esta cargado para evitar errores
         if (heroe == null || escenarioActual == null) return;
 
-        // Recorremos la lista de enemigos que está en el escenario
+        // --- Colisiones con enemigos ---
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
-            
-            // intersects() se fija si los dos rectángulos se tocan
             if (heroe.getHitbox().intersects(enemigo.getHitbox())) {
-                
                 System.out.println("¡Colisión detectada con: " + enemigo.getNombre() + "!");
-                
-                // Aplicamos el polimorfismo: cada enemigo le hará un efecto distinto al héroe
                 enemigo.aplicarEfectoColision(heroe);
-                
-                // Opcional: Podrías poner un pequeño tiempo de invulnerabilidad acá 
-                // para que el enemigo no le baje toda la vida en un milisegundo.
             }
         }
-        
-        // Aca mismo se agregar el "for" 
-        // para chequear los choques con las plataformas de la misma manera).
+
+        // --- Colisiones con plataformas ---
+        Rectangle hitboxHeroe = heroe.getHitbox();
+        double bordeInferiorActual = hitboxHeroe.y + hitboxHeroe.height;
+        double bordeInferiorAnterior = yAnteriorHeroe + hitboxHeroe.height;
+
+        for (Plataforma plataforma : escenarioActual.getPlataformas()) {
+
+            // Una plataforma rompible ya destruida no debe seguir colisionando
+            if (plataforma instanceof PlataformaRompible
+                    && ((PlataformaRompible) plataforma).isDestruida()) {
+                continue;
+            }
+
+            Rectangle hitboxPlataforma = plataforma.getHitbox();
+
+            boolean solapaHorizontal = hitboxHeroe.x + hitboxHeroe.width > hitboxPlataforma.x
+                    && hitboxHeroe.x < hitboxPlataforma.x + hitboxPlataforma.width;
+
+            // "Recien aterrizo": venia cayendo, y su borde inferior acaba de
+            // cruzar el borde superior de la plataforma en este frame.
+            boolean cayendoSobreArriba = heroe.getVelocidadY() >= 0
+                    && bordeInferiorAnterior <= hitboxPlataforma.y
+                    && bordeInferiorActual >= hitboxPlataforma.y;
+
+            if (solapaHorizontal && cayendoSobreArriba) {
+                // Lo apoyamos justo arriba de la plataforma, para que no se
+                // hunda un par de pixeles dentro de ella.
+                heroe.setY(hitboxPlataforma.y - hitboxHeroe.height);
+                plataforma.aplicarEfectoColision(heroe);
+            }
+        }
+
+        yAnteriorHeroe = heroe.getY();
     }
-    }
+}
