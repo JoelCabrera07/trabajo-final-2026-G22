@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public abstract class Enemigo extends Entidad implements Colisionable {

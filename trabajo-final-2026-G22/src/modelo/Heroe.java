@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color; 
 
 public class Heroe extends Entidad {
@@ -65,5 +66,8 @@ public class Heroe extends Entidad {
     // que hace que el héroe resbale, o una plataforma móvil que lo arrastra)
     public void setVelocidadX(double velocidadX) {
         this.velocidadX = velocidadX;
+    }
+    public boolean isMirandoDerecha() {
+        return this.mirandoDerecha; // Devuelve true si el héroe está mirando a la derecha, false si está mirando a la izquierda
     }
 }

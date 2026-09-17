@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public class EnemigoTerrestre extends Enemigo {

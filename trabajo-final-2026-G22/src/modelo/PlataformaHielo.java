@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public class PlataformaHielo extends Plataforma {
@@ -18,9 +19,16 @@ public class PlataformaHielo extends Plataforma {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        // 1. Frenamos la caída apenas toca el piso
         h.setVelocidadY(0); 
+        h.setEnElSuelo(true);
         
-        // (Aca va la lógica matemática para que el héroe patine con la inercia )
+        // Efecto resbalón: Si el jugador soltó la tecla y su velocidad horizontal es 0
+        if (h.getVelocidadX() == 0) { 
+            if (h.isMirandoDerecha()) {
+                h.setVelocidadX(2.0); // Patina hacia la derecha (más lento que caminar que es 4)
+            } else {
+                h.setVelocidadX(-2.0); // Patina hacia la izquierda
+            }
+        }
     }
 }

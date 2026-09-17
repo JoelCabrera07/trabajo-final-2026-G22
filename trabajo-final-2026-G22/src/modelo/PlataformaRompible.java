@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public class PlataformaRompible extends Plataforma {
@@ -22,10 +23,10 @@ public class PlataformaRompible extends Plataforma {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        // Frena la caída del héroe
-        h.setVelocidadY(0); 
-        
-        // Al pisarla, llamamos al método para que se marque como destruida
-        this.romper();
+        if (!this.isDestruida()){
+            h.setVelocidadY(0); //Frena la caída del héroe para que no siga de largo
+            h.setEnElSuelo(true); //Le avisa que esta pisando el suelo para que pueda saltar de nuevo
+        }
+        this.romper(); // La plataforma se rompe al primer contacto, sin importar si el héroe está en el suelo o no
     }
 }

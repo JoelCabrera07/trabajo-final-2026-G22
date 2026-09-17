@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public class PlataformaTrampolin extends Plataforma {
@@ -18,7 +19,8 @@ public class PlataformaTrampolin extends Plataforma {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        // En vez de frenarlo, le mandamos una velocidad negativa (hacia arriba) para que rebote
-        h.setVelocidadY(-15.0 * multiplicadorRebote); 
+        // le mandamos una velocidad negativa (hacia arriba) para que rebote, en java para que vaya hacia arriba la velocidad es negativa
+        h.setVelocidadY(-15.0 * this.multiplicadorRebote); // Ajusta el valor según la física del juego
+        h.setEnElSuelo(false); // Le avisamos que ya no está en el suelo para que no pueda saltar de nuevo hasta tocar otra plataforma
     }
 }

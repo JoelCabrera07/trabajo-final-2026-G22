@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public abstract class Plataforma extends Entidad implements Colisionable {

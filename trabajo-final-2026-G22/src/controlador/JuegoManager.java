@@ -1,3 +1,5 @@
+package controlador;
+import modelo.*; //El asterisco importa todas las clases del paquete modelo
 import java.awt.Rectangle;
 
 public class JuegoManager {
@@ -35,7 +37,7 @@ public class JuegoManager {
 
             // PASO A: Actualizar logicas (fisicas, movimiento, trayectoria)
             // actualizarFisicas();
-
+    
             // PASO B: Chequear colisiones (Heroe tocando cofres, enemigos o plataformas)
             verificarColisiones();
 
@@ -50,12 +52,25 @@ public class JuegoManager {
             }
         }
     }
-
+    private void actualizarFisicas() {
+        if (heroe == null || escenarioActual == null) return;
+        // 1. Actualiza la posición del héroe
+        heroe.actualizar();
+        // 2. Busca plataformas móviles y las hace patrullar
+        for (Plataforma p : escenarioActual.getPlataformas()) {
+            if (p instanceof PlataformaMovil) {
+                ((PlataformaMovil) p).mover();
+            }
+        }
+    }
+    
     private void verificarColisiones() {
         // Verificamos si el heroe no es nulo y si el escenario ya esta cargado para evitar errores
         if (heroe == null || escenarioActual == null) return;
 
         // --- Colisiones con enemigos ---
+        escenarioActual.getPlataformas().removeIf(p -> p instanceof PlataformaRompible && ((PlataformaRompible) p).isDestruida()); // Eliminamos las plataformas rompibles destruidas antes de verificar colisiones
+        Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
             if (heroe.getHitbox().intersects(enemigo.getHitbox())) {
                 System.out.println("¡Colisión detectada con: " + enemigo.getNombre() + "!");
@@ -64,7 +79,7 @@ public class JuegoManager {
         }
 
         // --- Colisiones con plataformas ---
-        Rectangle hitboxHeroe = heroe.getHitbox();
+        hitboxHeroe = heroe.getHitbox();
         double bordeInferiorActual = hitboxHeroe.y + hitboxHeroe.height;
         double bordeInferiorAnterior = yAnteriorHeroe + hitboxHeroe.height;
 

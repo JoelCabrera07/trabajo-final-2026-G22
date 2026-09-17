@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public class PlataformaBarro extends Plataforma {
@@ -19,9 +20,8 @@ public class PlataformaBarro extends Plataforma {
     // Cumplimos con el contrato de la clase padre
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        // Frenamos la caída del héroe
-        h.setVelocidadY(0); 
-        
-        // Falta meter la lógica para ralentizar al jugador
+        h.setVelocidadY(0); //Frena la caída del héroe para que no siga de largo
+        h.setEnElSuelo(true); //Le avisa que esta pisando el suelo para que pueda saltar de nuevo 
+        h.setVelocidadX(h.getVelocidadX()*0.5); //Reduce la velocidad del héroe a la mitad para simular que esta en barro
     }
 }

@@ -1,3 +1,4 @@
+package modelo;
 import java.awt.Color;
 
 public class PlataformaMovil extends Plataforma {
@@ -29,6 +30,7 @@ public class PlataformaMovil extends Plataforma {
                 moviendoDerecha = true;  // Toca el límite izquierdo y da la vuelta
             }
         }
+        this.getHitbox().setLocation((int)this.getX(), (int)this.getY()); // Actualizamos la hitbox para que coincida con la nueva posición, osea movemos la hitbox con esto
     }
 
     @Override
