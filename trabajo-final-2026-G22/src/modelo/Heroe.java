@@ -3,6 +3,10 @@ import java.awt.Color;
 
 public class Heroe extends Entidad {
 
+    // --- Constantes de gravedad ---
+    private static final double GRAVEDAD = 0.5; // Cuanto aumenta la velocidad de caida por frame
+    private static final double VELOCIDAD_CAIDA_MAXIMA = 12; // Tope, para que no caiga cada vez mas rapido sin limite
+
     private double velocidadX; // Cuánto se mueve por frame en horizontal (negativo=izquierda, positivo=derecha, 0=quieto)
     private double velocidadY; // Cuánto se mueve por frame en vertical (negativo=subiendo, positivo=cayendo)
     private boolean enElSuelo; // true si está parado sobre una plataforma/piso, decide si puede saltar y si le aplica gravedad
@@ -13,8 +17,15 @@ public class Heroe extends Entidad {
         super(nombre, x, y, ancho, alto, color, hp, ataque); // Le delega la inicialización a la clase padre
     }
 
-    // Se llama en cada frame del juego: mueve al héroe según su velocidad actual
+    // Se llama en cada frame del juego: aplica gravedad y mueve al héroe según su velocidad actual
     public void actualizar() {
+        // Gravedad: cada frame acumula un poco mas de velocidad hacia abajo,
+        // hasta un maximo, para que la caida se sienta acelerada (no lineal).
+        velocidadY += GRAVEDAD;
+        if (velocidadY > VELOCIDAD_CAIDA_MAXIMA) {
+            velocidadY = VELOCIDAD_CAIDA_MAXIMA;
+        }
+
         setX(getX() + velocidadX); // Suma la velocidad horizontal a la posición X actual
         setY(getY() + velocidadY); // Suma la velocidad vertical a la posición Y actual
     }

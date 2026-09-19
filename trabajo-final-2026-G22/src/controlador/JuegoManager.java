@@ -1,5 +1,6 @@
 package controlador;
 import modelo.*; //El asterisco importa todas las clases del paquete modelo
+import vista.PanelJuego;
 import java.awt.Rectangle;
 
 public class JuegoManager {
@@ -15,6 +16,8 @@ public class JuegoManager {
     // cada frame que se solapen).
     private double yAnteriorHeroe;
 
+    private PanelJuego vista;
+
     private JuegoManager() {
         this.juegoCorriendo = false;
     }
@@ -24,6 +27,21 @@ public class JuegoManager {
             instance = new JuegoManager();
         }
         return instance;
+    }
+
+    // --- Conexion con el modelo y la vista, desde App.java ---
+
+    public void setHeroe(Heroe heroe) {
+        this.heroe = heroe;
+        this.yAnteriorHeroe = heroe.getY();
+    }
+
+    public void setEscenario(Escenario escenario) {
+        this.escenarioActual = escenario;
+    }
+
+    public void setVista(PanelJuego vista) {
+        this.vista = vista;
     }
 
     public void iniciarJuego() {
@@ -36,13 +54,15 @@ public class JuegoManager {
         while (juegoCorriendo) {
 
             // PASO A: Actualizar logicas (fisicas, movimiento, trayectoria)
-            // actualizarFisicas();
+            actualizarFisicas();
     
             // PASO B: Chequear colisiones (Heroe tocando cofres, enemigos o plataformas)
             verificarColisiones();
 
             // PASO C: Mandar a redibujar la pantalla (La Vista)
-            // repintarPantalla();
+            if (vista != null) {
+                vista.repaint();
+            }
 
             // Un pequeño freno para que la compu no explote calculando a la velocidad de la luz
             try {
@@ -69,7 +89,7 @@ public class JuegoManager {
         if (heroe == null || escenarioActual == null) return;
 
         // --- Colisiones con enemigos ---
-        escenarioActual.getPlataformas().removeIf(p -> p instanceof PlataformaRompible && ((PlataformaRompible) p).isDestruida()); // Eliminamos las plataformas rompibles destruidas antes de verificar colisiones
+        escenarioActual.getPlataformas().removeIf(p -> p instanceof PlataformaRompible && ((PlataformaRompible) p).isDestruida()); // Eliminamos las plataformas rompibles (como plataformaHielo) destruidas antes de verificar colisiones
         Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
             if (heroe.getHitbox().intersects(enemigo.getHitbox())) {
