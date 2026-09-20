@@ -1,7 +1,7 @@
 package controlador;
-import modelo.*; //El asterisco importa todas las clases del paquete modelo
+import java.awt.Rectangle; //El asterisco importa todas las clases del paquete modelo
+import modelo.*;
 import vista.PanelJuego;
-import java.awt.Rectangle;
 
 public class JuegoManager {
 
@@ -80,6 +80,15 @@ public class JuegoManager {
         for (Plataforma p : escenarioActual.getPlataformas()) {
             if (p instanceof PlataformaMovil) {
                 ((PlataformaMovil) p).mover();
+            }
+        }
+        //hace patrullar a los enemigos terrestres
+        for (Enemigo e : escenarioActual.getEnemigos()) {
+            if (e instanceof EnemigoTerrestre) {
+                ((EnemigoTerrestre) e).patrullar();
+            }
+            if(e instanceof EnemigoVolador){
+                ((EnemigoVolador) e).flotarVerticalmente();
             }
         }
     }

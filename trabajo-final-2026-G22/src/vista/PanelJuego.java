@@ -5,11 +5,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.JPanel;
+import modelo.Enemigo;
+import modelo.EnemigoAcechador;
 import modelo.Entidad;
 import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Plataforma;
-import modelo.Enemigo;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -44,6 +45,10 @@ public class PanelJuego extends JPanel {
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {
+            //Si el enemigo es un acechador, solo lo dibujamos si está activo (ya apareció)
+            if (enemigo instanceof modelo.EnemigoAcechador && !((EnemigoAcechador) enemigo).isActivo()) {
+                continue;
+            }
             dibujarEntidad(g2, enemigo);
         }
 
