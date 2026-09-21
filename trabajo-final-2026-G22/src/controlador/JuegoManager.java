@@ -90,8 +90,23 @@ public class JuegoManager {
             if(e instanceof EnemigoVolador){
                 ((EnemigoVolador) e).flotarVerticalmente();
             }
+            if (e instanceof EnemigoAcorazado) {
+                ((EnemigoAcorazado) e).patrullar();
+            }
+            // las torretas intentan disparar en cada frame
+            if(e instanceof EnemigoTorreta){
+                Proyectil nuevo = ((EnemigoTorreta) e).disparar(heroe);
+                if(nuevo != null){
+                    escenarioActual.getProyectiles().add(nuevo);
+                }
         }
     }
+
+    //mover todos los proyectiles que ya están en vuelo
+    for (Proyectil proyectil : escenarioActual.getProyectiles()) {
+        proyectil.actualizar();
+    }
+}
     
     private void verificarColisiones() {
         // Verificamos si el heroe no es nulo y si el escenario ya esta cargado para evitar errores
@@ -107,6 +122,21 @@ public class JuegoManager {
             }
         }
 
+        for (Proyectil p: escenarioActual.getProyectiles()) {
+            if (heroe.getHitbox().intersects(p.getHitbox())) {
+                //System.out.println("¡Colisión detectada con un proyectil!");
+                heroe.recibirDanio(p.getAtaque());
+                p.setX(-9999);// Mueve el proyectil fuera de la pantalla para "destruirlo"
+            
+            }
+        }
+            
+        //Sacamos los proyectiles que ya se salieron de la pantalla para no seguir calculando colisiones con ellos
+        escenarioActual.getProyectiles().removeIf(p 
+            -> p.getX() < -100 || p.getX() > 900 || p.getY() < -100 || p.getY() > 700
+        );
+      
+        
         // --- Colisiones con plataformas ---
         hitboxHeroe = heroe.getHitbox();
         double bordeInferiorActual = hitboxHeroe.y + hitboxHeroe.height;

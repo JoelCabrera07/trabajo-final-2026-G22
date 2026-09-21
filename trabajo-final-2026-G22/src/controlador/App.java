@@ -2,6 +2,7 @@ package controlador;
 
 import java.awt.Color;
 import javax.swing.SwingUtilities;
+import modelo.EnemigoAcorazado;
 import modelo.EnemigoTerrestre;
 import modelo.EnemigoVolador;
 import modelo.Escenario;
@@ -19,9 +20,13 @@ public class App {
         // Plataforma grande, casi todo el ancho de la ventana, cerca del piso
         escenario.getPlataformas().add(new PlataformaBarro(50, 520, 700, 30));
         // Enemigo en la esquina izquierda de la plataforma(separado de heroe para que no se toque al arrancar) 
-        escenario.getEnemigos().add(new EnemigoTerrestre(70, 480));
+        escenario.getEnemigos().add(new EnemigoTerrestre(140, 480));
         // Enemigo volador en el centro de la ventana, a mitad de altura
         escenario.getEnemigos().add(new EnemigoVolador(400, 250));
+        // Enemigo acorazado en el centro de la ventana, a mitad de altura
+        escenario.getEnemigos().add(new EnemigoAcorazado(500, 480));
+        // Enemigo torreta en la esquina derecha de la plataforma
+        escenario.getEnemigos().add(new modelo.EnemigoTorreta(600, 100));
 
         // Heroe arranca arriba a la derecha, cae por gravedad hasta el otro extremo
         Heroe heroe = new Heroe("Heroe", 700, 50, 30, 40, Color.BLUE, 100, 10);

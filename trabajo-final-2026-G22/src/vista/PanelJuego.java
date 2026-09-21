@@ -11,6 +11,7 @@ import modelo.Entidad;
 import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Plataforma;
+import modelo.Proyectil;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -50,6 +51,10 @@ public class PanelJuego extends JPanel {
                 continue;
             }
             dibujarEntidad(g2, enemigo);
+        }
+
+        for (Proyectil proyectil : escenario.getProyectiles()) {
+            dibujarEntidad(g2, proyectil);
         }
 
         if (heroe != null) {

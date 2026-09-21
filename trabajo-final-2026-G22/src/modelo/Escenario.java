@@ -8,6 +8,7 @@ public class Escenario {
     private List<Plataforma> plataformas;
     private List<Enemigo> enemigos;
     private List<Entidad> entidadesInteractuables; // Cofres, boosters, etc.
+    private List<Proyectil> proyectiles; // Proyectiles disparados por torretas
 
     public Escenario() {
         // Es re importante inicializar las listas vacías en el constructor
@@ -15,6 +16,7 @@ public class Escenario {
         this.plataformas = new ArrayList<>();
         this.enemigos = new ArrayList<>();
         this.entidadesInteractuables = new ArrayList<>();
+        this.proyectiles = new ArrayList<>();
     }
 
     public void cargarMapa() {
@@ -38,5 +40,9 @@ public class Escenario {
 
     public List<Entidad> getEntidadesInteractuables() {
         return entidadesInteractuables;
+    }
+
+    public List<Proyectil> getProyectiles() {
+        return proyectiles;
     }
 }
