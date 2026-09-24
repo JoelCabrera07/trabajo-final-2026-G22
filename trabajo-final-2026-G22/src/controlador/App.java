@@ -42,7 +42,10 @@ public class App {
 
         SwingUtilities.invokeLater(() -> {
             VentanaJuego ventana = new VentanaJuego(panel);
-            ventana.setVisible(true);
+            ventana.addKeyListener(new ControladorTeclado(heroe)); // Conectamos el teclado
+            ventana.setFocusable(true); // Fundamental para que la ventana capte las teclas
+            ventana.requestFocusInWindow(); // Fundamental para que la ventana capte las teclas
+            ventana.setVisible(true); // Arranca la ventana y el juego
         });
 
         // --- 4. Arrancar el motor del juego en un hilo APARTE ---
@@ -50,7 +53,7 @@ public class App {
         // arriba), el while(true) de buclePrincipal() nunca terminaria y se
         // congelaria la ventana entera, porque bloquearia el hilo que Swing
         // necesita para dibujar y atender el teclado/mouse.
-        Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
-        hiloDelJuego.start();
+        Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego()); // Arranca el bucle principal del juego en un hilo aparte
+        hiloDelJuego.start(); // Arranca el hilo del juego, que ejecuta buclePrincipal() en paralelo con el hilo de eventos de Swing
     }
 }

@@ -6,9 +6,11 @@ public class Heroe extends Entidad {
     // --- Constantes de gravedad ---
     private static final double GRAVEDAD = 0.5; // Cuanto aumenta la velocidad de caida por frame
     private static final double VELOCIDAD_CAIDA_MAXIMA = 12; // Tope, para que no caiga cada vez mas rapido sin limite
-
+    private static final double MAX_CARGA = 15.0; // Cuanto se puede cargar el salto (en px/frame) antes de soltar la tecla y saltar
     private double velocidadX; // Cuánto se mueve por frame en horizontal (negativo=izquierda, positivo=derecha, 0=quieto)
     private double velocidadY; // Cuánto se mueve por frame en vertical (negativo=subiendo, positivo=cayendo)
+    private double cargaSalto = 0; // Cuánto se ha cargado el salto (0 a MAX_CARGA); se acumula mientras el jugador mantiene presionada la tecla de salto
+    private boolean cargandoSalto = false; // true si el jugador está manteniendo presionada la tecla de salto, false si la soltó y se debe ejecutar el salto
     private boolean enElSuelo; // true si está parado sobre una plataforma/piso, decide si puede saltar y si le aplica gravedad
     private boolean mirandoDerecha = true; // Hacia qué lado mira el personaje; sirve para dirección del salto y del sprite
 
@@ -21,11 +23,11 @@ public class Heroe extends Entidad {
     public void actualizar() {
         // Gravedad: cada frame acumula un poco mas de velocidad hacia abajo,
         // hasta un maximo, para que la caida se sienta acelerada (no lineal).
+        this.actualizarCarga(); // Si el jugador mantiene presionada la tecla de salto, acumula carga para un salto mas alto
         velocidadY += GRAVEDAD;
         if (velocidadY > VELOCIDAD_CAIDA_MAXIMA) {
             velocidadY = VELOCIDAD_CAIDA_MAXIMA;
         }
-
         setX(getX() + velocidadX); // Suma la velocidad horizontal a la posición X actual
         setY(getY() + velocidadY); // Suma la velocidad vertical a la posición Y actual
     }
@@ -80,5 +82,26 @@ public class Heroe extends Entidad {
     }
     public boolean isMirandoDerecha() {
         return this.mirandoDerecha; // Devuelve true si el héroe está mirando a la derecha, false si está mirando a la izquierda
+    }
+    public void iniciarCargaSalto() {
+        if (isEnElSuelo()) {
+            this.cargandoSalto = true;
+            this.detenerHorizontal(); // Frena al personaje mientras toma impulso
+        }
+    }
+
+    public void actualizarCarga() {
+        if (cargandoSalto && cargaSalto < MAX_CARGA) {
+            cargaSalto += 0.5; // Incrementa la fuerza por cada frame que mantengas presionado
+        }
+    }
+
+    public void ejecutarSalto() {
+        if (cargandoSalto) {
+            this.setVelocidadY(-cargaSalto - 5.0); // Salto base (-5.0) + la energía acumulada
+            this.setEnElSuelo(false);
+            this.cargandoSalto = false;
+            this.cargaSalto = 0;
+        }
     }
 }
