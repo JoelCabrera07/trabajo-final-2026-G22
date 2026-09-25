@@ -10,4 +10,15 @@ public abstract class Plataforma extends Entidad implements Colisionable {
     // Obligamos a todas las plataformas hijas a tener este metodo
     @Override
     public abstract void aplicarEfectoColision(Heroe h);
+
+    
+    public void actualizar() {
+        // Por ahora no hace nada, pero si alguna plataforma tiene logica propia, puede redefinirlo
+    }
+
+    public boolean debeEliminarse() {
+        // Por defecto, las plataformas no se eliminan nunca, pero si alguna tiene logica propia puede redefinirlo
+        return false;
+    }
+    
 }

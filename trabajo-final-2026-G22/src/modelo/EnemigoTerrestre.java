@@ -43,4 +43,10 @@ public class EnemigoTerrestre extends Enemigo {
         // Aplicamos polimorfismo: le saca vida al héroe según el ataque de este bicho
         h.recibirDanio(this.getAtaque());
     }
+
+    @Override
+    public void actualizar(Heroe heroe, Escenario escenario) {
+        patrullar(); // Por ahora solo patrulla, no hace nada con el héroe ni con el escenario
+    }
+
 }

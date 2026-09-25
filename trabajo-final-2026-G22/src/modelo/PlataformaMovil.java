@@ -45,4 +45,9 @@ public class PlataformaMovil extends Plataforma {
             h.setX(h.getX() - velocidadX);
         }
     }
+
+    @Override 
+    public void actualizar() {
+        mover(); // Cada frame, la plataforma se mueve
+    }
 }

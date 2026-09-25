@@ -26,12 +26,16 @@ public class EnemigoTorreta extends Enemigo {
         return new Proyectil(getX(), getY(), dirX, dirY, this.getAtaque());
     }
 
-    public void disparar() {
-        // Lógica para instanciar el proyectil que va en línea recta
-    }
-
     @Override
     public void aplicarEfectoColision(Heroe h) {
         h.recibirDanio(this.getAtaque());
+    }
+
+    @Override
+    public void actualizar(Heroe heroe, Escenario escenario) {
+        Proyectil nuevo = disparar(heroe);
+        if (nuevo != null) {
+            escenario.getProyectiles().add(nuevo);
+        }
     }
 }

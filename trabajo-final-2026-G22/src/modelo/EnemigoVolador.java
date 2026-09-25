@@ -38,4 +38,9 @@ public class EnemigoVolador extends Enemigo {
     public void aplicarEfectoColision(Heroe h) {
         h.recibirDanio(this.getAtaque());
     }
+
+    @Override 
+    public void actualizar(Heroe heroe, Escenario escenario) {
+        flotarVerticalmente(); // Por ahora solo flota, no hace nada con el héroe ni con el escenario
+    }
 }

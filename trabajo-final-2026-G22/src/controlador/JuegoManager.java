@@ -72,59 +72,46 @@ public class JuegoManager {
             }
         }
     }
+
     private void actualizarFisicas() {
         if (heroe == null || escenarioActual == null) return;
         // 1. Actualiza la posición del héroe
         heroe.actualizar();
+
         // 2. Busca plataformas móviles y las hace patrullar
         for (Plataforma p : escenarioActual.getPlataformas()) {
-            if (p instanceof PlataformaMovil) {
-                ((PlataformaMovil) p).mover();
-            }
+            p.actualizar();
         }
-        //hace patrullar a los enemigos terrestres
-        for (Enemigo e : escenarioActual.getEnemigos()) {
-            if (e instanceof EnemigoTerrestre) {
-                ((EnemigoTerrestre) e).patrullar();
-            }
-            if(e instanceof EnemigoVolador){
-                ((EnemigoVolador) e).flotarVerticalmente();
-            }
-            if (e instanceof EnemigoAcorazado) {
-                ((EnemigoAcorazado) e).patrullar();
-            }
-            // las torretas intentan disparar en cada frame
-            if(e instanceof EnemigoTorreta){
-                Proyectil nuevo = ((EnemigoTorreta) e).disparar(heroe);
-                if(nuevo != null){
-                    escenarioActual.getProyectiles().add(nuevo);
-                }
+
+        // 3. Hace patrullar a los enemigos terrestres
+        for (Enemigo e : escenarioActual.getEnemigos()){
+            e.actualizar(heroe, escenarioActual);
+        }
+
+        // 4. Mover todos los proyectiles que ya están en vuelo
+        for (Proyectil proyectil : escenarioActual.getProyectiles()) {
+            proyectil.actualizar();
         }
     }
 
-    //mover todos los proyectiles que ya están en vuelo
-    for (Proyectil proyectil : escenarioActual.getProyectiles()) {
-        proyectil.actualizar();
-    }
-}
     
     private void verificarColisiones() {
         // Verificamos si el heroe no es nulo y si el escenario ya esta cargado para evitar errores
         if (heroe == null || escenarioActual == null) return;
 
         // --- Colisiones con enemigos ---
-        escenarioActual.getPlataformas().removeIf(p -> p instanceof PlataformaRompible && ((PlataformaRompible) p).isDestruida()); // Eliminamos las plataformas rompibles (como plataformaHielo) destruidas antes de verificar colisiones
+        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las plataformas rompibles (como plataformaHielo) destruidas antes de verificar colisiones
         Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
-            if (heroe.getHitbox().intersects(enemigo.getHitbox())) {
+            if (hitboxHeroe.intersects(enemigo.getHitbox())) {
                 System.out.println("¡Colisión detectada con: " + enemigo.getNombre() + "!");
                 enemigo.aplicarEfectoColision(heroe);
             }
         }
 
         for (Proyectil p: escenarioActual.getProyectiles()) {
-            if (heroe.getHitbox().intersects(p.getHitbox())) {
-                //System.out.println("¡Colisión detectada con un proyectil!");
+            if (hitboxHeroe.intersects(p.getHitbox())) {
+                System.out.println("¡Colisión detectada con un proyectil!");
                 heroe.recibirDanio(p.getAtaque());
                 p.setX(-9999);// Mueve el proyectil fuera de la pantalla para "destruirlo"
             
@@ -132,8 +119,7 @@ public class JuegoManager {
         }
             
         //Sacamos los proyectiles que ya se salieron de la pantalla para no seguir calculando colisiones con ellos
-        escenarioActual.getProyectiles().removeIf(p 
-            -> p.getX() < -100 || p.getX() > 900 || p.getY() < -100 || p.getY() > 700
+        escenarioActual.getProyectiles().removeIf(p -> p.getX() < -100 || p.getX() > 900 || p.getY() < -100 || p.getY() > 700
         );
       
         
@@ -145,8 +131,7 @@ public class JuegoManager {
         for (Plataforma plataforma : escenarioActual.getPlataformas()) {
 
             // Una plataforma rompible ya destruida no debe seguir colisionando
-            if (plataforma instanceof PlataformaRompible
-                    && ((PlataformaRompible) plataforma).isDestruida()) {
+            if (plataforma.debeEliminarse()) {
                 continue;
             }
 

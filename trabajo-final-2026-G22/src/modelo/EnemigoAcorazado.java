@@ -50,4 +50,9 @@ public class EnemigoAcorazado extends Enemigo {
             h.setX(h.getX() - FUERZA_EMPUJE);
         }
     }
+
+    @Override
+    public void actualizar(Heroe heroe, Escenario escenario) {
+        patrullar(); // Por ahora solo patrulla, no hace nada con el héroe ni con el escenario
+    }
 }

@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.JPanel;
 import modelo.Enemigo;
-import modelo.EnemigoAcechador;
 import modelo.Entidad;
 import modelo.Escenario;
 import modelo.Heroe;
@@ -46,8 +45,9 @@ public class PanelJuego extends JPanel {
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {
-            //Si el enemigo es un acechador, solo lo dibujamos si está activo (ya apareció)
-            if (enemigo instanceof modelo.EnemigoAcechador && !((EnemigoAcechador) enemigo).isActivo()) {
+            // Cada enemigo decide solo si debe mostrarse (el Acechador solo se
+            // dibuja despues de activarse); no hace falta preguntar de que tipo es.
+            if (!enemigo.debeDibujarse()) {
                 continue;
             }
             dibujarEntidad(g2, enemigo);

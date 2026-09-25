@@ -70,4 +70,14 @@ public class EnemigoAcechador extends Enemigo {
     public void aplicarEfectoColision(Heroe h) {
         h.recibirDanio(this.getAtaque());
     }
+
+    @Override
+    public void actualizar(Heroe heroe, Escenario escenario) {
+        perseguir(heroe);
+    }
+
+    @Override 
+    public boolean debeDibujarse() {
+        return isActivo(); // Solo se dibuja si está activo
+    }
 }

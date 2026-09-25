@@ -29,4 +29,9 @@ public class PlataformaRompible extends Plataforma {
         }
         this.romper(); // La plataforma se rompe al primer contacto, sin importar si el héroe está en el suelo o no
     }
+
+    @Override 
+    public boolean debeEliminarse() {
+        return this.isDestruida(); // Si está destruida, el escenario la va a eliminar de la lista
+    }
 }
