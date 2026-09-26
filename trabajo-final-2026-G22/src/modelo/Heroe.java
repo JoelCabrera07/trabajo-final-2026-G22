@@ -104,4 +104,13 @@ public class Heroe extends Entidad {
             this.cargaSalto = 0;
         }
     }
+    public double getCargaSalto() {
+        return this.cargaSalto; // Devuelve la carga actual del salto, para que la vista pueda dibujar la barra de carga
+    }
+    public double getPorcentajeCargaSalto() {
+        return (cargaSalto / MAX_CARGA); // cuanto cargo el salto en porcentaje (0.0 a 1.0) para que la vista dibuje la barra de carga
+    }
+    public boolean isCargandoSalto() {
+        return this.cargandoSalto; // Devuelve true si el héroe está cargando el salto, false si ya lo ejecutó o no está en el suelo
+    }
 }

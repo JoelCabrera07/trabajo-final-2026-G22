@@ -23,6 +23,8 @@ public class PanelJuego extends JPanel {
     private final Escenario escenario;
     private final Heroe heroe;
 
+    private static final int HP_POR_CORAZON = 10; // Cada corazón representa 10 puntos de vida
+
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
         this.heroe = heroe;
@@ -59,6 +61,12 @@ public class PanelJuego extends JPanel {
 
         if (heroe != null) {
             dibujarEntidad(g2, heroe);
+            dibujarBarraVida(g2, heroe);
+
+            //solo aparece si el heroe esta cargando el salto
+            if (heroe.isCargandoSalto()) { 
+                dibujarBarraCarga(g2, heroe);
+            }
         }
     }
 
@@ -76,5 +84,56 @@ public class PanelJuego extends JPanel {
 
         g.setColor(Color.WHITE);
         g.drawString(entidad.getNombre(), x, y - 4);
+    }
+
+    private void dibujarCorazon(Graphics2D g, int x, int y, int tamano, Color color) {
+        g.setColor(color);
+        g.fillArc(x, y, tamano / 2, tamano / 2, 0, 360);
+        g.fillArc(x + tamano / 2, y, tamano / 2, tamano / 2, 0, 360);
+        int[] xs = { x, x + tamano, x + tamano / 2 };
+        int[] ys = { y + tamano / 4, y + tamano / 4, y + tamano };
+        g.fillPolygon(xs, ys, 3);
+    }
+
+    private void dibujarBarraVida(Graphics2D g, Heroe heroe) {
+        int tamanoCorazon = 20;
+        int espacio = 4;
+        int x = 20;
+        int y = 20;
+
+        int numeroCorazones = (int) Math.ceil((double) heroe.getHpMax() / HP_POR_CORAZON);
+
+        for (int i = 0; i < numeroCorazones; i++) {
+            double hpDeEsteCorazon = heroe.getHp() - (i * HP_POR_CORAZON);
+
+            Color color;
+            if (hpDeEsteCorazon >= HP_POR_CORAZON) {
+                color = Color.RED;
+            } else if (hpDeEsteCorazon > 0) {
+                color = Color.PINK;
+            } else {
+                color = Color.DARK_GRAY;
+            }
+
+            dibujarCorazon(g, x + i * (tamanoCorazon + espacio), y, tamanoCorazon, color);
+        }
+    }
+
+    private void dibujarBarraCarga(Graphics2D g, Heroe heroe) {
+    int anchoBarra = 40;
+    int altoBarra = 6;
+    int x = (int) heroe.getX();
+    int y = (int) heroe.getY() - 15; // un poco arriba de la cabeza del héroe
+
+    double porcentaje = heroe.getPorcentajeCargaSalto();
+
+    g.setColor(Color.DARK_GRAY);
+    g.fillRect(x, y, anchoBarra, altoBarra);
+
+    g.setColor(Color.YELLOW);
+    g.fillRect(x, y, (int) (anchoBarra * porcentaje), altoBarra);
+
+    g.setColor(Color.WHITE);
+    g.drawRect(x, y, anchoBarra, altoBarra);
     }
 }

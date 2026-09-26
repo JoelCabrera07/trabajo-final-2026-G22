@@ -29,7 +29,7 @@ public class App {
         escenario.getEnemigos().add(new modelo.EnemigoTorreta(600, 100));
 
         // Heroe arranca arriba a la derecha, cae por gravedad hasta el otro extremo
-        Heroe heroe = new Heroe("Heroe", 700, 50, 30, 40, Color.BLUE, 100, 10);
+        Heroe heroe = new Heroe("Heroe", 700, 50, 30, 40, Color.BLUE, 60, 10);
 
         // --- 2. Conectar el modelo con el controlador ---
         JuegoManager manager = JuegoManager.getInstance();
