@@ -8,6 +8,7 @@ import modelo.EnemigoVolador;
 import modelo.Escenario;
 import modelo.Heroe;
 import modelo.PlataformaBarro;
+import vista.MenuPrincipal;
 import vista.PanelJuego;
 import vista.VentanaJuego;
 
@@ -38,22 +39,25 @@ public class App {
 
         // --- 3. Armar la vista y mostrarla (esto va en el hilo de eventos de Swing) ---
         PanelJuego panel = new PanelJuego(escenario, heroe);
+        MenuPrincipal menu = new MenuPrincipal(); // Creamos el menu principal
         manager.setVista(panel);
 
-        SwingUtilities.invokeLater(() -> {
-            VentanaJuego ventana = new VentanaJuego(panel);
-            ventana.addKeyListener(new ControladorTeclado(heroe)); // Conectamos el teclado
-            ventana.setFocusable(true); // Fundamental para que la ventana capte las teclas
-            ventana.requestFocusInWindow(); // Fundamental para que la ventana capte las teclas
-            ventana.setVisible(true); // Arranca la ventana y el juego
-        });
+       SwingUtilities.invokeLater(() -> {
+            VentanaJuego ventana = new VentanaJuego(); // Sin el (panel)
+            ventana.cambiarPanel(menu); // Asegurate de que la variable de arriba se llame MenuPrincipal
+            ventana.setVisible(true);
 
-        // --- 4. Arrancar el motor del juego en un hilo APARTE ---
-        // Si lo llamaramos en este mismo hilo (o adentro del invokeLater de
-        // arriba), el while(true) de buclePrincipal() nunca terminaria y se
-        // congelaria la ventana entera, porque bloquearia el hilo que Swing
-        // necesita para dibujar y atender el teclado/mouse.
-        Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego()); // Arranca el bucle principal del juego en un hilo aparte
-        hiloDelJuego.start(); // Arranca el hilo del juego, que ejecuta buclePrincipal() en paralelo con el hilo de eventos de Swing
-    }
+            // Los botones van ADENTRO de este bloque
+            menu.getBotonSalir().addActionListener(e -> System.exit(0));
+
+            menu.getBotonJugar().addActionListener(e -> {
+                ventana.cambiarPanel(panel); 
+                ventana.addKeyListener(new ControladorTeclado(heroe));
+                
+                // El hilo del juego arranca solo cuando apretás "Jugar"
+                Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
+                hiloDelJuego.start();
+            });
+        });
+}
 }
