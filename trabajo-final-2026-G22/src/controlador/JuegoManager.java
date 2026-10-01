@@ -92,6 +92,26 @@ public class JuegoManager {
         for (Proyectil proyectil : escenarioActual.getProyectiles()) {
             proyectil.actualizar();
         }
+        // Transicion de pantalla: si el heroe llega al borde derecho, cargamos la siguiente pantalla
+        if (heroe.getY() < 0) {
+            if (escenarioActual.getPantallaActual() == 1) {
+                escenarioActual.cargarPantalla(2);
+                heroe.setY(500);
+            }
+
+        }
+        // Trancisicon hacia abajo si cae al vacio
+        if (heroe.getY() > 600) {
+            if (escenarioActual.getPantallaActual() == 2) {
+                escenarioActual.cargarPantalla(1);
+                heroe.setY(500); // Cae desde el techo de la pantalla 1, para que no se quede atrapado en el piso
+            } else {
+                // Si cae al vacío en la pantalla 1, vuelve al piso base
+                heroe.setX(50);
+                heroe.setY(500);
+                heroe.setVelocidadY(0);
+            }
+        }
     }
 
     

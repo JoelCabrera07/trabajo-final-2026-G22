@@ -11,7 +11,7 @@ public class EnemigoTerrestre extends Enemigo {
     private boolean moviendoseDerecha;
 
     public EnemigoTerrestre(double x, double y) {
-        super("Enemigo Terrestre", x, y, 40, 40, Color.RED, 10, 1);
+        super("Enemigo Terrestre", x, y, 30, 30, Color.RED, 10, 1);
         this.velocidadPatrullaje = 2.0;
 
         // Por ahora patrulla 100px para cada lado de donde nace.

@@ -30,6 +30,15 @@ public class Heroe extends Entidad {
         }
         setX(getX() + velocidadX); // Suma la velocidad horizontal a la posición X actual
         setY(getY() + velocidadY); // Suma la velocidad vertical a la posición Y actual
+
+        //pared invisible a la izquierda de la pantalla, para que no se salga del escenario
+        if (getX() < 0) {
+            setX(0);
+        }
+        // pared invisible a la derecha de la pantalla, para que no se salga del escenario
+        if (getX() + getAncho() > 800) {
+            setX(800 - getAncho());
+        }
     }
 
     // Se llama cuando el jugador presiona la tecla de mover a la izquierda

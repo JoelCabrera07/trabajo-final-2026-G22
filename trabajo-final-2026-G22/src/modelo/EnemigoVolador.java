@@ -16,7 +16,7 @@ public class EnemigoVolador extends Enemigo {
 
     public EnemigoVolador(double x, double y) {
         // Un poco más frágil pero molesto
-        super("Enemigo Volador", x, y, 35, 35, Color.CYAN, 5, 1);
+        super("Enemigo Volador", x, y, 25, 25, Color.CYAN, 5, 1);
         this.amplitudVuelo = 50.0; // Píxeles que se mueve de su eje
         //donde nace es el centro de desplazamiento
         this.centroY = y;
