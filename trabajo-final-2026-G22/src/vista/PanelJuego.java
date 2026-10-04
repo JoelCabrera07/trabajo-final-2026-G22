@@ -3,7 +3,10 @@ package vista;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
+import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import modelo.Enemigo;
 import modelo.Entidad;
@@ -22,12 +25,19 @@ public class PanelJuego extends JPanel {
 
     private final Escenario escenario;
     private final Heroe heroe;
+    private Image fondo; // GIF animado de fondo; si queda null se usa el color liso de siempre
 
     private static final int HP_POR_CORAZON = 10; // Cada corazón representa 10 puntos de vida
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
         this.heroe = heroe;
+        URL urlFondo = getClass().getResource("/assets/fondo_antorchas.gif");
+        if (urlFondo != null) {
+            this.fondo = new ImageIcon(urlFondo).getImage();
+        } else {
+            System.out.println("Aviso: no se encontro el fondo '/assets/fondo_antorchas.gif'. Se usa el color liso.");
+        }
         setPreferredSize(new java.awt.Dimension(800, 600));
         setBackground(new Color(30, 30, 40));
     }
@@ -37,6 +47,10 @@ public class PanelJuego extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        if (fondo != null) {
+            g2.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+        }
 
         if (escenario == null) {
             return;
@@ -77,11 +91,11 @@ public class PanelJuego extends JPanel {
         int alto = entidad.getAlto();
 
         if (entidad.getSprite() != null) {
-            // Si tiene sprite cargado: se dibuja la imagen, escalada al
-            // tamaño de su propia hitbox (ancho x alto).
+            // Ya tiene sprite cargado: se dibuja la imagen, escalada al
+            // tamaño del hitbox (ancho x alto).
             g.drawImage(entidad.getSprite(), x, y, ancho, alto, null);
         } else {
-            // Si todavia no tiene sprite: se sigue dibujando el rectangulo de su hitbox, con el color que le asignaron al crear la entidad. Esto es
+            // Todavia no tiene sprite: se sigue dibujando como rectangulo
             // de color, igual que antes.
             g.setColor(entidad.getColor());
             g.fillRect(x, y, ancho, alto);
