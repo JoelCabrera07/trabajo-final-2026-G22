@@ -76,11 +76,18 @@ public class PanelJuego extends JPanel {
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
 
-        g.setColor(entidad.getColor());
-        g.fillRect(x, y, ancho, alto);
-
-        g.setColor(Color.BLACK);
-        g.drawRect(x, y, ancho, alto);
+        if (entidad.getSprite() != null) {
+            // Si tiene sprite cargado: se dibuja la imagen, escalada al
+            // tamaño de su propia hitbox (ancho x alto).
+            g.drawImage(entidad.getSprite(), x, y, ancho, alto, null);
+        } else {
+            // Si todavia no tiene sprite: se sigue dibujando el rectangulo de su hitbox, con el color que le asignaron al crear la entidad. Esto es
+            // de color, igual que antes.
+            g.setColor(entidad.getColor());
+            g.fillRect(x, y, ancho, alto);
+            g.setColor(Color.BLACK);
+            g.drawRect(x, y, ancho, alto);
+        }
 
         g.setColor(Color.WHITE);
         g.drawString(entidad.getNombre(), x, y - 4);

@@ -1,6 +1,7 @@
 package modelo;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 public abstract class Entidad {
     
 private String nombre;
@@ -12,6 +13,7 @@ private String nombre;
     private int hp;//hp actual
     private int hpMax;//limite de hp
     private int ataque;//cantidad de hp que pueden quitar 
+    private BufferedImage sprite;//imagen a dibujar; si no tiene ningun sprite, se sigue dibujando el rectangulo de color
 
 
     public Entidad(String nombre, double x, double y,int ancho, int alto, Color color, int hp, int ataque) {
@@ -81,6 +83,15 @@ private String nombre;
     public int getAtaque() { 
         return ataque; 
     }
+
+    public BufferedImage getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(BufferedImage sprite) {
+        this.sprite = sprite;
+    }
+
     //lo mejor es poner el metodo aca, para que todos lo aprendan automáticamente.
     public Rectangle getHitbox() {
         // Rectangle trabaja con números enteros

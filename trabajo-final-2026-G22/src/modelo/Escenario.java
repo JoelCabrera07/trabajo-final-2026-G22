@@ -37,15 +37,33 @@ public class Escenario {
 
         if (numeroPantalla == 1) {
             // Pantalla 1: plataformas y enemigos de la primera pantalla
+            // (las PlataformaNormal todavia no tienen sprite propio, asi que
+            // se siguen viendo como el rectangulo de color)
             plataformas.add(new PlataformaNormal(0, 550, 800, 50));
             plataformas.add(new PlataformaNormal(100,450,120,20));
             plataformas.add(new PlataformaNormal(300,340,120,20));
             plataformas.add(new PlataformaNormal(550,240,120,20));
-            plataformas.add(new PlataformaBarro(300, 120, 120, 20));
-            enemigos.add(new EnemigoTerrestre(120, 420));
-            enemigos.add(new EnemigoVolador(400, 250));
-            enemigos.add(new EnemigoAcorazado(500, 480));
-            enemigos.add(new EnemigoTorreta(600, 100));
+
+            PlataformaBarro barro = new PlataformaBarro(300, 120, 120, 20);
+            barro.setSprite(Sprites.cargar("/assets/plataforma_barro.png"));
+            plataformas.add(barro);
+
+            EnemigoTerrestre terrestre = new EnemigoTerrestre(120, 420);
+            terrestre.setSprite(Sprites.cargar("/assets/enemigo_terrestre.png"));
+            enemigos.add(terrestre);
+
+            EnemigoVolador volador = new EnemigoVolador(400, 250);
+            volador.setSprite(Sprites.cargar("/assets/enemigo_volador.png"));
+            enemigos.add(volador);
+
+            EnemigoAcorazado acorazado = new EnemigoAcorazado(500, 480);
+            acorazado.setSprite(Sprites.cargar("/assets/enemigo_acorazado.png"));
+            enemigos.add(acorazado);
+
+            EnemigoTorreta torreta = new EnemigoTorreta(600, 100);
+            torreta.setSprite(Sprites.cargar("/assets/enemigo_torreta.png"));
+            enemigos.add(torreta);
+            
         } else if (numeroPantalla == 2) {
             // Pantalla 2: plataformas y enemigos de la segunda pantalla
             this.plataformas.add(new PlataformaNormal(250, 480, 140, 20));
