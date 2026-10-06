@@ -17,7 +17,11 @@ public class JuegoManager {
     private double yAnteriorHeroe;
 
     private PanelJuego vista;
-
+    // Variable para avisarle a App.java que el juego termino
+    private Runnable eventoGameOver;
+    public void setEventoGameOver(Runnable evento){
+        this.eventoGameOver = evento;
+    }
     private JuegoManager() {
         this.juegoCorriendo = false;
     }
@@ -101,16 +105,21 @@ public class JuegoManager {
 
         }
         // Trancisicon hacia abajo si cae al vacio
-        if (heroe.getY() > 600) {
+        if (heroe.getY() > 800) {
             if (escenarioActual.getPantallaActual() == 2) {
                 escenarioActual.cargarPantalla(1);
-                heroe.setY(500); // Cae desde el techo de la pantalla 1, para que no se quede atrapado en el piso
+                heroe.setY(0); // Cae desde el techo de la pantalla 1, para que no se quede atrapado en el piso
+                heroe.setVelocidadY(0); //Reiniciamos la velocidad para que caiga por gravedad
             } else {
                 // Si cae al vacío en la pantalla 1, vuelve al piso base
                 heroe.setX(50);
                 heroe.setY(500);
                 heroe.setVelocidadY(0);
             }
+        }
+        // Si los corazones llegan a 0,detonamos el Game Over
+        if(!heroe.estaVivo()){
+            terminarJuego();
         }
     }
 
@@ -176,4 +185,14 @@ public class JuegoManager {
 
         yAnteriorHeroe = heroe.getY();
     }
-}
+    public void terminarJuego(){
+        //Frenamos el bucle del hilo del juego
+        this.juegoCorriendo = false;
+
+        // Le avisamos a App.java para que cambie la interfaz grafica
+        if (this.eventoGameOver != null){
+            javax.swing.SwingUtilities.invokeLater(this.eventoGameOver);
+        }
+        }
+    }
+

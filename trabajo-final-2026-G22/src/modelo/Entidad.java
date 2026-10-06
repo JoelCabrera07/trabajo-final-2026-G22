@@ -75,6 +75,9 @@ private String nombre;
     public int getHp() { 
         return hp; 
     }
+    public void setHp(int hp){ //Faltaba el Setter, ahora esta implementado
+        this.hp=hp;
+    }
 
     public int getHpMax() { 
         return hpMax;
