@@ -49,11 +49,11 @@ public class Escenario {
             plataformas.add(barro);
 
             EnemigoTerrestre terrestre = new EnemigoTerrestre(120, 420);
-            terrestre.setSprite(Sprites.cargar("/assets/enemigo_terrestre.png"));
+            terrestre.setSprite(Sprites.getEnemigoTerrestre()[0]);
             enemigos.add(terrestre);
 
             EnemigoVolador volador = new EnemigoVolador(400, 250);
-            volador.setSprite(Sprites.cargar("/assets/enemigo_volador.png"));
+            volador.setSprite(Sprites.getEnemigoVolador());
             enemigos.add(volador);
 
             EnemigoAcorazado acorazado = new EnemigoAcorazado(500, 480);
