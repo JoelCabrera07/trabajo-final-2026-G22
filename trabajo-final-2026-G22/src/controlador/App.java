@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Sprites;
+import modelo.FabricaNivel1; // Importamos la fábrica de nivel 1
 import vista.MenuPrincipal;
 import vista.PanelJuego;
 import vista.PantallaGameOver;
@@ -19,7 +20,7 @@ public class App {
         // cargarPantalla(1) ya crea las plataformas y enemigos de la pantalla 1
         // (con sus sprites puestos adentro de Escenario), no hace falta
         // agregarlos de nuevo aca a mano.
-        escenario.cargarPantalla(1);
+        escenario.cargarPantalla(1,new FabricaNivel1()); // Cargamos la pantalla 1 con la fábrica de nivel 1
 
         // Heroe arranca arriba a la derecha, cae por gravedad hasta el otro extremo
         Heroe heroe = new Heroe("Heroe", 50, 500, 30, 40, Color.BLUE, 60, 10);
@@ -77,7 +78,7 @@ public class App {
                 heroe.setY(500);
 
                 //Recargamos el escenario y mostramos el panel del juego
-                escenario.cargarPantalla(1);
+                escenario.cargarPantalla(1, new FabricaNivel1());
                 ventana.cambiarPanel(panel);
 
                 //Arrancamos un hilo nuevopara el motor del juego

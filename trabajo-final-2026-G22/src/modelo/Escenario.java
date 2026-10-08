@@ -28,50 +28,16 @@ public class Escenario {
         // plataformas.add(new PlataformaMovil(100, 500, 80, 20, 50, 250));
         // enemigos.add(new EnemigoTorreta(300, 450));
     }
-    public void cargarPantalla(int numeroPantalla) {
-        this.pantallaActual = numeroPantalla; // Actualiza la pantalla actual
-        this.plataformas.clear(); // Limpia las listas para cargar la nueva pantalla
-        this.enemigos.clear(); // Limpia las listas para cargar la nueva pantalla
-        this.proyectiles.clear(); // Limpia las listas para cargar la nueva pantalla
-        System.out.println("Cargando pantalla " + numeroPantalla + "...");
+   public void cargarPantalla(int numeroPantalla, FabricaNivel fabrica) { //Se aplica la fábrica para crear enemigos y plataformas según el nivel dejandolo mas limpio al codigo y no sobrecargado de código
+        this.pantallaActual = numeroPantalla; 
+        this.plataformas.clear(); 
+        this.enemigos.clear(); 
+        this.proyectiles.clear(); 
+        System.out.println("Cargando pantalla " + numeroPantalla + " con el Patrón Factory...");
 
-        if (numeroPantalla == 1) {
-            // Pantalla 1: plataformas y enemigos de la primera pantalla
-            // (las PlataformaNormal todavia no tienen sprite propio, asi que
-            // se siguen viendo como el rectangulo de color)
-            plataformas.add(new PlataformaNormal(0, 550, 800, 50));
-            plataformas.add(new PlataformaNormal(100,450,120,20));
-            plataformas.add(new PlataformaNormal(300,340,120,20));
-            plataformas.add(new PlataformaNormal(550,240,120,20));
-
-            PlataformaBarro barro = new PlataformaBarro(300, 120, 120, 20);
-            barro.setSprite(Sprites.cargar("/assets/plataforma_barro.png"));
-            plataformas.add(barro);
-
-            EnemigoTerrestre terrestre = new EnemigoTerrestre(120, 420);
-            terrestre.setSprite(Sprites.getEnemigoTerrestre()[0]);
-            enemigos.add(terrestre);
-
-            EnemigoVolador volador = new EnemigoVolador(400, 250);
-            volador.setSprite(Sprites.getEnemigoVolador());
-            enemigos.add(volador);
-
-            EnemigoAcorazado acorazado = new EnemigoAcorazado(500, 480);
-            acorazado.setSprite(Sprites.cargar("/assets/enemigo_acorazado.png"));
-            enemigos.add(acorazado);
-
-            EnemigoTorreta torreta = new EnemigoTorreta(600, 100);
-            torreta.setSprite(Sprites.cargar("/assets/enemigo_torreta.png"));
-            enemigos.add(torreta);
-            
-        } else if (numeroPantalla == 2) {
-            // Pantalla 2: plataformas y enemigos de la segunda pantalla
-            this.plataformas.add(new PlataformaNormal(250, 480, 140, 20));
-            this.plataformas.add(new PlataformaNormal(450, 350, 120, 20));
-            this.plataformas.add(new PlataformaNormal(200, 220, 140, 20));
-            this.plataformas.add(new PlataformaNormal(350, 100, 150, 20));
-            // Agregar aquí las plataformas y enemigos de la segunda pantalla
-        }
+        // La fábrica se encarga de instanciar todo, el Escenario solo lo guarda
+        this.plataformas.addAll(fabrica.crearPlataformas());
+        this.enemigos.addAll(fabrica.crearEnemigos());
     }
     public int getPantallaActual() {
         return pantallaActual;

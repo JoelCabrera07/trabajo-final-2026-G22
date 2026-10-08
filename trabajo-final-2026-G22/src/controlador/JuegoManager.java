@@ -99,7 +99,7 @@ public class JuegoManager {
         // Transicion de pantalla: si el heroe llega al borde derecho, cargamos la siguiente pantalla
         if (heroe.getY() < 0) {
             if (escenarioActual.getPantallaActual() == 1) {
-                escenarioActual.cargarPantalla(2);
+                escenarioActual.cargarPantalla(2, new FabricaNivel2());
                 heroe.setY(500);
             }
 
@@ -107,7 +107,7 @@ public class JuegoManager {
         // Trancisicon hacia abajo si cae al vacio
         if (heroe.getY() > 800) {
             if (escenarioActual.getPantallaActual() == 2) {
-                escenarioActual.cargarPantalla(1);
+                escenarioActual.cargarPantalla(1, new FabricaNivel1());
                 heroe.setY(0); // Cae desde el techo de la pantalla 1, para que no se quede atrapado en el piso
                 heroe.setVelocidadY(0); //Reiniciamos la velocidad para que caiga por gravedad
             } else {
