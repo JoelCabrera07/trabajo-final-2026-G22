@@ -19,6 +19,9 @@ public class JuegoManager {
     private PanelJuego vista;
     // Variable para avisarle a App.java que el juego termino
     private Runnable eventoGameOver;
+    //DAO
+    private modelo.PuntajeDAO puntajesDAO;
+
     public void setEventoGameOver(Runnable evento){
         this.eventoGameOver = evento;
     }
@@ -52,6 +55,9 @@ public class JuegoManager {
         this.juegoCorriendo = true;
         System.out.println("¡Iniciando el motor del juego!");
         buclePrincipal();
+    }
+    public void setPuntajesDAO(modelo.PuntajeDAO dao){
+        this.puntajesDAO = dao;
     }
 
     private void buclePrincipal() {
@@ -189,6 +195,14 @@ public class JuegoManager {
         //Frenamos el bucle del hilo del juego
         this.juegoCorriendo = false;
 
+        // --- GUARDAR PUNTAJE EN SQLITE ---
+        if (this.puntajesDAO != null){
+            //Aca podes reemplazar 1500 por la variable donde llevas los puntos reales
+            modelo.Puntaje nuevoScore = new modelo.Puntaje("Jugador1",1500);
+            this.puntajesDAO.guardar(nuevoScore);
+            System.out.println("Puntaje guardado en SQLite");
+        }
+        
         // Le avisamos a App.java para que cambie la interfaz grafica
         if (this.eventoGameOver != null){
             javax.swing.SwingUtilities.invokeLater(this.eventoGameOver);

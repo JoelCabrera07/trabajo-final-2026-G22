@@ -37,6 +37,16 @@ public class App {
         PantallaGameOver pantallaGameOver = new PantallaGameOver();
         manager.setVista(panel);
 
+        // --- 4. Conectar Base de Datos SQLite ---
+        try{
+            java.sql.Connection conexionDB = persistencia.Conexion.getInstancia().get();
+            modelo.PuntajeDAO puntajesDAO = new persistencia.PuntajeDAOSQLite(conexionDB);
+            manager.setPuntajesDAO(puntajesDAO);
+            System.out.println("Base de datos conectada correctamente.");
+        } catch (Exception e){
+            System.err.println("No se pudo iniciar la base de datos: " + e.getMessage());
+        }
+
        SwingUtilities.invokeLater(new Runnable() {
         public void run(){
             VentanaJuego ventana = new VentanaJuego(); // Sin el (panel)
