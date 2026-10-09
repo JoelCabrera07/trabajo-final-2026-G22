@@ -30,6 +30,7 @@ public class App {
         JuegoManager manager = JuegoManager.getInstance();
         manager.setEscenario(escenario);
         manager.setHeroe(heroe);
+        heroe.agregarObservador(manager); // JuegoManager se entera cuando el heroe muere
 
         // --- 3. Armar la vista y mostrarla (esto va en el hilo de eventos de Swing) ---
         PanelJuego panel = new PanelJuego(escenario, heroe);
@@ -41,7 +42,7 @@ public class App {
         try{
             java.sql.Connection conexionDB = persistencia.Conexion.getInstancia().get();
             modelo.PuntajeDAO puntajesDAO = new persistencia.PuntajeDAOSQLite(conexionDB);
-            manager.setPuntajesDAO(puntajesDAO);
+            heroe.agregarObservador(new GuardadorPuntaje(puntajesDAO)); // guarda el puntaje cuando el heroe muere
             System.out.println("Base de datos conectada correctamente.");
         } catch (Exception e){
             System.err.println("No se pudo iniciar la base de datos: " + e.getMessage());

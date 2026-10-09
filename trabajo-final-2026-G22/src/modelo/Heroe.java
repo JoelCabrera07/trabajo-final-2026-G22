@@ -1,5 +1,7 @@
 package modelo;
-import java.awt.Color; 
+import java.awt.Color;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList; 
 
 public class Heroe extends Entidad {
 
@@ -13,6 +15,7 @@ public class Heroe extends Entidad {
     private boolean cargandoSalto = false; // true si el jugador está manteniendo presionada la tecla de salto, false si la soltó y se debe ejecutar el salto
     private boolean enElSuelo; // true si está parado sobre una plataforma/piso, decide si puede saltar y si le aplica gravedad
     private boolean mirandoDerecha = true; // Hacia qué lado mira el personaje; sirve para dirección del salto y del sprite
+    private final List<Observador> observadores = new CopyOnWriteArrayList<>();//lista de quienes quieren enterarse de lo que le pasa al heroe
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
     public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
@@ -121,5 +124,39 @@ public class Heroe extends Entidad {
     }
     public boolean isCargandoSalto() {
         return this.cargandoSalto; // Devuelve true si el héroe está cargando el salto, false si ya lo ejecutó o no está en el suelo
+    }
+    // ---------- Patron Observer (Heroe es el SUJETO) ----------
+
+    // Suscribirse: devuelve false si el observador es null o ya estaba en la lista
+    public boolean agregarObservador(Observador observador) {
+        if (observador == null || observadores.contains(observador)) {
+            return false;
+        }
+        return observadores.add(observador);
+    }
+
+    // Desuscribirse: devuelve false si el observador no estaba en la lista
+    public boolean quitarObservador(Observador observador) {
+        return observadores.remove(observador);
+    }
+
+    // Avisa a todos los suscriptos que paso algo
+    private void notificarObservadores(EventoJuego evento) {
+        for (Observador o : observadores) {
+            o.actualizar(evento, this);
+        }
+    }
+    // Redefinimos recibirDanio: hace lo mismo que Entidad (restar vida) y ademas avisa.
+    @Override
+    public void recibirDanio(int cantidad) {
+        boolean estabaVivo = estaVivo();
+        if (!estabaVivo) {
+            return; // ya esta muerto: no se avisa nada de nuevo
+        }
+        super.recibirDanio(cantidad);
+        notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
+        if (!estaVivo()) { // paso de vivo a muerto en este golpe -> se avisa una sola vez
+            notificarObservadores(EventoJuego.HEROE_MURIO);
+        }
     }
 }
