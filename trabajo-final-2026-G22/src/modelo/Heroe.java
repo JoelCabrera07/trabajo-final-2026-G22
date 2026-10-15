@@ -15,6 +15,7 @@ public class Heroe extends Entidad {
     private boolean cargandoSalto = false; // true si el jugador está manteniendo presionada la tecla de salto, false si la soltó y se debe ejecutar el salto
     private boolean enElSuelo; // true si está parado sobre una plataforma/piso, decide si puede saltar y si le aplica gravedad
     private boolean mirandoDerecha = true; // Hacia qué lado mira el personaje; sirve para dirección del salto y del sprite
+    private static final double ESCALA_SALTO = Math.sqrt(0.75);// Escala de la altura del salto: sqrt(0.75) = 0.866, para que el salto sea un poco más bajo que la distancia horizontal recorrida
     private final List<Observador> observadores = new CopyOnWriteArrayList<>();//lista de quienes quieren enterarse de lo que le pasa al heroe
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
@@ -110,7 +111,7 @@ public class Heroe extends Entidad {
 
     public void ejecutarSalto() {
         if (cargandoSalto) {
-            this.setVelocidadY(-cargaSalto - 5.0); // Salto base (-5.0) + la energía acumulada
+            this.setVelocidadY(-(cargaSalto + 5.0) * ESCALA_SALTO); // Salto base + carga, escalado
             this.setEnElSuelo(false);
             this.cargandoSalto = false;
             this.cargaSalto = 0;
