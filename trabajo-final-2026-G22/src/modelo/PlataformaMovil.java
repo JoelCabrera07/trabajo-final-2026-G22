@@ -35,8 +35,9 @@ public class PlataformaMovil extends Plataforma {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        // 1. Frenar la caida del heroe (lógica estándar de cualquier plataforma)
+        // 1. Frenar la caida del heroe y marcarlo en el suelo para que pueda saltar
         h.setVelocidadY(0); 
+        h.setEnElSuelo(true);
         
         // 2. Hacer que el héroe se mueva junto con la plataforma
         if (moviendoDerecha) {

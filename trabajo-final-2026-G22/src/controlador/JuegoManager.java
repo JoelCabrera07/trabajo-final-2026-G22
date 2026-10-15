@@ -97,20 +97,39 @@ public class JuegoManager implements Observador {
         for (Proyectil proyectil : escenarioActual.getProyectiles()) {
             proyectil.actualizar();
         }
-        // Transicion de pantalla: si el heroe llega al borde derecho, cargamos la siguiente pantalla
+        // Transicion de pantalla hacia arriba: si el heroe supera el techo
         if (heroe.getY() < 0) {
-            if (escenarioActual.getPantallaActual() == 1) {
+            int pantalla = escenarioActual.getPantallaActual();
+            if (pantalla == 1) {
                 escenarioActual.cargarPantalla(2, new FabricaNivel2());
-                heroe.setY(500);
+                heroe.setY(520);
+            } else if (pantalla == 2) {
+                escenarioActual.cargarPantalla(3, new FabricaNivel3());
+                heroe.setY(520);
+            } else if (pantalla == 3) {
+                escenarioActual.cargarPantalla(4, new FabricaNivel4());
+                heroe.setY(520);
+            } else if (pantalla == 4) {
+                // Llegó a la cima más alta (Nivel 4)
+                heroe.setY(0);
+                heroe.setVelocidadY(0);
             }
-
         }
-        // Trancisicon hacia abajo si cae al vacio
-        if (heroe.getY() > 800) {
-            if (escenarioActual.getPantallaActual() == 2) {
+        // Transicion hacia abajo si cae al vacio
+        if (heroe.getY() > 650) {
+            int pantalla = escenarioActual.getPantallaActual();
+            if (pantalla == 4) {
+                escenarioActual.cargarPantalla(3, new FabricaNivel3());
+                heroe.setY(0);
+                heroe.setVelocidadY(0);
+            } else if (pantalla == 3) {
+                escenarioActual.cargarPantalla(2, new FabricaNivel2());
+                heroe.setY(0);
+                heroe.setVelocidadY(0);
+            } else if (pantalla == 2) {
                 escenarioActual.cargarPantalla(1, new FabricaNivel1());
-                heroe.setY(0); // Cae desde el techo de la pantalla 1, para que no se quede atrapado en el piso
-                heroe.setVelocidadY(0); //Reiniciamos la velocidad para que caiga por gravedad
+                heroe.setY(0); // Cae desde el techo de la pantalla 1
+                heroe.setVelocidadY(0);
             } else {
                 // Si cae al vacío en la pantalla 1, vuelve al piso base
                 heroe.setX(50);
@@ -151,8 +170,10 @@ public class JuegoManager implements Observador {
         
         // --- Colisiones con plataformas ---
         hitboxHeroe = heroe.getHitbox();
-        double bordeInferiorActual = hitboxHeroe.y + hitboxHeroe.height;
         double bordeInferiorAnterior = yAnteriorHeroe + hitboxHeroe.height;
+        double bordeSuperiorAnterior = yAnteriorHeroe;
+
+        boolean apoyadoEnAlgunaPlataforma = false;
 
         for (Plataforma plataforma : escenarioActual.getPlataformas()) {
 
@@ -162,22 +183,47 @@ public class JuegoManager implements Observador {
             }
 
             Rectangle hitboxPlataforma = plataforma.getHitbox();
+            double bordeSuperiorPlataforma = hitboxPlataforma.y;
+            double bordeInferiorPlataforma = hitboxPlataforma.y + hitboxPlataforma.height;
 
             boolean solapaHorizontal = hitboxHeroe.x + hitboxHeroe.width > hitboxPlataforma.x
                     && hitboxHeroe.x < hitboxPlataforma.x + hitboxPlataforma.width;
 
-            // "Recien aterrizo": venia cayendo, y su borde inferior acaba de
-            // cruzar el borde superior de la plataforma en este frame.
-            boolean cayendoSobreArriba = heroe.getVelocidadY() >= 0
-                    && bordeInferiorAnterior <= hitboxPlataforma.y
-                    && bordeInferiorActual >= hitboxPlataforma.y;
-
-            if (solapaHorizontal && cayendoSobreArriba) {
-                // Lo apoyamos justo arriba de la plataforma, para que no se
-                // hunda un par de pixeles dentro de ella.
-                heroe.setY(hitboxPlataforma.y - hitboxHeroe.height);
-                plataforma.aplicarEfectoColision(heroe);
+            if (!solapaHorizontal) {
+                continue;
             }
+
+            boolean solapaVertical = hitboxHeroe.y < bordeInferiorPlataforma
+                    && (hitboxHeroe.y + hitboxHeroe.height) > bordeSuperiorPlataforma;
+
+            // 1. ATERRIZAJE DESDE ARRIBA:
+            // El héroe cae o está en reposo, venía de arriba y su borde inferior toca o cruza la plataforma
+            if (heroe.getVelocidadY() >= 0 && bordeInferiorAnterior <= bordeSuperiorPlataforma + 6 && solapaVertical) {
+                heroe.setY(bordeSuperiorPlataforma - hitboxHeroe.height);
+                plataforma.aplicarEfectoColision(heroe);
+                apoyadoEnAlgunaPlataforma = true;
+                hitboxHeroe = heroe.getHitbox();
+                continue;
+            }
+
+            // 2. CHOQUE DESDE ABAJO (GOLPE DE CABEZA / NO ATRAVESAR):
+            // El héroe va subiendo, venía de abajo y su cabeza impacta contra la base de la plataforma
+            if (heroe.getVelocidadY() < 0 && bordeSuperiorAnterior >= bordeInferiorPlataforma - 6 && solapaVertical) {
+                heroe.setY(bordeInferiorPlataforma);
+                heroe.setVelocidadY(0);
+                heroe.setEnElSuelo(false);
+
+                // Si es una plataforma rompible, se rompe al impactarla desde abajo
+                if (plataforma instanceof PlataformaRompible) {
+                    ((PlataformaRompible) plataforma).romper();
+                }
+                hitboxHeroe = heroe.getHitbox();
+            }
+        }
+
+        // Si el héroe no está apoyado en ninguna plataforma y está cayendo, no está en el suelo
+        if (!apoyadoEnAlgunaPlataforma && heroe.getVelocidadY() > 1.0) {
+            heroe.setEnElSuelo(false);
         }
 
         yAnteriorHeroe = heroe.getY();
