@@ -55,13 +55,18 @@ Inicialmente, la clase "Escenario" era la responsable directa de instanciar cada
 <img width="1008" height="266" alt="image" src="https://github.com/user-attachments/assets/e6d14b89-6676-4ee6-bca2-8866f4b4b7c4" />
 Si sumamos más enemigos y plataformas, este bloque crece sin control...
 
-Problemas de este enfoque:
--Violación del Principio Abierto/Cerrado(OCP):Cada vez que se desea incorporar una nueva pantalla (Nivel 3, Nivel 4, etc.), es obligatorio abrir y modificar la clase Escenario, alterando código existente y arriesgando la estabilidad de los niveles previos.
--Violación del Principio de Responsabilidad Única(SRP): La clase Escenario asumía dos responsabilidades no relacionadas: gestionar las entidades activas durante la ejecución del juego y, al mismo tiempo, actuar como ensamblador artesanal de cada nivel.
--Alto acoplamiento: Escenario dependía directamente de todas y cada una de las clases concretas de plataformas (PlataformaNormal, PlataformaBarro, etc.) y de enemigos (EnemigoTerrestre, EnemigoVolador, EnemigoAcorazado, EnemigoTorreta).
--Con 10 o 20 niveles y decenas de elementos por nivel, la clase Escenario se convertía en un archivo inmanejable de cientos de líneas dedicadas puramente a la instanciación de objetos.
+**Problemas de este enfoque:**
 
-2. Patrón aplicado: Abstract Factory (Fábrica Abstracta)
+
+-**Violación del Principio Abierto/Cerrado(OCP)**:Cada vez que se desea incorporar una nueva pantalla (Nivel 3, Nivel 4, etc.), es obligatorio abrir y modificar la clase Escenario, alterando código existente y arriesgando la estabilidad de los niveles previos.
+
+-**Violación del Principio de Responsabilidad Única(SRP)**: La clase Escenario asumía dos responsabilidades no relacionadas: gestionar las entidades activas durante la ejecución del juego y, al mismo tiempo, actuar como ensamblador artesanal de cada nivel.
+
+-**Alto acoplamiento**: Escenario dependía directamente de todas y cada una de las clases concretas de plataformas (PlataformaNormal, PlataformaBarro, etc.) y de enemigos (EnemigoTerrestre, EnemigoVolador, EnemigoAcorazado, EnemigoTorreta).
+
+-**Con 10 o 20 niveles y decenas de elementos por nivel, la clase Escenario se convertía en un archivo inmanejable de cientos de líneas dedicadas puramente a la instanciación de objetos.**
+
+2. **Patrón aplicado: Abstract Factory (Fábrica Abstracta)**
 
 Para resolver este problema se implementó el patrón Abstract Factory. Se delegó la creación de las familias de elementos de cada pantalla (plataformas y enemigos) a fábricas especializadas e intercambiables, desacoplando completamente a Escenario de las clases concretas.
 
@@ -84,9 +89,11 @@ Escenario.java (Cliente actualizado)
 <img width="1004" height="285" alt="image" src="https://github.com/user-attachments/assets/483b9520-d5ee-4492-b9df-a7c64da9f754" />
 
 Con este diseño tenemos beneficios:
--Extensibilidad: Si queremos agregar un Nivel 3, solo creamos la clase FabricaNivel3 implements FabricaNivel. No se toca ni una sola línea de código existente en Escenario.
--Cohesión y legibilidad: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
--Desacoplamiento: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
+-**Extensibilidad**: Si queremos agregar un Nivel 3, solo creamos la clase FabricaNivel3 implements FabricaNivel. No se toca ni una sola línea de código existente en Escenario.
+
+-**Cohesión y legibilidad**: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
+
+-**Desacoplamiento*: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
 
 ### Diagramas de Diseño
 
