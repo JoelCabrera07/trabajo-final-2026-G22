@@ -89,6 +89,7 @@ Escenario.java (Cliente actualizado)
 <img width="1004" height="285" alt="image" src="https://github.com/user-attachments/assets/483b9520-d5ee-4492-b9df-a7c64da9f754" />
 
 Con este diseño tenemos beneficios:
+
 -**Extensibilidad**: Si queremos agregar un Nivel 3, solo creamos la clase FabricaNivel3 implements FabricaNivel. No se toca ni una sola línea de código existente en Escenario.
 
 -**Cohesión y legibilidad**: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
