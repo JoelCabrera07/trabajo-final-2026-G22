@@ -16,6 +16,8 @@ public class Heroe extends Entidad {
     private boolean enElSuelo; // true si está parado sobre una plataforma/piso, decide si puede saltar y si le aplica gravedad
     private boolean mirandoDerecha = true; // Hacia qué lado mira el personaje; sirve para dirección del salto y del sprite
     private static final double ESCALA_SALTO = Math.sqrt(0.75);// Escala de la altura del salto: sqrt(0.75) = 0.866, para que el salto sea un poco más bajo que la distancia horizontal recorrida
+    private static final long DURACION_INVENCIBILIDAD_MS = 1000;// --- Invencibilidad tras recibir un golpe --- 1 segundo
+    private long finInvencibilidad = 0;
     private final List<Observador> observadores = new CopyOnWriteArrayList<>();//lista de quienes quieren enterarse de lo que le pasa al heroe
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
@@ -147,16 +149,22 @@ public class Heroe extends Entidad {
             o.actualizar(evento, this);
         }
     }
+    // Invencibilidad: se llama cuando el héroe recibe daño, para que no reciba daño otra vez durante un tiempo
+    public boolean isInvencible() {
+        return System.currentTimeMillis() < finInvencibilidad;
+    }
+
     // Redefinimos recibirDanio: hace lo mismo que Entidad (restar vida) y ademas avisa.
     @Override
     public void recibirDanio(int cantidad) {
-        boolean estabaVivo = estaVivo();
-        if (!estabaVivo) {
-            return; // ya esta muerto: no se avisa nada de nuevo
+        if (!estaVivo() || isInvencible()) {
+            return; // esta muerto o protegido: no recibe danio ni se avisa nada
         }
         super.recibirDanio(cantidad);
+        System.out.println("Vida del heroe: " + getHp());// Para debug: muestra la vida actual del héroe en la consola
+        finInvencibilidad = System.currentTimeMillis() + DURACION_INVENCIBILIDAD_MS;
         notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
-        if (!estaVivo()) { // paso de vivo a muerto en este golpe -> se avisa una sola vez
+        if (!estaVivo()) {
             notificarObservadores(EventoJuego.HEROE_MURIO);
         }
     }

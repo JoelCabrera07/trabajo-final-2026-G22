@@ -23,7 +23,7 @@ public class App {
         escenario.cargarPantalla(1,new FabricaNivel1()); // Cargamos la pantalla 1 con la fábrica de nivel 1
 
         // Heroe arranca arriba a la derecha, cae por gravedad hasta el otro extremo
-        Heroe heroe = new Heroe("Heroe", 50, 500, 30, 40, Color.BLUE, 60, 10);
+        Heroe heroe = new Heroe("Heroe", 50, 500, 30, 40, Color.BLUE, 30, 10);
         heroe.setSprite(Sprites.cargar("/assets/heroe.png"));
 
         // --- 2. Conectar el modelo con el controlador ---

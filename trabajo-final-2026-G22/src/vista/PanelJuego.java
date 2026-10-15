@@ -74,7 +74,11 @@ public class PanelJuego extends JPanel {
         }
 
         if (heroe != null) {
-            dibujarEntidad(g2, heroe);
+            // Si esta invencible, parpadea: se oculta en intervalos alternados de 100 ms
+            boolean oculto = heroe.isInvencible() && (System.currentTimeMillis() / 100) % 2 == 0;
+            if (!oculto) {
+                dibujarEntidad(g2, heroe);
+            }
             dibujarBarraVida(g2, heroe);
 
             //solo aparece si el heroe esta cargando el salto
@@ -126,17 +130,18 @@ public class PanelJuego extends JPanel {
 
         for (int i = 0; i < numeroCorazones; i++) {
             double hpDeEsteCorazon = heroe.getHp() - (i * HP_POR_CORAZON);
+            // Que parte del corazon esta llena: 0.0 (vacio) a 1.0 (lleno)
+            double llenado = Math.max(0, Math.min(1, hpDeEsteCorazon / HP_POR_CORAZON));
+            int xCorazon = x + i * (tamanoCorazon + espacio);
 
-            Color color;
-            if (hpDeEsteCorazon >= HP_POR_CORAZON) {
-                color = Color.RED;
-            } else if (hpDeEsteCorazon > 0) {
-                color = Color.PINK;
-            } else {
-                color = Color.DARK_GRAY;
+            // Primero el corazon vacio (gris) y encima el rojo, recortado segun cuanta vida queda
+            dibujarCorazon(g, xCorazon, y, tamanoCorazon, Color.GRAY);
+            if (llenado > 0) {
+                java.awt.Shape clipOriginal = g.getClip();
+                g.clipRect(xCorazon, y, (int) Math.ceil(tamanoCorazon * llenado), tamanoCorazon + 1);
+                dibujarCorazon(g, xCorazon, y, tamanoCorazon, Color.RED);
+                g.setClip(clipOriginal);
             }
-
-            dibujarCorazon(g, x + i * (tamanoCorazon + espacio), y, tamanoCorazon, color);
         }
     }
 
