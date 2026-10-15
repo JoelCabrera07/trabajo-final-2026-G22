@@ -47,6 +47,46 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 
 ## 3. Arquitectura y Diseño
 
+## Entrega: Aplicación de Patrones de Diseño
+### 1. El problema: un enfoque con errores de diseño
+Inicialmente, la clase "Escenario" era la responsable directa de instanciar cada plataforma y cada enemigo de todas las pantallas del juego mediante una estructura condicional basada en el número de pantalla:
+#### Escenario.java (Versión anterior con errores de diseño)
+<img width="1001" height="663" alt="Captura" src="https://github.com/user-attachments/assets/b097698b-c3e4-4c94-ae44-54728d30ba94" />
+<img width="1008" height="266" alt="image" src="https://github.com/user-attachments/assets/e6d14b89-6676-4ee6-bca2-8866f4b4b7c4" />
+Si sumamos más enemigos y plataformas, este bloque crece sin control...
+
+Problemas de este enfoque:
+-Violación del Principio Abierto/Cerrado(OCP):Cada vez que se desea incorporar una nueva pantalla (Nivel 3, Nivel 4, etc.), es obligatorio abrir y modificar la clase Escenario, alterando código existente y arriesgando la estabilidad de los niveles previos.
+-Violación del Principio de Responsabilidad Única(SRP): La clase Escenario asumía dos responsabilidades no relacionadas: gestionar las entidades activas durante la ejecución del juego y, al mismo tiempo, actuar como ensamblador artesanal de cada nivel.
+-Alto acoplamiento: Escenario dependía directamente de todas y cada una de las clases concretas de plataformas (PlataformaNormal, PlataformaBarro, etc.) y de enemigos (EnemigoTerrestre, EnemigoVolador, EnemigoAcorazado, EnemigoTorreta).
+-Con 10 o 20 niveles y decenas de elementos por nivel, la clase Escenario se convertía en un archivo inmanejable de cientos de líneas dedicadas puramente a la instanciación de objetos.
+
+2. Patrón aplicado: Abstract Factory (Fábrica Abstracta)
+
+Para resolver este problema se implementó el patrón Abstract Factory. Se delegó la creación de las familias de elementos de cada pantalla (plataformas y enemigos) a fábricas especializadas e intercambiables, desacoplando completamente a Escenario de las clases concretas.
+
+
+Diagrama de clases
+<img width="669" height="885" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/a2dc8943-fea0-46ad-a191-9bac4064eea8" />
+
+Implementación
+FabricaNivel.java (Interfaz de la Fábrica)
+<img width="999" height="197" alt="image" src="https://github.com/user-attachments/assets/8e343037-d82f-4067-9720-721e39ce9d91" />
+
+FabricaNivel1.java (Fábrica de la Pantalla 1)
+<img width="1009" height="659" alt="image" src="https://github.com/user-attachments/assets/3aa7d81b-24e8-4941-acf0-1bf8af4a8f90" />
+<img width="1005" height="276" alt="image" src="https://github.com/user-attachments/assets/28117a22-4d6a-4bd2-9d8c-ce45cd8c8b5b" />
+
+FabricaNivel2.java (Fábrica de la Pantalla 2)
+<img width="1005" height="658" alt="image" src="https://github.com/user-attachments/assets/d03da90e-f697-4f5c-919d-f76ee1c40fbb" />
+
+Escenario.java (Cliente actualizado)
+<img width="1004" height="285" alt="image" src="https://github.com/user-attachments/assets/483b9520-d5ee-4492-b9df-a7c64da9f754" />
+
+Con este diseño tenemos beneficios:
+-Extensibilidad: Si queremos agregar un Nivel 3, solo creamos la clase FabricaNivel3 implements FabricaNivel. No se toca ni una sola línea de código existente en Escenario.
+-Cohesión y legibilidad: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
+-Desacoplamiento: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
 
 ### Diagramas de Diseño
 
