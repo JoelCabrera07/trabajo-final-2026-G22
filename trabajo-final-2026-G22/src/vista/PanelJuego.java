@@ -1,6 +1,8 @@
 package vista;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -86,6 +88,9 @@ public class PanelJuego extends JPanel {
                 dibujarBarraCarga(g2, heroe);
             }
         }
+
+        // Medidor de progreso: Nivel actual y metros de altura
+        dibujarMetrosHUD(g2);
     }
 
     private void dibujarEntidad(Graphics2D g, Entidad entidad) {
@@ -161,5 +166,32 @@ public class PanelJuego extends JPanel {
 
     g.setColor(Color.WHITE);
     g.drawRect(x, y, anchoBarra, altoBarra);
+    }
+
+    private void dibujarMetrosHUD(Graphics2D g2) {
+        if (escenario == null || heroe == null) return;
+        int pantalla = escenario.getPantallaActual();
+        // 10 píxeles = 1 metro desde la base Y=550 de la pantalla 1
+        double alturaPx = ((pantalla - 1) * 600.0) + (550.0 - heroe.getY());
+        int metros = Math.max(0, (int) (alturaPx / 10.0));
+
+        g2.setFont(new Font("Arial", Font.BOLD, 15));
+        String texto = "Nivel " + pantalla + "  |  " + metros + " m";
+        FontMetrics fm = g2.getFontMetrics();
+        int anchoTexto = fm.stringWidth(texto);
+        int x = getWidth() - anchoTexto - 25;
+        int y = 25;
+
+        // Fondo oscuro semitransparente
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRoundRect(x - 10, y - 16, anchoTexto + 20, 26, 8, 8);
+
+        // Borde dorado
+        g2.setColor(new Color(255, 220, 60, 180));
+        g2.drawRoundRect(x - 10, y - 16, anchoTexto + 20, 26, 8, 8);
+
+        // Texto dorado
+        g2.setColor(new Color(255, 220, 60));
+        g2.drawString(texto, x, y + 3);
     }
 }

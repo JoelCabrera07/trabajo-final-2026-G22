@@ -44,44 +44,71 @@ public class Sprites {
         hojaEnemigos = cargar("/assets/enemigos.png");
     }
 }
-// Metodo para pedirle el corte del EnemigoTerreste
-public static BufferedImage[] getEnemigoTerrestre() {
-    cargarHojaMaestra();
-    if (hojaEnemigos == null) return null;
+    // Limpia líneas de guía del boceto y bordes residuales del recuadro
+    private static BufferedImage limpiarSprite(BufferedImage img) {
+        if (img == null) return null;
+        int w = img.getWidth();
+        int h = img.getHeight();
+        BufferedImage limpio = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
-    //ATENCION: Cambia el 64 por los pixeles reales que mida el cuadradito
-    int  xInicio = 43;
-    int yInicio = 150;
-    int ancho = 168;
-    int alto = 188;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int rgba = img.getRGB(x, y);
+                int a = (rgba >> 24) & 0xff;
+                int r = (rgba >> 16) & 0xff;
+                int g = (rgba >> 8) & 0xff;
+                int b = rgba & 0xff;
 
-    //Creamos la lista para guardar los 4 fotogramas
-    BufferedImage[] frames = new BufferedImage[4];
+                if (a == 0) continue;
 
-    //Distancia entre el primer cuadro y el segundo
-    int separacionX = 167;
+                // 1. Filtra las líneas de guía celestes/grises del boceto original
+                boolean esGuia = (r >= 90 && r <= 150 && g >= 105 && g <= 160 && b >= 115 && b <= 170);
 
-    for (int i = 0; i < 4; i++){
-        //Calculamos la posicion X para este fotograma en particular
-        int xActual = xInicio + (i * separacionX);
-        //Ahora recortamos
-        frames[i] = hojaEnemigos.getSubimage(xActual,yInicio,ancho,alto);
+                // 2. Filtra líneas negras residuales en los bordes extremos del recorte
+                boolean esBordeExtremo = (r < 30 && g < 30 && b < 30) && (x < 2 || x >= w - 2 || y < 2 || y >= h - 2);
+
+                if (!esGuia && !esBordeExtremo) {
+                    limpio.setRGB(x, y, rgba);
+                }
+            }
+        }
+        return limpio;
     }
-    return frames;
-}
-//Metodo para pedirle el recorte del Enemigo Volador
-public static BufferedImage getEnemigoVolador(){
-    cargarHojaMaestra();
-    if (hojaEnemigos == null) return null;
-    int xInicio = 41;
-    int yInicio = 560;
-    int ancho = 246;
-    int alto = 241; //MODIFICABLES
 
-    //Recorta desde x=0, pero bajando en el eje Y (Fila de abajo)
-    // Vasa tener que ajustar este "alto *2" dependiendo en que fila empiece el murcielago
-    return hojaEnemigos.getSubimage(xInicio,yInicio, ancho, alto);
-}
+    // Metodo para pedirle el corte del EnemigoTerreste (4 fotogramas limpios sin líneas)
+    public static BufferedImage[] getEnemigoTerrestre() {
+        cargarHojaMaestra();
+        if (hojaEnemigos == null) return null;
+
+        // Coordenadas exactas del interior de cada recuadro (evita las líneas negras de división)
+        int[][] coords = {
+            { 43, 153, 165, 180 },
+            { 214, 153, 180, 180 },
+            { 399, 153, 182, 180 },
+            { 586, 153, 182, 180 }
+        };
+
+        BufferedImage[] frames = new BufferedImage[4];
+        for (int i = 0; i < 4; i++) {
+            BufferedImage sub = hojaEnemigos.getSubimage(coords[i][0], coords[i][1], coords[i][2], coords[i][3]);
+            frames[i] = limpiarSprite(sub);
+        }
+        return frames;
+    }
+
+    // Metodo para pedirle los fotogramas de vuelo del Enemigo Volador
+    public static BufferedImage[] getEnemigoVolador() {
+        cargarHojaMaestra();
+        if (hojaEnemigos == null) return null;
+
+        // Recortes limpios de los 3 fotogramas de aleteo (fila FLYING ENEMIES)
+        BufferedImage f0 = limpiarSprite(hojaEnemigos.getSubimage(41, 563, 238, 240));  // Alas abajo
+        BufferedImage f1 = limpiarSprite(hojaEnemigos.getSubimage(283, 563, 246, 240)); // Alas medio
+        BufferedImage f2 = limpiarSprite(hojaEnemigos.getSubimage(533, 563, 233, 240)); // Alas arriba
+
+        // Ciclo natural de aleteo continuo: abajo -> medio -> arriba -> medio
+        return new BufferedImage[] { f0, f1, f2, f1 };
+    }
 //Metodo espejo para que la animacion tenga mas sentido
 public static BufferedImage[] voltearAnimacion(BufferedImage[] original){
     if (original == null) return null;

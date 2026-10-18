@@ -28,7 +28,7 @@ public class FabricaNivel1 implements FabricaNivel {
         enemigos.add(terrestre);
 
         EnemigoVolador volador = new EnemigoVolador(400, 250);
-        volador.setSprite(Sprites.getEnemigoVolador());
+        volador.setSprite(Sprites.getEnemigoVolador()[0]);
         enemigos.add(volador);
 
         EnemigoAcorazado acorazado = new EnemigoAcorazado(500, 480);

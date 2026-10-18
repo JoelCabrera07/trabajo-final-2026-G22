@@ -35,7 +35,7 @@ public class FabricaNivel3 implements FabricaNivel {
 
         // Enemigo volador patrullando la zona central
         EnemigoVolador volador = new EnemigoVolador(400, 260);
-        volador.setSprite(Sprites.getEnemigoVolador());
+        volador.setSprite(Sprites.getEnemigoVolador()[0]);
         enemigos.add(volador);
 
         // Enemigo acechador: castiga al jugador si se queda quieto pensando el salto

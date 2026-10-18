@@ -39,64 +39,108 @@ public class App {
         manager.setVista(panel);
 
         // --- 4. Conectar Base de Datos SQLite ---
-        try{
+        GuardadorPuntaje guardadorPuntaje = null;
+        try {
             java.sql.Connection conexionDB = persistencia.Conexion.getInstancia().get();
             modelo.PuntajeDAO puntajesDAO = new persistencia.PuntajeDAOSQLite(conexionDB);
-            heroe.agregarObservador(new GuardadorPuntaje(puntajesDAO)); // guarda el puntaje cuando el heroe muere
+            guardadorPuntaje = new GuardadorPuntaje(puntajesDAO);
+            heroe.agregarObservador(guardadorPuntaje); // escucha cuando el heroe muere
             System.out.println("Base de datos conectada correctamente.");
-        } catch (Exception e){
+        } catch (Exception e) {
             System.err.println("No se pudo iniciar la base de datos: " + e.getMessage());
         }
+        final GuardadorPuntaje finalGuardador = guardadorPuntaje;
 
-       SwingUtilities.invokeLater(new Runnable() {
-        public void run(){
-            VentanaJuego ventana = new VentanaJuego(); // Sin el (panel)
-            ventana.cambiarPanel(menu); // Asegurate de que la variable de arriba se llame MenuPrincipal
-            ventana.setVisible(true);
-
-            // Los botones van ADENTRO de este bloque
-            menu.getBotonSalir().addActionListener(e -> System.exit(0));
-
-            menu.getBotonJugar().addActionListener(e -> {
-                menu.detenerAudio(); //Para detener el sonido cuando le damos al boton Jugar
-                ventana.cambiarPanel(panel); 
-                ventana.addKeyListener(new ControladorTeclado(heroe));
-                
-                // El hilo del juego arranca solo cuando apretás "Jugar"
-                Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
-                hiloDelJuego.start();
-            });
-            // --- CONEXION DEL GAME OVER ---
-            //1-Cuando el heroe se muere JuegoManager avisa y cambiamos de panel
-            manager.setEventoGameOver(() -> {
-                ventana.cambiarPanel(pantallaGameOver);
-            });
-            //2 BOTON "Salir al menu"
-            pantallaGameOver.getBotonMenu().addActionListener(e -> { // Alvolver almenu dejamos posiciado para un nuevojuego
-                heroe.setHp(heroe.getHpMax());
-                heroe.setX(50);
-                heroe.setY(500);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                VentanaJuego ventana = new VentanaJuego();
                 ventana.cambiarPanel(menu);
-            });
+                ventana.setVisible(true);
 
-            //3 BOTON "Reintentar"
-            pantallaGameOver.getBotonReintentar().addActionListener(e -> {
-                //Revivimos al heroe(cambia el 100 de vida por la vida incial del juego)
-                heroe.setHp(heroe.getHpMax());
+                // Escuchador de teclado para el héroe
+                ventana.addKeyListener(new ControladorTeclado(heroe));
 
-                //Lo devolvemos a la posicioninicial
-                heroe.setX(50);
-                heroe.setY(500);
+                // Los botones van ADENTRO de este bloque
+                menu.getBotonSalir().addActionListener(e -> System.exit(0));
 
-                //Recargamos el escenario y mostramos el panel del juego
-                escenario.cargarPantalla(1, new FabricaNivel1());
-                ventana.cambiarPanel(panel);
+                menu.getBotonJugar().addActionListener(e -> {
+                    menu.detenerAudio(); // Para detener el sonido cuando le damos al boton Jugar
+                    manager.reiniciarMetros();
+                    ventana.cambiarPanel(panel); 
+                    
+                    // El hilo del juego arranca solo cuando apretás "Jugar"
+                    Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
+                    hiloDelJuego.start();
+                });
 
-                //Arrancamos un hilo nuevopara el motor del juego
-                Thread nuevoHilo = new Thread(() -> manager.iniciarJuego());
-                nuevoHilo.start();
-            });
-        };
-});
-}
+                // --- CONEXION DEL GAME OVER ---
+                // 1- Cuando el heroe se muere JuegoManager avisa y cambiamos de panel mostrando metros
+                manager.setEventoGameOver(() -> {
+                    int metros = manager.getMetrosMaximos();
+                    pantallaGameOver.mostrarPuntaje(metros);
+                    ventana.cambiarPanel(pantallaGameOver);
+                });
+
+                // Botón "Guardar" puntaje en base de datos SQLite (en hilo secundario para concurrencia)
+                pantallaGameOver.getBotonGuardar().addActionListener(e -> {
+                    String nombre = pantallaGameOver.getNombreIngresado();
+                    if (nombre.isEmpty()) {
+                        pantallaGameOver.mostrarError("Por favor ingrese un nombre.");
+                        return;
+                    }
+                    if (finalGuardador == null) {
+                        pantallaGameOver.mostrarError("Error: Base de datos no conectada.");
+                        return;
+                    }
+                    int metros = manager.getMetrosMaximos();
+                    // Concurrencia: guardamos en un hilo secundario para no bloquear Swing (EDT)
+                    new Thread(() -> {
+                        boolean ok = finalGuardador.guardarPuntaje(nombre, metros);
+                        SwingUtilities.invokeLater(() -> {
+                            if (ok) {
+                                pantallaGameOver.mostrarConfirmacion("¡Puntaje guardado exitosamente!");
+                            } else {
+                                pantallaGameOver.mostrarError("Error al guardar en la base de datos.");
+                            }
+                        });
+                    }).start();
+                });
+
+                // Permitir presionar Enter en el campo de texto para guardar directo
+                pantallaGameOver.getCampoNombre().addActionListener(e -> {
+                    if (pantallaGameOver.getBotonGuardar().isEnabled()) {
+                        pantallaGameOver.getBotonGuardar().doClick();
+                    }
+                });
+
+                // 2 BOTON "Salir al menu"
+                pantallaGameOver.getBotonMenu().addActionListener(e -> {
+                    manager.reiniciarMetros();
+                    heroe.setHp(heroe.getHpMax());
+                    heroe.setX(50);
+                    heroe.setY(500);
+                    ventana.cambiarPanel(menu);
+                });
+
+                // 3 BOTON "Reintentar"
+                pantallaGameOver.getBotonReintentar().addActionListener(e -> {
+                    manager.reiniciarMetros();
+                    // Revivimos al heroe
+                    heroe.setHp(heroe.getHpMax());
+
+                    // Lo devolvemos a la posicion inicial
+                    heroe.setX(50);
+                    heroe.setY(500);
+
+                    // Recargamos el escenario y mostramos el panel del juego
+                    escenario.cargarPantalla(1, new FabricaNivel1());
+                    ventana.cambiarPanel(panel);
+
+                    // Arrancamos un hilo nuevo para el motor del juego
+                    Thread nuevoHilo = new Thread(() -> manager.iniciarJuego());
+                    nuevoHilo.start();
+                });
+            }
+        });
+    }
 }

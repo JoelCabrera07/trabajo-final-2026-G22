@@ -20,6 +20,9 @@ public class JuegoManager implements Observador {
     // Variable para avisarle a App.java que el juego termino
     private Runnable eventoGameOver;
 
+    // Sistema de puntaje por metros recorridos hacia arriba
+    private int metrosMaximosAlcanzados = 0;
+
     public void setEventoGameOver(Runnable evento){
         this.eventoGameOver = evento;
     }
@@ -82,6 +85,12 @@ public class JuegoManager implements Observador {
         if (heroe == null || escenarioActual == null) return;
         // 1. Actualiza la posición del héroe
         heroe.actualizar();
+
+        // Actualizamos el récord de metros recorridos hacia arriba
+        int metrosAhora = getMetrosActuales();
+        if (metrosAhora > metrosMaximosAlcanzados) {
+            metrosMaximosAlcanzados = metrosAhora;
+        }
 
         // 2. Busca plataformas móviles y las hace patrullar
         for (Plataforma p : escenarioActual.getPlataformas()) {
@@ -239,6 +248,12 @@ public class JuegoManager implements Observador {
     }
 
     public void terminarJuego(){
+        // Guardamos el pico de metros alcanzados antes de frenar
+        int metrosFinales = getMetrosActuales();
+        if (metrosFinales > metrosMaximosAlcanzados) {
+            metrosMaximosAlcanzados = metrosFinales;
+        }
+
         //Frenamos el bucle del hilo del juego
         this.juegoCorriendo = false;
 
@@ -246,6 +261,22 @@ public class JuegoManager implements Observador {
         if (this.eventoGameOver != null){
             javax.swing.SwingUtilities.invokeLater(this.eventoGameOver);
         }
+    }
+
+    public int getMetrosActuales() {
+        if (heroe == null || escenarioActual == null) return 0;
+        int pantalla = escenarioActual.getPantallaActual();
+        // Altura vertical en píxeles desde el suelo base de la pantalla 1 (Y=550)
+        double alturaPx = ((pantalla - 1) * 600.0) + (550.0 - heroe.getY());
+        return Math.max(0, (int) (alturaPx / 10.0)); // 10 píxeles = 1 metro
+    }
+
+    public int getMetrosMaximos() {
+        return metrosMaximosAlcanzados;
+    }
+
+    public void reiniciarMetros() {
+        this.metrosMaximosAlcanzados = 0;
     }
 }
 

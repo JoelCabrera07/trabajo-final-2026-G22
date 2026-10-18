@@ -1,5 +1,6 @@
 package controlador;
 
+import java.util.List;
 import modelo.EventoJuego;
 import modelo.Heroe;
 import modelo.Observador;
@@ -7,18 +8,13 @@ import modelo.Puntaje;
 import modelo.PuntajeDAO;
 
 /**
- * Observador que guarda el puntaje en la base de datos cuando el heroe muere.
- * Antes esto estaba metido adentro de JuegoManager.terminarJuego(); ahora
- * JuegoManager no necesita conocer al DAO: solo este observador lo conoce.
+ * Observador que escucha los eventos del Heroe y gestiona la persistencia
+ * de puntajes con el DAO.
  */
 public class GuardadorPuntaje implements Observador {
 
     private final PuntajeDAO dao;
-
-    // Todavia no hay un sistema de puntos real, se mantienen los valores de prueba
-    // que ya usaba JuegoManager. Cuando exista, se reemplazan aca.
-    private static final String JUGADOR_PRUEBA = "Jugador1";
-    private static final int PUNTOS_PRUEBA = 1500;
+    private int ultimosMetros = 0;
 
     public GuardadorPuntaje(PuntajeDAO dao) {
         this.dao = dao;
@@ -27,8 +23,39 @@ public class GuardadorPuntaje implements Observador {
     @Override
     public void actualizar(EventoJuego evento, Heroe heroe) {
         if (evento == EventoJuego.HEROE_MURIO) {
-            dao.guardar(new Puntaje(JUGADOR_PRUEBA, PUNTOS_PRUEBA));
-            System.out.println("Puntaje guardado en SQLite");
+            this.ultimosMetros = JuegoManager.getInstance().getMetrosMaximos();
+            System.out.println("GuardadorPuntaje: El heroe murio alcanzando " + ultimosMetros + " metros.");
         }
+    }
+
+    /**
+     * Guarda el puntaje final en la base de datos aplicando la regla de negocio
+     * del nombre (máximo 10 caracteres).
+     *
+     * @param jugador Nombre ingresado por el jugador (máx 10 letras).
+     * @param metros Metros recorridos hacia arriba.
+     * @return true si se guardó con éxito en SQLite.
+     */
+    public boolean guardarPuntaje(String jugador, int metros) {
+        if (jugador == null || jugador.trim().isEmpty()) {
+            jugador = "Anonimo";
+        }
+        jugador = jugador.trim();
+        if (jugador.length() > 10) {
+            jugador = jugador.substring(0, 10);
+        }
+        boolean guardado = dao.guardar(new Puntaje(jugador, metros));
+        if (guardado) {
+            System.out.println("Puntaje guardado en SQLite: " + jugador + " - " + metros + "m");
+        }
+        return guardado;
+    }
+
+    public List<Puntaje> obtenerMejoresPuntajes(int cantidad) {
+        return dao.mejores(cantidad);
+    }
+
+    public int getUltimosMetros() {
+        return ultimosMetros;
     }
 }
