@@ -228,6 +228,7 @@ classDiagram
     JuegoManager --> "1" Escenario : gestiona
     JuegoManager --> "1" Heroe : controla
     JuegoManager ..|> Observador : implementa
+    JuegoManager ..> GuardadorPuntaje : invoca al terminar partida
     Escenario --> "*" Plataforma : contiene
     Escenario --> "*" Enemigo : contiene
     Escenario ..> FabricaNivel : usa para armar nivel
