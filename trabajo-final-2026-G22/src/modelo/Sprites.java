@@ -250,22 +250,49 @@ public class Sprites {
      * Fila 3 = Rompible
      * Fila 4 = Trampolín
      */
+        // La hoja ya sin el fondo rojo. Se calcula UNA sola vez y se reutiliza
+    // (antes se recorrian los 4 millones de pixeles cada vez que se creaba una plataforma).
+    private static BufferedImage hojaPlataformasLimpia = null;
+
     public static BufferedImage[] getSpritesPlataforma(int filaTipo) {
         cargarHojaPlataformas();
         if (hojaPlataformas == null) return null;
 
-        // 1. Limpiamos todo el croma rojo de la hoja entera
-        BufferedImage hojaLimpia = removerFondoRojo(hojaPlataformas);
+        // 1. Limpiamos el croma rojo de la hoja entera (una sola vez)
+        if (hojaPlataformasLimpia == null) {
+            hojaPlataformasLimpia = removerFondoRojo(hojaPlataformas);
+        }
+        BufferedImage hojaLimpia = hojaPlataformasLimpia;
 
-        // 2. Calculamos medidas dinámicamente (4 columnas, 5 filas)
+        // 2. Calculamos medidas dinamicamente (4 columnas, 5 filas)
         int anchoFrame = hojaLimpia.getWidth() / 4;
         int altoFrame = hojaLimpia.getHeight() / 5;
 
-        // 3. Recortamos la fila correspondiente y la guardamos en un array
+        // 3. Recortamos la fila correspondiente. Cada cuadro se recorta ademas hasta el
+        //    dibujo visible, para que el sprite no traiga margen transparente: asi
+        //    se puede escalar sin deformarlo y apoya justo en el borde de la plataforma.
         BufferedImage[] frames = new BufferedImage[4];
         for (int i = 0; i < 4; i++) {
-            frames[i] = hojaLimpia.getSubimage(i * anchoFrame, filaTipo * altoFrame, anchoFrame, altoFrame);
+            BufferedImage cuadro = hojaLimpia.getSubimage(i * anchoFrame, filaTipo * altoFrame, anchoFrame, altoFrame);
+            frames[i] = recortarTransparente(cuadro);
         }
         return frames;
+    }
+
+    // Devuelve la imagen recortada al rectangulo mas chico que contiene todos los pixeles visibles
+    private static BufferedImage recortarTransparente(BufferedImage img) {
+        int minX = img.getWidth(), minY = img.getHeight(), maxX = -1, maxY = -1;
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                if (((img.getRGB(x, y) >> 24) & 0xff) != 0) { // alfa distinto de 0 = pixel visible
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (maxX < 0) return img; // imagen totalmente transparente: se deja como esta
+        return img.getSubimage(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 }

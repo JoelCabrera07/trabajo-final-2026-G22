@@ -8,6 +8,7 @@ public class PlataformaTrampolin extends Plataforma {
     public PlataformaTrampolin(double x, double y, int ancho, int alto) {
         // Un verde llamativo, 100 de HP y 0 de ataque
         super("Trampolín", x, y, ancho, alto, Color.GREEN, 100, 0);
+        setSprite(Sprites.getSpritesPlataforma(4)[0]); // sprite de trampolín fila 4, columna 0
         
         // Multiplica la fuerza del salto por 1.5
         this.multiplicadorRebote = 1.5;

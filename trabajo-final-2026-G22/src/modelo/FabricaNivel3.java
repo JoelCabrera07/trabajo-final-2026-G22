@@ -20,7 +20,6 @@ public class FabricaNivel3 implements FabricaNivel {
 
         // Plataforma de barro que frena la velocidad
         PlataformaBarro barro = new PlataformaBarro(600, 230, 130, 20);
-        barro.setSprite(Sprites.cargar("/assets/plataforma_barro.png"));
         plataformas.add(barro);
 
         // Plataforma de hielo superior para el salto final hacia el Nivel 4

@@ -13,7 +13,6 @@ public class FabricaNivel1 implements FabricaNivel {
         plataformas.add(new PlataformaNormal(550, 240, 120, 20));
 
         PlataformaBarro barro = new PlataformaBarro(300, 120, 120, 20);
-        barro.setSprite(Sprites.cargar("/assets/plataforma_barro.png"));
         plataformas.add(barro);
         
         return plataformas;

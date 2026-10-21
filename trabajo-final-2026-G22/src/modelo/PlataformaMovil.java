@@ -10,7 +10,8 @@ public class PlataformaMovil extends Plataforma {
 
     public PlataformaMovil(double x, double y, int ancho, int alto, double limiteIzq, double limiteDer) {
         // Pasamos nombre, X, Y, ancho, alto, color, HP y Ataque (0) a la superclase
-        super("Plataforma Móvil", x, y, ancho, alto, Color.LIGHT_GRAY, 100, 0); 
+        super("Plataforma Móvil", x, y, ancho, alto, Color.LIGHT_GRAY, 100, 0);
+        setSprite(Sprites.getSpritesPlataforma(0)[0]); // sprite de plataforma movil fila 0, columna 0 usa la de plataforma normal 
         this.velocidadX = 3.0; // Velocidad estándar de desplazamiento
         this.limiteIzquierdo = limiteIzq;
         this.limiteDerecho = limiteDer;

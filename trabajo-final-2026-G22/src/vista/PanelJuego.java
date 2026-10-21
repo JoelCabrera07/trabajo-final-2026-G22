@@ -93,7 +93,7 @@ public class PanelJuego extends JPanel {
         dibujarMetrosHUD(g2);
     }
 
-private void dibujarEntidad(Graphics2D g, Entidad entidad) {
+    private void dibujarEntidad(Graphics2D g, Entidad entidad) {
         int x = (int) entidad.getX();
         int y = (int) entidad.getY();
         int ancho = entidad.getAncho();
@@ -101,34 +101,11 @@ private void dibujarEntidad(Graphics2D g, Entidad entidad) {
 
         if (entidad.getSprite() != null) {
             java.awt.image.BufferedImage img = entidad.getSprite();
-            int altoVisual = 50; 
 
-            // --- TRUCO DE OFFSET VISUAL ---
-            // Subimos el dibujo de las plataformas unos píxeles para anular 
-            // el margen transparente del PNG y que los pies toquen la piedra.
-            int yVisual = y;
             if (entidad instanceof Plataforma) {
-                yVisual = y - 20; // Probá con 12, 15 o 18 hasta que apoye perfecto
-            }
-
-            if (ancho > 250) { 
-                int inicioCentro = img.getWidth() / 4;
-                int anchoCentro = img.getWidth() / 2;
-
-                int xActual = x;
-                while (xActual < x + ancho) {
-                    int anchoDibujo = Math.min(anchoCentro, (x + ancho) - xActual);
-                    
-                    // Usamos yVisual en vez de y
-                    g.drawImage(img, 
-                        xActual, yVisual, xActual + anchoDibujo, yVisual + altoVisual, 
-                        inicioCentro, 0, inicioCentro + anchoDibujo, img.getHeight(), null);
-                        
-                    xActual += anchoDibujo;
-                }
+                dibujarSpritePlataforma(g, img, x, y, ancho, alto);
             } else {
-                // Usamos yVisual en vez de y
-                g.drawImage(img, x, yVisual, ancho, altoVisual, null);
+                g.drawImage(img, x, y, ancho, 50, null);
             }
         } else {
             g.setColor(entidad.getColor());
@@ -139,6 +116,34 @@ private void dibujarEntidad(Graphics2D g, Entidad entidad) {
 
         g.setColor(Color.WHITE);
         g.drawString(entidad.getNombre(), x, y - 4);
+    }
+
+    // Dibuja el sprite de una plataforma SIN deformarlo: siempre se escala con la misma
+    // proporcion en ancho y alto. El borde de arriba del dibujo queda justo en la
+    // hitbox, que es donde el heroe apoya los pies.
+    private void dibujarSpritePlataforma(Graphics2D g, java.awt.image.BufferedImage img,int x, int y, int ancho, int alto) {
+        int w = img.getWidth();
+        int h = img.getHeight();
+
+        if (ancho > 250) {
+            // Plataforma larga (el piso): alto = alto de la hitbox y se repite la parte central
+            // del sprite, sin los bordes redondeados, hasta cubrir todo el ancho.
+            double escala = (double) alto / h;
+            int anchoBaldosa = Math.max(1, (int) Math.round((w / 2) * escala)); // ancho de cada repeticion en pantalla
+            int origenX = w / 4;
+            int origenAncho = w / 2;
+
+            for (int xActual = x; xActual < x + ancho; xActual += anchoBaldosa) {
+                int anchoDibujo = Math.min(anchoBaldosa, x + ancho - xActual);
+                int origenFin = origenX + (int) Math.round(origenAncho * (double) anchoDibujo / anchoBaldosa);
+                g.drawImage(img, xActual, y, xActual + anchoDibujo, y + alto,
+                            origenX, 0, origenFin, h, null);
+            }
+        } else {
+            // Plataforma normal: el ancho lo da la hitbox y el alto sale de mantener la proporcion
+            int altoDibujo = (int) Math.round((double) ancho * h / w);
+            g.drawImage(img, x, y, ancho, altoDibujo, null);
+        }
     }
 
     private void dibujarCorazon(Graphics2D g, int x, int y, int tamano, Color color) {
