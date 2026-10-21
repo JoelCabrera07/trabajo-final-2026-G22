@@ -20,6 +20,8 @@ public class JuegoManager implements Observador {
     // Variable para avisarle a App.java que el juego termino
     private Runnable eventoGameOver;
 
+    private Runnable eventoNivelCompletado;// Variable para avisarle a App.java que el nivel se completo
+
     // Sistema de puntaje por metros recorridos hacia arriba
     private int metrosMaximosAlcanzados = 0;
 
@@ -50,6 +52,10 @@ public class JuegoManager implements Observador {
 
     public void setVista(PanelJuego vista) {
         this.vista = vista;
+    }
+
+    public void setEventoNivelCompletado(Runnable evento){
+        this.eventoNivelCompletado = evento;
     }
 
     public void iniciarJuego() {
@@ -171,6 +177,12 @@ public class JuegoManager implements Observador {
             
             }
         }
+
+        // --- Colisiones con la puerta de la meta---
+        Puerta puerta = escenarioActual.getPuerta();
+        if (puerta != null && hitboxHeroe.intersects(puerta.getHitbox())) {
+            puerta.aplicarEfectoColision(heroe);
+        }
             
         //Sacamos los proyectiles que ya se salieron de la pantalla para no seguir calculando colisiones con ellos
         escenarioActual.getProyectiles().removeIf(p -> p.getX() < -100 || p.getX() > 900 || p.getY() < -100 || p.getY() > 700
@@ -244,23 +256,31 @@ public class JuegoManager implements Observador {
     public void actualizar(EventoJuego evento, Heroe heroe) {
         if (evento == EventoJuego.HEROE_MURIO) {
             terminarJuego();
+        } else if (evento == EventoJuego.NIVEL_COMPLETADO) {
+            completarNivel();
         }
     }
 
     public void terminarJuego(){
-        // Guardamos el pico de metros alcanzados antes de frenar
+        frenarJuego();
+        if (this.eventoGameOver != null){
+            javax.swing.SwingUtilities.invokeLater(this.eventoGameOver);
+        }
+    }
+
+    public void completarNivel(){
+        frenarJuego();
+        if (this.eventoNivelCompletado != null){
+            javax.swing.SwingUtilities.invokeLater(this.eventoNivelCompletado);
+        }
+    }
+
+    private void frenarJuego(){
         int metrosFinales = getMetrosActuales();
         if (metrosFinales > metrosMaximosAlcanzados) {
             metrosMaximosAlcanzados = metrosFinales;
         }
-
-        //Frenamos el bucle del hilo del juego
         this.juegoCorriendo = false;
-
-        // Le avisamos a App.java para que cambie la interfaz grafica
-        if (this.eventoGameOver != null){
-            javax.swing.SwingUtilities.invokeLater(this.eventoGameOver);
-        }
     }
 
     public int getMetrosActuales() {

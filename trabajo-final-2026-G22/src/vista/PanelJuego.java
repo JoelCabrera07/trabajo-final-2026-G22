@@ -16,6 +16,7 @@ import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Plataforma;
 import modelo.Proyectil;
+import modelo.Puerta;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -60,6 +61,10 @@ public class PanelJuego extends JPanel {
 
         for (Plataforma plataforma : escenario.getPlataformas()) {
             dibujarEntidad(g2, plataforma);
+        }
+
+        if (escenario.getPuerta() != null) {
+            dibujarEntidad(g2, escenario.getPuerta());//dibujarEntidad en lo que buscamos un sprite para la puerta 
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {

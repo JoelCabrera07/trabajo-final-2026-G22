@@ -5,5 +5,6 @@ package modelo;
  */
 public enum EventoJuego {
     HEROE_RECIBIO_DANIO, // el heroe perdio vida (incluye el golpe final)
-    HEROE_MURIO          // la vida del heroe llego a 0 (se avisa UNA sola vez por muerte)
+    HEROE_MURIO,          // la vida del heroe llego a 0 (se avisa UNA sola vez por muerte)
+    NIVEL_COMPLETADO,      // el heroe llego a la meta y completo el nivel
 }

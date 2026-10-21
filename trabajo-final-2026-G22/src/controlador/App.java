@@ -64,6 +64,10 @@ public class App {
                     menu.detenerAudio(); // Detener música del menú
                     manager.reiniciarMetros();
                     heroe.reiniciarEstado();
+                    heroe.setHp(heroe.getHpMax());
+                    heroe.setX(50);
+                    heroe.setY(500);
+                    escenario.cargarPantalla(1, new FabricaNivel1()); // siempre se arranca desde la pantalla 1
                     ventana.cambiarPanel(panel); 
                     
                     Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
@@ -71,13 +75,19 @@ public class App {
                 });
 
                 // --- CONEXION DEL GAME OVER ---
-                // 1- Cuando el heroe muere, JuegoManager avisa y cambiamos de panel mostrando metros
+                // 1a- Cuando el heroe muere, JuegoManager avisa y cambiamos de panel mostrando metros
                 manager.setEventoGameOver(() -> {
                     int metros = manager.getMetrosMaximos();
                     pantallaGameOver.mostrarPuntaje(metros);
                     ventana.cambiarPanel(pantallaGameOver);
                 });
-
+                // 1b- Cuando el heroe llega a la puerta de la meta, JuegoManager avisa y mostramos la pantalla de victoria
+                manager.setEventoNivelCompletado(() -> {
+                    int metros = manager.getMetrosMaximos();
+                    pantallaGameOver.mostrarVictoria(metros);
+                    ventana.cambiarPanel(pantallaGameOver);
+                });
+                
                 // Botón "Guardar" puntaje en base de datos SQLite (en hilo secundario para concurrencia)
                 pantallaGameOver.getBotonGuardar().addActionListener(e -> {
                     String nombre = pantallaGameOver.getNombreIngresado();

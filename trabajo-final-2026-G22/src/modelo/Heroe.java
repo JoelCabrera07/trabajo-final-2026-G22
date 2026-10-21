@@ -20,6 +20,7 @@ public class Heroe extends Entidad {
     private static final double ESCALA_SALTO = Math.sqrt(0.75);// Escala de la altura del salto: sqrt(0.75) = 0.866, para que el salto sea un poco más bajo que la distancia horizontal recorrida
     private static final long DURACION_INVENCIBILIDAD_MS = 1000;// --- Invencibilidad tras recibir un golpe --- 1 segundo
     private long finInvencibilidad = 0;
+    private boolean nivelCompletado = false; // evita avisar dos veces que el nivel se completó a los observadores
     private final List<Observador> observadores = new CopyOnWriteArrayList<>();//lista de quienes quieren enterarse de lo que le pasa al heroe
 
     // --- Animaciones del Héroe según la hoja de sprites ---
@@ -247,6 +248,7 @@ public class Heroe extends Entidad {
     }
 
     public void reiniciarEstado() {
+        this.nivelCompletado = false;
         this.velocidadX = 0;
         this.velocidadY = 0;
         this.cargaSalto = 0;
@@ -258,6 +260,14 @@ public class Heroe extends Entidad {
         if (this.animacionQuieto != null && this.animacionQuieto.length > 0) {
             this.setSprite(this.animacionQuieto[0]);
         }
+    }
+
+    public void completarNivel() {
+        if (nivelCompletado || !estaVivo()) {
+            return;
+        }
+        nivelCompletado = true;
+        notificarObservadores(EventoJuego.NIVEL_COMPLETADO);
     }
 
     // ---------- Patron Observer (Heroe es el SUJETO) ----------
@@ -289,7 +299,7 @@ public class Heroe extends Entidad {
             return;
         }
         super.recibirDanio(cantidad);
-        System.out.println("Vida del heroe: " + getHp());
+        //System.out.println("Vida del heroe: " + getHp()); debug para ver si baja la vida en la terminal
         finInvencibilidad = System.currentTimeMillis() + DURACION_INVENCIBILIDAD_MS;
         notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
         if (!estaVivo()) {

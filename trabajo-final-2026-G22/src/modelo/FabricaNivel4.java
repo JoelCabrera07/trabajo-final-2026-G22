@@ -44,4 +44,8 @@ public class FabricaNivel4 implements FabricaNivel {
 
         return enemigos;
     }
+    @Override
+    public Puerta crearPuerta() {
+        return new Puerta(140, 30);
+    }
 }

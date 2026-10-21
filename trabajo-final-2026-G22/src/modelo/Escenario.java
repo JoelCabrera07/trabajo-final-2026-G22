@@ -10,6 +10,7 @@ public class Escenario {
     private List<Entidad> entidadesInteractuables; // Cofres, boosters, etc.
     private List<Proyectil> proyectiles; // Proyectiles disparados por torretas
     private int pantallaActual = 1; // Para saber en qué pantalla estamos, y cargar la siguiente cuando el héroe llegue al borde derecho
+    private Puerta puerta; // null si la pantalla no tiene
 
     public Escenario() {
         // Es re importante inicializar las listas vacías en el constructor
@@ -38,6 +39,7 @@ public class Escenario {
         // La fábrica se encarga de instanciar todo, el Escenario solo lo guarda
         this.plataformas.addAll(fabrica.crearPlataformas());
         this.enemigos.addAll(fabrica.crearEnemigos());
+        this.puerta = fabrica.crearPuerta(); // Puede ser null si la pantalla no tiene puerta
     }
     public int getPantallaActual() {
         return pantallaActual;
@@ -58,5 +60,9 @@ public class Escenario {
 
     public List<Proyectil> getProyectiles() {
         return proyectiles;
+    }
+
+    public Puerta getPuerta() {
+        return puerta;
     }
 }

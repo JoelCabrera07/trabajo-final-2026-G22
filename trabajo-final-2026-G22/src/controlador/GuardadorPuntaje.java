@@ -22,7 +22,7 @@ public class GuardadorPuntaje implements Observador {
 
     @Override
     public void actualizar(EventoJuego evento, Heroe heroe) {
-        if (evento == EventoJuego.HEROE_MURIO) {
+        if (evento == EventoJuego.HEROE_MURIO || evento == EventoJuego.NIVEL_COMPLETADO) {
             this.ultimosMetros = JuegoManager.getInstance().getMetrosMaximos();
             System.out.println("GuardadorPuntaje: El heroe murio alcanzando " + ultimosMetros + " metros.");
         }

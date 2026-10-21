@@ -19,6 +19,7 @@ import javax.swing.text.PlainDocument;
 public class PantallaGameOver extends JPanel {
 
     private JLabel lblPuntaje;
+    private JLabel lblTitulo;
     private JTextField campoNombre;
     private JButton botonGuardar;
     private JLabel lblEstado;
@@ -33,14 +34,14 @@ public class PantallaGameOver extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
 
         // 1. TITULO
-        JLabel titulo = new JLabel("GAME OVER");
-        titulo.setFont(new Font("Impact", Font.BOLD, 68));
-        titulo.setForeground(new Color(255, 50, 50)); // Rojo brillante
+        lblTitulo = new JLabel("GAME OVER");
+        lblTitulo.setFont(new Font("Impact", Font.BOLD, 68));
+        lblTitulo.setForeground(new Color(255, 50, 50)); // Rojo brillante
         gbc.insets = new Insets(0, 10, 15, 10);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        add(titulo, gbc);
+        add(lblTitulo, gbc);
 
         // 2. METROS ALCANZADOS
         lblPuntaje = new JLabel("Altura alcanzada: 0 metros");
@@ -102,21 +103,23 @@ public class PantallaGameOver extends JPanel {
         gbc.gridwidth = 2;
         add(lblEstado, gbc);
 
-        // 5. BOTONES DE NAVEGACION
-        gbc.insets = new Insets(10, 15, 10, 15);
-        gbc.gridwidth = 1;
+        // 5. BOTONES DE NAVEGACION (en un panel que los centra, igual que el registro de nombre)
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 5));
+        panelBotones.setOpaque(false);
 
         botonReintentar = new JButton("Reintentar");
         estilarBoton(botonReintentar);
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        add(botonReintentar, gbc);
+        panelBotones.add(botonReintentar);
 
         botonMenu = new JButton("Salir al Menu");
         estilarBoton(botonMenu);
-        gbc.gridx = 1;
+        panelBotones.add(botonMenu);
+
+        gbc.insets = new Insets(10, 15, 10, 15);
+        gbc.gridx = 0;
         gbc.gridy = 4;
-        add(botonMenu, gbc);
+        gbc.gridwidth = 2;
+        add(panelBotones, gbc);
     }
 
     private void estilarBoton(JButton boton) {
@@ -127,7 +130,17 @@ public class PantallaGameOver extends JPanel {
         boton.setBorder(BorderFactory.createLineBorder(new Color(255, 220, 60), 2));
     }
 
+    public void mostrarVictoria(int metros) {
+        mostrarPuntaje(metros);
+        lblTitulo.setText("¡NIVEL COMPLETADO!");
+        lblTitulo.setForeground(new Color(80, 255, 120));
+        this.setBackground(new Color(5, 20, 10));
+    }
+
     public void mostrarPuntaje(int metros) {
+        lblTitulo.setText("GAME OVER");                 // <- 3 lineas nuevas al principio
+        lblTitulo.setForeground(new Color(255, 50, 50));
+        this.setBackground(new Color(20, 5, 5));
         lblPuntaje.setText("Altura alcanzada: " + metros + " metros");
         campoNombre.setText("");
         campoNombre.setEnabled(true);
