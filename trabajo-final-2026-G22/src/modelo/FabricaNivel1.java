@@ -23,7 +23,7 @@ public class FabricaNivel1 implements FabricaNivel {
     public List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
         
-        EnemigoTerrestre terrestre = new EnemigoTerrestre(120, 420);
+        EnemigoTerrestre terrestre = new EnemigoTerrestre(120, 400);
         terrestre.setSprite(Sprites.getEnemigoTerrestre()[0]);
         enemigos.add(terrestre);
 

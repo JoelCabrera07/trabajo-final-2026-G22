@@ -10,7 +10,7 @@ public class FabricaNivel3 implements FabricaNivel {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Plataforma base para recibir al héroe que sube desde el Nivel 2
-        plataformas.add(new PlataformaNormal(250, 540, 260, 20));
+        plataformas.add(new PlataformaNormal(250, 500, 200, 20));
 
         // Plataforma de hielo resbaladiza hacia la izquierda
         plataformas.add(new PlataformaHielo(60, 440, 140, 20));

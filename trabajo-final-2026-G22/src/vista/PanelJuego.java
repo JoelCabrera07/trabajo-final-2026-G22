@@ -93,19 +93,44 @@ public class PanelJuego extends JPanel {
         dibujarMetrosHUD(g2);
     }
 
-    private void dibujarEntidad(Graphics2D g, Entidad entidad) {
+private void dibujarEntidad(Graphics2D g, Entidad entidad) {
         int x = (int) entidad.getX();
         int y = (int) entidad.getY();
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
 
         if (entidad.getSprite() != null) {
-            // Ya tiene sprite cargado: se dibuja la imagen, escalada al
-            // tamaño del hitbox (ancho x alto).
-            g.drawImage(entidad.getSprite(), x, y, ancho, alto, null);
+            java.awt.image.BufferedImage img = entidad.getSprite();
+            int altoVisual = 50; 
+
+            // --- TRUCO DE OFFSET VISUAL ---
+            // Subimos el dibujo de las plataformas unos píxeles para anular 
+            // el margen transparente del PNG y que los pies toquen la piedra.
+            int yVisual = y;
+            if (entidad instanceof Plataforma) {
+                yVisual = y - 20; // Probá con 12, 15 o 18 hasta que apoye perfecto
+            }
+
+            if (ancho > 250) { 
+                int inicioCentro = img.getWidth() / 4;
+                int anchoCentro = img.getWidth() / 2;
+
+                int xActual = x;
+                while (xActual < x + ancho) {
+                    int anchoDibujo = Math.min(anchoCentro, (x + ancho) - xActual);
+                    
+                    // Usamos yVisual en vez de y
+                    g.drawImage(img, 
+                        xActual, yVisual, xActual + anchoDibujo, yVisual + altoVisual, 
+                        inicioCentro, 0, inicioCentro + anchoDibujo, img.getHeight(), null);
+                        
+                    xActual += anchoDibujo;
+                }
+            } else {
+                // Usamos yVisual en vez de y
+                g.drawImage(img, x, yVisual, ancho, altoVisual, null);
+            }
         } else {
-            // Todavia no tiene sprite: se sigue dibujando como rectangulo
-            // de color, igual que antes.
             g.setColor(entidad.getColor());
             g.fillRect(x, y, ancho, alto);
             g.setColor(Color.BLACK);

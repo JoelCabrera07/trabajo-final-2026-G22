@@ -1,7 +1,9 @@
 package modelo;
+
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList; 
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Heroe extends Entidad {
 
@@ -20,117 +22,246 @@ public class Heroe extends Entidad {
     private long finInvencibilidad = 0;
     private final List<Observador> observadores = new CopyOnWriteArrayList<>();//lista de quienes quieren enterarse de lo que le pasa al heroe
 
-    // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
+    // --- Animaciones del Héroe según la hoja de sprites ---
+    // Fila 1: Quieto (0, 1) y Movimiento (2, 3, 4, 5)
+    private BufferedImage[] animacionQuieto;
+    private BufferedImage[] animacionQuietoIzq;
+    private BufferedImage[] animacionCorrer;
+    private BufferedImage[] animacionCorrerIzq;
+
+    // Fila 2: Tomando Impulso (0, 1, 2, 3) y Despegue (4)
+    private BufferedImage[] animacionImpulso;
+    private BufferedImage[] animacionImpulsoIzq;
+
+    // Fila 3: Salto y Caída (0 a 5)
+    private BufferedImage[] animacionSaltoCaida;
+    private BufferedImage[] animacionSaltoCaidaIzq;
+
+    // Contadores internos para cadencia de animación
+    private int tickAnimacion = 0;
+    private int frameCorrer = 0;
+    private int frameQuieto = 0;
+    private int ticksAterrizaje = 0;
+    private int ticksDespegue = 0;
+    private boolean estabaEnElSuelo = true;
+
+    // Constructor: arma el Heroe pasándole todo lo genérico a Entidad e inicializa sus animaciones
     public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
-        super(nombre, x, y, ancho, alto, color, hp, ataque); // Le delega la inicialización a la clase padre
+        super(nombre, x, y, ancho, alto, color, hp, ataque);
+        cargarSprites();
     }
 
-    // Se llama en cada frame del juego: aplica gravedad y mueve al héroe según su velocidad actual
+    private void cargarSprites() {
+        this.animacionQuieto = Sprites.getHeroeQuieto();
+        this.animacionQuietoIzq = Sprites.voltearAnimacion(this.animacionQuieto);
+
+        this.animacionCorrer = Sprites.getHeroeMovimiento();
+        this.animacionCorrerIzq = Sprites.voltearAnimacion(this.animacionCorrer);
+
+        this.animacionImpulso = Sprites.getHeroeImpulso();
+        this.animacionImpulsoIzq = Sprites.voltearAnimacion(this.animacionImpulso);
+
+        this.animacionSaltoCaida = Sprites.getHeroeSaltoCaida();
+        this.animacionSaltoCaidaIzq = Sprites.voltearAnimacion(this.animacionSaltoCaida);
+
+        if (this.animacionQuieto != null && this.animacionQuieto.length > 0) {
+            this.setSprite(this.animacionQuieto[0]);
+        }
+    }
+
+    // Se llama en cada frame del juego: aplica gravedad, mueve y actualiza el sprite actual
     public void actualizar() {
-        // Gravedad: cada frame acumula un poco mas de velocidad hacia abajo,
-        // hasta un maximo, para que la caida se sienta acelerada (no lineal).
-        this.actualizarCarga(); // Si el jugador mantiene presionada la tecla de salto, acumula carga para un salto mas alto
+        this.actualizarCarga();
         velocidadY += GRAVEDAD;
         if (velocidadY > VELOCIDAD_CAIDA_MAXIMA) {
             velocidadY = VELOCIDAD_CAIDA_MAXIMA;
         }
-        setX(getX() + velocidadX); // Suma la velocidad horizontal a la posición X actual
-        setY(getY() + velocidadY); // Suma la velocidad vertical a la posición Y actual
+        setX(getX() + velocidadX);
+        setY(getY() + velocidadY);
 
-        //pared invisible a la izquierda de la pantalla, para que no se salga del escenario
+        // Pared invisible a la izquierda
         if (getX() < 0) {
             setX(0);
         }
-        // pared invisible a la derecha de la pantalla, para que no se salga del escenario
+        // Pared invisible a la derecha
         if (getX() + getAncho() > 800) {
             setX(800 - getAncho());
         }
+
+        this.actualizarAnimacion();
     }
 
-    // Se llama cuando el jugador presiona la tecla de mover a la izquierda
+    // Gestiona los estados y fotogramas correspondientes a cada fila de movimientos
+    public void actualizarAnimacion() {
+        if (animacionQuieto == null) return;
+
+        tickAnimacion++;
+
+        // Detectar el momento en que toca el suelo viniendo del aire
+        if (!estabaEnElSuelo && enElSuelo) {
+            ticksAterrizaje = 5; // Mostrar impacto de aterrizaje brevemente
+        }
+        estabaEnElSuelo = enElSuelo;
+
+        // 1. FILA 2: TOMANDO IMPULSO (Carga progresiva del salto según porcentaje)
+        if (cargandoSalto) {
+            ticksAterrizaje = 0;
+            ticksDespegue = 0;
+            double pct = getPorcentajeCargaSalto();
+            int idxImpulso;
+            if (pct < 0.25) {
+                idxImpulso = 0;
+            } else if (pct < 0.50) {
+                idxImpulso = 1;
+            } else if (pct < 0.75) {
+                idxImpulso = 2;
+            } else {
+                idxImpulso = 3;
+            }
+            setSprite(mirandoDerecha ? animacionImpulso[idxImpulso] : animacionImpulsoIzq[idxImpulso]);
+            return;
+        }
+
+        // 2. FILA 3: SALTO Y CAÍDA (Cuando está en el aire)
+        if (!enElSuelo) {
+            ticksAterrizaje = 0;
+            // Impulso inicial de despegue (Fila 2 Frame 4)
+            if (ticksDespegue > 0) {
+                ticksDespegue--;
+                setSprite(mirandoDerecha ? animacionImpulso[4] : animacionImpulsoIzq[4]);
+                return;
+            }
+
+            int idxAire;
+            if (velocidadY < -3) {
+                idxAire = 1; // Subiendo con puño arriba (Salto ascendente)
+            } else if (velocidadY < 1.5) {
+                idxAire = 2; // Cúspide del salto con brazos abiertos (Ápice)
+            } else if (velocidadY < 5) {
+                idxAire = 3; // En el aire girando / transición
+            } else {
+                idxAire = 4; // Caída rápida con capa al viento
+            }
+            setSprite(mirandoDerecha ? animacionSaltoCaida[idxAire] : animacionSaltoCaidaIzq[idxAire]);
+            return;
+        }
+
+        // 3. FILA 3 FRAME 5: IMPACTO DE ATERRIZAJE AL TOCAR EL PISO
+        if (ticksAterrizaje > 0) {
+            ticksAterrizaje--;
+            setSprite(mirandoDerecha ? animacionSaltoCaida[5] : animacionSaltoCaidaIzq[5]);
+            return;
+        }
+
+        // 4. FILA 1: MOVIMIENTO (Caminar / Correr horizontalmente)
+        if (Math.abs(velocidadX) > 0.1) {
+            if (tickAnimacion % 6 == 0) {
+                frameCorrer = (frameCorrer + 1) % animacionCorrer.length;
+            }
+            setSprite(mirandoDerecha ? animacionCorrer[frameCorrer] : animacionCorrerIzq[frameCorrer]);
+            return;
+        }
+
+        // 5. FILA 1: QUIETO (Parado en reposo)
+        if (tickAnimacion % 25 == 0) {
+            frameQuieto = (frameQuieto + 1) % animacionQuieto.length;
+        }
+        setSprite(mirandoDerecha ? animacionQuieto[frameQuieto] : animacionQuietoIzq[frameQuieto]);
+    }
+
     public void moverIzquierda() {
-        velocidadX = -4; // Fija una velocidad horizontal negativa (4 px por frame hacia la izquierda)
-        mirandoDerecha = false; // Actualiza la orientación del personaje
+        velocidadX = -4;
+        mirandoDerecha = false;
     }
 
-    // Se llama cuando el jugador presiona la tecla de mover a la derecha
     public void moverDerecha() {
-        velocidadX = 4; // Fija una velocidad horizontal positiva (4 px por frame hacia la derecha)
-        mirandoDerecha = true; // Actualiza la orientación del personaje
+        velocidadX = 4;
+        mirandoDerecha = true;
     }
 
-    // Se llama cuando el jugador suelta la tecla de movimiento, para que no siga deslizando solo
     public void detenerHorizontal() {
-        velocidadX = 0; // Frena el movimiento horizontal
+        velocidadX = 0;
     }
 
-    // Consulta si el héroe está tocando el suelo/una plataforma
     public boolean isEnElSuelo() {
         return enElSuelo;
     }
 
-    // Permite que otra clase (ej: JuegoManager al detectar colisión) marque si está o no en el suelo
     public void setEnElSuelo(boolean enElSuelo) {
         this.enElSuelo = enElSuelo;
     }
 
-    // Devuelve la velocidad vertical actual; JuegoManager lo usa para saber si el héroe está cayendo
     public double getVelocidadY() {
         return this.velocidadY;
     }
 
-    // Permite cambiar la velocidad vertical desde afuera; las Plataformas lo usan para
-    // frenar la caída (setVelocidadY(0)) o para dar impulso (ej: trampolín, valor negativo)
     public void setVelocidadY(double velocidadY) {
         this.velocidadY = velocidadY;
     }
 
-    // Devuelve la velocidad horizontal actual
     public double getVelocidadX() {
         return this.velocidadX;
     }
 
-    // Permite cambiar la velocidad horizontal desde afuera (ej: una plataforma con hielo
-    // que hace que el héroe resbale, o una plataforma móvil que lo arrastra)
     public void setVelocidadX(double velocidadX) {
         this.velocidadX = velocidadX;
     }
+
     public boolean isMirandoDerecha() {
-        return this.mirandoDerecha; // Devuelve true si el héroe está mirando a la derecha, false si está mirando a la izquierda
+        return this.mirandoDerecha;
     }
+
     public void iniciarCargaSalto() {
         if (isEnElSuelo()) {
             this.cargandoSalto = true;
-            this.detenerHorizontal(); // Frena al personaje mientras toma impulso
+            this.detenerHorizontal();
         }
     }
 
     public void actualizarCarga() {
         if (cargandoSalto && cargaSalto < MAX_CARGA) {
-            cargaSalto += 0.5; // Incrementa la fuerza por cada frame que mantengas presionado
+            cargaSalto += 0.5;
         }
     }
 
     public void ejecutarSalto() {
         if (cargandoSalto) {
-            this.setVelocidadY(-(cargaSalto + 5.0) * ESCALA_SALTO); // Salto base + carga, escalado
+            this.setVelocidadY(-(cargaSalto + 5.0) * ESCALA_SALTO);
             this.setEnElSuelo(false);
             this.cargandoSalto = false;
             this.cargaSalto = 0;
+            this.ticksDespegue = 3; // 3 ticks con la pose de despegue
         }
     }
+
     public double getCargaSalto() {
-        return this.cargaSalto; // Devuelve la carga actual del salto, para que la vista pueda dibujar la barra de carga
+        return this.cargaSalto;
     }
+
     public double getPorcentajeCargaSalto() {
-        return (cargaSalto / MAX_CARGA); // cuanto cargo el salto en porcentaje (0.0 a 1.0) para que la vista dibuje la barra de carga
+        return (cargaSalto / MAX_CARGA);
     }
+
     public boolean isCargandoSalto() {
-        return this.cargandoSalto; // Devuelve true si el héroe está cargando el salto, false si ya lo ejecutó o no está en el suelo
+        return this.cargandoSalto;
     }
+
+    public void reiniciarEstado() {
+        this.velocidadX = 0;
+        this.velocidadY = 0;
+        this.cargaSalto = 0;
+        this.cargandoSalto = false;
+        this.enElSuelo = false;
+        this.mirandoDerecha = true;
+        this.ticksAterrizaje = 0;
+        this.ticksDespegue = 0;
+        if (this.animacionQuieto != null && this.animacionQuieto.length > 0) {
+            this.setSprite(this.animacionQuieto[0]);
+        }
+    }
+
     // ---------- Patron Observer (Heroe es el SUJETO) ----------
 
-    // Suscribirse: devuelve false si el observador es null o ya estaba en la lista
     public boolean agregarObservador(Observador observador) {
         if (observador == null || observadores.contains(observador)) {
             return false;
@@ -138,30 +269,27 @@ public class Heroe extends Entidad {
         return observadores.add(observador);
     }
 
-    // Desuscribirse: devuelve false si el observador no estaba en la lista
     public boolean quitarObservador(Observador observador) {
         return observadores.remove(observador);
     }
 
-    // Avisa a todos los suscriptos que paso algo
     private void notificarObservadores(EventoJuego evento) {
         for (Observador o : observadores) {
             o.actualizar(evento, this);
         }
     }
-    // Invencibilidad: se llama cuando el héroe recibe daño, para que no reciba daño otra vez durante un tiempo
+
     public boolean isInvencible() {
         return System.currentTimeMillis() < finInvencibilidad;
     }
 
-    // Redefinimos recibirDanio: hace lo mismo que Entidad (restar vida) y ademas avisa.
     @Override
     public void recibirDanio(int cantidad) {
         if (!estaVivo() || isInvencible()) {
-            return; // esta muerto o protegido: no recibe danio ni se avisa nada
+            return;
         }
         super.recibirDanio(cantidad);
-        System.out.println("Vida del heroe: " + getHp());// Para debug: muestra la vida actual del héroe en la consola
+        System.out.println("Vida del heroe: " + getHp());
         finInvencibilidad = System.currentTimeMillis() + DURACION_INVENCIBILIDAD_MS;
         notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
         if (!estaVivo()) {

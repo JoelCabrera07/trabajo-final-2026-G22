@@ -5,7 +5,7 @@ import javax.swing.SwingUtilities;
 import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Sprites;
-import modelo.FabricaNivel1; // Importamos la fábrica de nivel 1
+import modelo.FabricaNivel1;
 import vista.MenuPrincipal;
 import vista.PanelJuego;
 import vista.PantallaGameOver;
@@ -17,14 +17,10 @@ public class App {
 
         // --- 1. Armar el modelo ---
         Escenario escenario = new Escenario();
-        // cargarPantalla(1) ya crea las plataformas y enemigos de la pantalla 1
-        // (con sus sprites puestos adentro de Escenario), no hace falta
-        // agregarlos de nuevo aca a mano.
-        escenario.cargarPantalla(1,new FabricaNivel1()); // Cargamos la pantalla 1 con la fábrica de nivel 1
+        escenario.cargarPantalla(1, new FabricaNivel1());
 
-        // Heroe arranca arriba a la derecha, cae por gravedad hasta el otro extremo
-        Heroe heroe = new Heroe("Heroe", 50, 500, 30, 40, Color.BLUE, 30, 10);
-        heroe.setSprite(Sprites.cargar("/assets/heroe.png"));
+        // Heroe con dimensiones proporcionales a su hoja de sprites (32x48)
+        Heroe heroe = new Heroe("Heroe", 50, 500, 32, 48, Color.BLUE, 30, 10);
 
         // --- 2. Conectar el modelo con el controlador ---
         JuegoManager manager = JuegoManager.getInstance();
@@ -34,7 +30,7 @@ public class App {
 
         // --- 3. Armar la vista y mostrarla (esto va en el hilo de eventos de Swing) ---
         PanelJuego panel = new PanelJuego(escenario, heroe);
-        MenuPrincipal menu = new MenuPrincipal(); // Creamos el menu principal
+        MenuPrincipal menu = new MenuPrincipal();
         PantallaGameOver pantallaGameOver = new PantallaGameOver();
         manager.setVista(panel);
 
@@ -60,21 +56,22 @@ public class App {
                 // Escuchador de teclado para el héroe
                 ventana.addKeyListener(new ControladorTeclado(heroe));
 
-                // Los botones van ADENTRO de este bloque
+                // Botón "Salir" del menú
                 menu.getBotonSalir().addActionListener(e -> System.exit(0));
 
+                // Botón "Jugar" del menú
                 menu.getBotonJugar().addActionListener(e -> {
-                    menu.detenerAudio(); // Para detener el sonido cuando le damos al boton Jugar
+                    menu.detenerAudio(); // Detener música del menú
                     manager.reiniciarMetros();
+                    heroe.reiniciarEstado();
                     ventana.cambiarPanel(panel); 
                     
-                    // El hilo del juego arranca solo cuando apretás "Jugar"
                     Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
                     hiloDelJuego.start();
                 });
 
                 // --- CONEXION DEL GAME OVER ---
-                // 1- Cuando el heroe se muere JuegoManager avisa y cambiamos de panel mostrando metros
+                // 1- Cuando el heroe muere, JuegoManager avisa y cambiamos de panel mostrando metros
                 manager.setEventoGameOver(() -> {
                     int metros = manager.getMetrosMaximos();
                     pantallaGameOver.mostrarPuntaje(metros);
@@ -93,7 +90,6 @@ public class App {
                         return;
                     }
                     int metros = manager.getMetrosMaximos();
-                    // Concurrencia: guardamos en un hilo secundario para no bloquear Swing (EDT)
                     new Thread(() -> {
                         boolean ok = finalGuardador.guardarPuntaje(nombre, metros);
                         SwingUtilities.invokeLater(() -> {
@@ -116,6 +112,7 @@ public class App {
                 // 2 BOTON "Salir al menu"
                 pantallaGameOver.getBotonMenu().addActionListener(e -> {
                     manager.reiniciarMetros();
+                    heroe.reiniciarEstado();
                     heroe.setHp(heroe.getHpMax());
                     heroe.setX(50);
                     heroe.setY(500);
@@ -125,10 +122,8 @@ public class App {
                 // 3 BOTON "Reintentar"
                 pantallaGameOver.getBotonReintentar().addActionListener(e -> {
                     manager.reiniciarMetros();
-                    // Revivimos al heroe
+                    heroe.reiniciarEstado();
                     heroe.setHp(heroe.getHpMax());
-
-                    // Lo devolvemos a la posicion inicial
                     heroe.setX(50);
                     heroe.setY(500);
 
