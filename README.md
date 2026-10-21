@@ -101,6 +101,7 @@ Con este diseño tenemos beneficios:
 #### **Diagrama de Clases UML (Conceptual)**
 ```mermaid
 classDiagram
+    %% CONTROLADOR
     class JuegoManager {
         <<Singleton>>
         -JuegoManager instance
@@ -111,11 +112,31 @@ classDiagram
         +buclePrincipal() void
     }
 
+    class GuardadorPuntaje {
+        +guardar(Puntaje p) void
+    }
+
+    %% INTERFACES Y PATRONES (MODELO)
+    class Observador {
+        <<interface>>
+        +actualizar(EventoJuego evento) void
+    }
+
+    class Colisionable {
+        <<interface>>
+        +getHitbox() Rectangle
+    }
+
+    class PuntajeDAO {
+        <<interface>>
+        +guardarPuntaje(Puntaje p) boolean
+    }
+
+    %% ENTIDADES BASE
     class Escenario {
         -List~Plataforma~ plataformas
         -List~Enemigo~ enemigos
-        -List~Entidad~ entidadesInteractuables
-        +cargarMapa() void
+        +cargarMapa(FabricaNivel fabrica) void
     }
 
     class Entidad {
@@ -126,135 +147,91 @@ classDiagram
         -int alto
         -int ancho
         -int hp
-        +getHitbox() Rectangle
         +recibirDanio(int cantidad) void
     }
 
     class Heroe {
         -double velocidadY
         -double velocidadX
-        -double cargaSaltoActual
         +cargarSalto(long tiempoPulsado) void
-        +soltarSalto() void
-        +predecirTrayectoria() List~Point~
     }
 
-    class Cofre {
-        -boolean abierto
-        +abrir(Heroe h) void
-    }
-
-    class Booster {
-        <<abstract>>
-        +aplicarEfecto(Heroe h) void
-    }
-
-    class BoosterImpulso {
-        +aplicarEfecto(Heroe h) void
-    }
-
-    class Plataforma {
-        <<abstract>>
-        +aplicarEfectoColision(Heroe h) void
-    }
-
-    class PlataformaBarro {
-        -double reduccionVelocidad
-        +aplicarEfectoColision(Heroe h) void
-    }
-
-    class PlataformaHielo {
-        -double nivelFriccion
-        +aplicarEfectoColision(Heroe h) void
-    }
-
-    class PlataformaTrampolin {
-        -double multiplicadorRebote
-        +aplicarEfectoColision(Heroe h) void
-    }
-
-    class PlataformaRompible {
-        -boolean destruida
-        +romper() void
-    }
-
-    class PlataformaMovil {
+    class Proyectil {
         -double velocidadX
-        -double limiteIzquierdo
-        -double limiteDerecho
-        -boolean moviendoDerecha
+        -double velocidadY
         +mover() void
-        +aplicarEfectoColision(Heroe h) void
     }
 
-    class Enemigo {
-        <<abstract>>
-        +aplicarEfectoColision(Heroe h) void
-    }
-
-    class EnemigoTerrestre {
-        -double velocidadPatrullaje
-        +patrullar() void
-    }
-
-    class EnemigoVolador {
-        -double amplitudVuelo
-        +volarEnCirculos() void
-    }
-
-    class EnemigoTorreta {
-        -int cadenciaDisparo
-        +disparar() void
-    }
-
-    class EnemigoAcorazado {
-        -boolean superArmadura
-    }
-
-    class EnemigoAcechador {
-        -int tiempoDeteccion
-        +perseguir(Heroe h) void
-    }
-
-    class PartidaDAO {
+    %% FÁBRICAS DE NIVELES (PATRÓN BUILDER / FACTORY)
+    class FabricaNivel {
         <<interface>>
-        +guardarPartida(Heroe h, Escenario e) boolean
-    }
-    
-    class PartidaDAOMySQL {
-        +guardarPartida(Heroe h, Escenario e) boolean
+        +crearPlataformas() List~Plataforma~
+        +crearEnemigos() List~Enemigo~
     }
 
-    %% Relaciones de uso y composición
-    JuegoManager --> "1" Escenario : gestiona
-    JuegoManager --> "1" Heroe : controla
-    JuegoManager ..> PartidaDAO : usa para base de datos
-    PartidaDAO <|.. PartidaDAOMySQL
-    Escenario --> "*" Plataforma : contiene
-    Escenario --> "*" Enemigo : contiene
-    Escenario --> "*" Entidad : contiene cofres
-    Cofre ..> Booster : suelta
+    class FabricaNivel1
+    class FabricaNivel2
+    class FabricaNivel3
+    class FabricaNivel4
+    class FabricaNivel5
+    class FabricaNivel6
 
-    %% Relaciones de Herencia Base
+    FabricaNivel <|.. FabricaNivel1
+    FabricaNivel <|.. FabricaNivel2
+    FabricaNivel <|.. FabricaNivel3
+    FabricaNivel <|.. FabricaNivel4
+    FabricaNivel <|.. FabricaNivel5
+    FabricaNivel <|.. FabricaNivel6
+
+    %% HERENCIA Y POLIMORFISMO
+    Colisionable <|.. Entidad
     Entidad <|-- Heroe
-    Entidad <|-- Cofre
+    Entidad <|-- Proyectil
     Entidad <|-- Plataforma
     Entidad <|-- Enemigo
-    Booster <|-- BoosterImpulso
-    
-    %% Herencia de Plataformas
+
+    class Plataforma { <<abstract>> }
+    class PlataformaNormal
+    class PlataformaBarro
+    class PlataformaHielo
+    class PlataformaTrampolin
+    class PlataformaRompible
+    class PlataformaMovil
+
+    Plataforma <|-- PlataformaNormal
     Plataforma <|-- PlataformaBarro
     Plataforma <|-- PlataformaHielo
     Plataforma <|-- PlataformaTrampolin
     Plataforma <|-- PlataformaRompible
     Plataforma <|-- PlataformaMovil
 
-    %% Herencia de Enemigos
+    class Enemigo { <<abstract>> }
+    class EnemigoTerrestre
+    class EnemigoVolador
+    class EnemigoTorreta
+    class EnemigoAcorazado
+    class EnemigoAcechador
+
     Enemigo <|-- EnemigoTerrestre
     Enemigo <|-- EnemigoVolador
     Enemigo <|-- EnemigoTorreta
     Enemigo <|-- EnemigoAcorazado
     Enemigo <|-- EnemigoAcechador
+
+    %% PERSISTENCIA
+    class PuntajeDAOSQLite {
+        +guardarPuntaje(Puntaje p) boolean
+    }
+    PuntajeDAO <|.. PuntajeDAOSQLite
+
+    %% RELACIONES ESTRUCTURALES
+    JuegoManager --> "1" Escenario : gestiona
+    JuegoManager --> "1" Heroe : controla
+    JuegoManager ..|> Observador : implementa
+    Escenario --> "*" Plataforma : contiene
+    Escenario --> "*" Enemigo : contiene
+    Escenario ..> FabricaNivel : usa para armar nivel
+    GuardadorPuntaje ..> PuntajeDAO : inyecta dependencia
 ```
 
 #### **Prototipo de la IGU (Wireframe)**
