@@ -16,7 +16,6 @@ import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Plataforma;
 import modelo.Proyectil;
-import modelo.Puerta;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -29,7 +28,9 @@ public class PanelJuego extends JPanel {
     private final Escenario escenario;
     private final Heroe heroe;
     private Image fondo; // GIF animado de fondo; si queda null se usa el color liso de siempre
-
+    private javax.sound.sampled.Clip clipFondo;
+    private javax.sound.sampled.Clip clipAmbienteNivel4;
+    private javax.sound.sampled.Clip clipEfecto;
     private static final int HP_POR_CORAZON = 10; // Cada corazón representa 10 puntos de vida
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
@@ -229,4 +230,93 @@ public class PanelJuego extends JPanel {
         g2.setColor(new Color(255, 220, 60));
         g2.drawString(texto, x, y + 3);
     }
+
+//  Agregamos estos dos métodos al final de la clase PanelJuego:
+public void reproducirMusica() {
+    detenerMusica();
+    try {
+        java.net.URL urlAudio = getClass().getResource("/recursos/Escenario/Ascent_to_the_Iron_Spire.wav"); 
+        if (urlAudio != null) {
+            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(urlAudio);
+            clipFondo = javax.sound.sampled.AudioSystem.getClip();
+            clipFondo.open(audioStream);
+            clipFondo.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Que se repita infinito
+            clipFondo.start();
+        } else {
+            System.err.println("No se encontró la música del juego.");
+        }
+    } catch (Exception e) {
+        System.err.println("Error al reproducir música: " + e.getMessage());
+    }
+}
+
+public void detenerMusica() {
+    if (clipFondo != null && clipFondo.isRunning()) {
+        clipFondo.stop();
+        clipFondo.close();}
+    }
+public void reproducirEfectoSFX(String rutaSFX) {
+    new Thread(() -> {
+        detenerEfecto();
+        try {
+            URL urlAudio = getClass().getResource(rutaSFX);
+            if (urlAudio != null) {
+                javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(urlAudio);
+                clipEfecto = javax.sound.sampled.AudioSystem.getClip();
+                clipEfecto.open(audioStream);
+                clipEfecto.start();
+            } else {
+                System.err.println("No se encontró el efecto de sonido: " + rutaSFX);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al reproducir efecto SFX: " + e.getMessage());
+        }
+    }).start();
+}
+public void detenerEfecto() { // Detiene el efecto de sonido si está sonando
+    if (clipEfecto != null && clipEfecto.isRunning()) {
+        clipEfecto.stop();
+        clipEfecto.close();
+    }
+}
+public void cargarFondoNivel(int nivel) {
+    try {
+        // Carga dinámicamente nivel_1.jpg, nivel_2.jpg, etc.
+        URL rutaFondo = getClass().getResource("/recursos/Escenario/nivel_" + nivel + ".gif"); 
+        if (rutaFondo != null) {
+            this.fondo = new ImageIcon(rutaFondo).getImage();
+            repaint(); // Fuerza a que se redibuje la pantalla al instante
+        } else {
+            System.err.println("No se pudo cargar el fondo del nivel: " + nivel);
+        }
+    } catch (Exception e) {
+        System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
+    }
+}
+public void reproducirAmbienteNivel4() {
+    // Si ya está sonando el ambiente del nivel 4, no lo volvemos a arrancar desde cero
+    if (clipAmbienteNivel4 != null && clipAmbienteNivel4.isRunning()) return;
+    
+    try {
+        URL urlAudio = getClass().getResource("/recursos/Escenario/nivel4_ambiente.wav"); 
+        if (urlAudio != null) {
+            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(urlAudio);
+            clipAmbienteNivel4 = javax.sound.sampled.AudioSystem.getClip();
+            clipAmbienteNivel4.open(audioStream);
+            clipAmbienteNivel4.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Bucle infinito
+            clipAmbienteNivel4.start();
+        } else {
+            System.err.println("No se encontró el audio de ambiente del nivel 4.");
+        }
+    } catch (Exception e) {
+        System.err.println("Error al reproducir ambiente del nivel 4: " + e.getMessage());
+    }
+}
+
+public void detenerAmbienteNivel4() {
+    if (clipAmbienteNivel4 != null && clipAmbienteNivel4.isRunning()) {
+        clipAmbienteNivel4.stop();
+        clipAmbienteNivel4.close();
+    }
+}
 }

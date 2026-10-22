@@ -38,7 +38,7 @@ public class FabricaNivel3 implements FabricaNivel {
         enemigos.add(volador);
 
         // Enemigo acechador: castiga al jugador si se queda quieto pensando el salto
-        enemigos.add(new EnemigoAcechador(0, 0));
+        enemigos.add(new EnemigoAcechador(0, 0,1.5));
 
         return enemigos;
     }

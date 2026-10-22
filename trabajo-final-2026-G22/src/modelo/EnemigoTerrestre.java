@@ -15,6 +15,7 @@ public class EnemigoTerrestre extends Enemigo {
     private double limiteDerecho;
 
     private boolean moviendoseDerecha;
+    private boolean limitesAjustados = false;
     
 
     public EnemigoTerrestre(double x, double y) {
@@ -85,7 +86,64 @@ public class EnemigoTerrestre extends Enemigo {
 
     @Override
     public void actualizar(Heroe heroe, Escenario escenario) {
-        patrullar(); // Por ahora solo patrulla, no hace nada con el héroe ni con el escenario
+        // 1. Calculamos los bordes de la plataforma una sola vez
+        if (!limitesAjustados && escenario != null) {
+            for (Plataforma p : escenario.getPlataformas()) {
+                java.awt.Rectangle hitboxP = p.getHitbox();
+                
+                boolean solapaHorizontal = (this.getX() + this.getAncho()) > hitboxP.x && this.getX() < (hitboxP.x + hitboxP.width);
+                boolean sobreLaPlataforma = Math.abs((this.getY() + this.getAlto()) - hitboxP.y) <= 30;
+
+                if (solapaHorizontal && sobreLaPlataforma) {
+                    this.limiteIzquierdo = hitboxP.x;
+                    this.limiteDerecho = hitboxP.x + hitboxP.width - this.getAncho();
+                    this.limitesAjustados = true;
+                    break;
+                }
+            }
+        }
+        
+        // 2. Inteligencia Artificial: ¿Patrullar o Perseguir?
+        if (limitesAjustados) {
+            // Calculamos dónde están los pies del héroe y del enemigo
+            double piesEnemigo = this.getY() + this.getAlto();
+            double piesHeroe = heroe.getY() + heroe.getAlto();
+            
+            // Verificamos si están a la misma altura (tolerancia de 40px)
+            boolean mismaAltura = Math.abs(piesEnemigo - piesHeroe) <= 40;
+            
+            // Verificamos si el héroe está posicionado sobre esta misma plataforma
+            boolean mismaPlataforma = heroe.getX() >= (limiteIzquierdo - 50) && heroe.getX() <= (limiteDerecho + 50);
+
+            if (mismaAltura && mismaPlataforma) {
+                perseguir(heroe); // MODO ATAQUE
+            } else {
+                patrullar(); // MODO PACÍFICO
+            }
+        } else {
+            patrullar(); 
+        }
+    }
+
+    // --- NUEVO MÉTODO DE PERSECUCIÓN ---
+    private void perseguir(Heroe heroe) {
+        // Multiplicamos la velocidad x1.5 para que corra más rápido al ver al héroe
+        double velocidadAtaque = velocidadPatrullaje * 1.5; 
+
+        if (heroe.getX() > this.getX()) {
+            this.setX(this.getX() + velocidadAtaque);
+            moviendoseDerecha = true; // Para que el sprite mire a la derecha
+            // Freno de emergencia para que no se caiga al vacío persiguiéndote
+            if (this.getX() > limiteDerecho) this.setX(limiteDerecho); 
+        } 
+        else if (heroe.getX() < this.getX()) {
+            this.setX(this.getX() - velocidadAtaque);
+            moviendoseDerecha = false; // Para que el sprite mire a la izquierda
+            // Freno de emergencia para que no se caiga al vacío
+            if (this.getX() < limiteIzquierdo) this.setX(limiteIzquierdo);
+        }
+        
+        this.actualizarAnimacion(); // Hace que mueva las patitas mientras corre
     }
 
 }

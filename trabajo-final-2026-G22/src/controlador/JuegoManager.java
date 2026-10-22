@@ -117,12 +117,17 @@ public class JuegoManager implements Observador {
             int pantalla = escenarioActual.getPantallaActual();
             if (pantalla == 1) {
                 escenarioActual.cargarPantalla(2, new FabricaNivel2());
+                if (vista != null) vista.cargarFondoNivel(2);
                 heroe.setY(520);
             } else if (pantalla == 2) {
                 escenarioActual.cargarPantalla(3, new FabricaNivel3());
+                if (vista != null) vista.cargarFondoNivel(3);
                 heroe.setY(520);
             } else if (pantalla == 3) {
                 escenarioActual.cargarPantalla(4, new FabricaNivel4());
+                if (vista != null) {vista.cargarFondoNivel(4);
+                vista.reproducirAmbienteNivel4();
+            }
                 heroe.setY(520);
             } else if (pantalla == 4) {
                 // Llegó a la cima más alta (Nivel 4)
@@ -135,14 +140,19 @@ public class JuegoManager implements Observador {
             int pantalla = escenarioActual.getPantallaActual();
             if (pantalla == 4) {
                 escenarioActual.cargarPantalla(3, new FabricaNivel3());
+                if (vista != null) {vista.cargarFondoNivel(3);
+                vista.detenerAmbienteNivel4();
+            }
                 heroe.setY(0);
                 heroe.setVelocidadY(0);
             } else if (pantalla == 3) {
                 escenarioActual.cargarPantalla(2, new FabricaNivel2());
+                if (vista != null) vista.cargarFondoNivel(2);
                 heroe.setY(0);
                 heroe.setVelocidadY(0);
             } else if (pantalla == 2) {
                 escenarioActual.cargarPantalla(1, new FabricaNivel1());
+                if (vista != null) vista.cargarFondoNivel(1);
                 heroe.setY(0); // Cae desde el techo de la pantalla 1
                 heroe.setVelocidadY(0);
             } else {

@@ -4,7 +4,6 @@ import java.awt.Color;
 import javax.swing.SwingUtilities;
 import modelo.Escenario;
 import modelo.Heroe;
-import modelo.Sprites;
 import modelo.FabricaNivel1;
 import vista.MenuPrincipal;
 import vista.PanelJuego;
@@ -59,15 +58,49 @@ public class App {
                 // Botón "Salir" del menú
                 menu.getBotonSalir().addActionListener(e -> System.exit(0));
 
+                menu.getBotonRanking().addActionListener(e -> {
+                    try {
+                        // 1. Reutilizamos tu conexión a la base de datos
+                        java.sql.Connection conexionDB = persistencia.Conexion.getInstancia().get();
+                        modelo.PuntajeDAO dao = new persistencia.PuntajeDAOSQLite(conexionDB);
+                        
+                        // 2. Pedimos los 5 mejores
+                        java.util.List<modelo.Puntaje> listaMejores = dao.mejores(5);
+                        
+                        // 3. Validamos si hay puntajes o está vacía
+                        if (listaMejores.isEmpty()) {
+                            javax.swing.JOptionPane.showMessageDialog(ventana, "Todavía no hay puntajes guardados.", "Ranking", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            StringBuilder texto = new StringBuilder();
+                            texto.append("🏆 TOP 5 MEJORES JUGADORES 🏆\n\n");
+                            
+                            int posicion = 1;
+                            for (modelo.Puntaje p : listaMejores) {
+                                texto.append(posicion).append("° - ")
+                                     .append(p.getJugador()).append(": ")
+                                     .append(p.getPuntos()).append(" puntos\n");
+                                posicion++;
+                            }
+                            // Muestra el mensaje sobre la "ventana" principal
+                            javax.swing.JOptionPane.showMessageDialog(ventana, texto.toString(), "Salón de la Fama", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        javax.swing.JOptionPane.showMessageDialog(ventana, "Error al conectar con la base de datos.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                        System.err.println("Error en ranking: " + ex.getMessage());
+                    }
+                });
+
                 // Botón "Jugar" del menú
                 menu.getBotonJugar().addActionListener(e -> {
                     menu.detenerAudio(); // Detener música del menú
+                    panel.reproducirMusica();
                     manager.reiniciarMetros();
                     heroe.reiniciarEstado();
                     heroe.setHp(heroe.getHpMax());
                     heroe.setX(50);
                     heroe.setY(500);
                     escenario.cargarPantalla(1, new FabricaNivel1()); // siempre se arranca desde la pantalla 1
+                    panel.cargarFondoNivel(1);
                     ventana.cambiarPanel(panel); 
                     
                     Thread hiloDelJuego = new Thread(() -> manager.iniciarJuego());
@@ -77,12 +110,18 @@ public class App {
                 // --- CONEXION DEL GAME OVER ---
                 // 1a- Cuando el heroe muere, JuegoManager avisa y cambiamos de panel mostrando metros
                 manager.setEventoGameOver(() -> {
+                    panel.detenerMusica();
+                    panel.detenerAmbienteNivel4();
+                    panel.reproducirEfectoSFX("/recursos/Escenario/Metros_Below.wav");
                     int metros = manager.getMetrosMaximos();
                     pantallaGameOver.mostrarPuntaje(metros);
                     ventana.cambiarPanel(pantallaGameOver);
                 });
                 // 1b- Cuando el heroe llega a la puerta de la meta, JuegoManager avisa y mostramos la pantalla de victoria
                 manager.setEventoNivelCompletado(() -> {
+                    panel.detenerMusica();
+                    panel.detenerAmbienteNivel4();
+                    panel.reproducirEfectoSFX("/recursos/Escenario/Victory_Lap.wav");
                     int metros = manager.getMetrosMaximos();
                     pantallaGameOver.mostrarVictoria(metros);
                     ventana.cambiarPanel(pantallaGameOver);
@@ -121,6 +160,9 @@ public class App {
 
                 // 2 BOTON "Salir al menu"
                 pantallaGameOver.getBotonMenu().addActionListener(e -> {
+                    panel.detenerMusica();
+                    panel.detenerEfecto();
+                    menu.reproducirAudioAmbiente("/recursos/Menu/Ambiente_Menu.wav");
                     manager.reiniciarMetros();
                     heroe.reiniciarEstado();
                     heroe.setHp(heroe.getHpMax());
@@ -131,7 +173,9 @@ public class App {
 
                 // 3 BOTON "Reintentar"
                 pantallaGameOver.getBotonReintentar().addActionListener(e -> {
+                    panel.detenerEfecto();
                     manager.reiniciarMetros();
+                    panel.reproducirMusica();
                     heroe.reiniciarEstado();
                     heroe.setHp(heroe.getHpMax());
                     heroe.setX(50);
@@ -139,6 +183,7 @@ public class App {
 
                     // Recargamos el escenario y mostramos el panel del juego
                     escenario.cargarPantalla(1, new FabricaNivel1());
+                    panel.cargarFondoNivel(1);
                     ventana.cambiarPanel(panel);
 
                     // Arrancamos un hilo nuevo para el motor del juego

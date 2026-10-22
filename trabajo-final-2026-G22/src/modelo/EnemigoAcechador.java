@@ -3,9 +3,9 @@ import java.awt.Color;
 
 public class EnemigoAcechador extends Enemigo {
     
-    private int tiempoDeteccion; //segundos que el heroe debe quedarse quieto para que el acechador empiece a perseguirlo
+    private double tiempoDeteccion; //segundos que el heroe debe quedarse quieto para que el acechador empiece a perseguirlo
 
-    private static final double VELOCIDAD_PERSECUCION = 1.0; //pixeles por frame
+    private double VELOCIDAD_PERSECUCION; //pixeles por frame
     private static final double DISTANCIA_APARICION= 180; //px de distancia al aparecer
 
     private boolean activo; //false hasta que el heroe se quede quieto el tiempo suficiente, true cuando empieza a perseguirlo
@@ -18,18 +18,20 @@ public class EnemigoAcechador extends Enemigo {
     private long momentoUltimoMovimiento;
 
 
-    public EnemigoAcechador(double x, double y) {
+    public EnemigoAcechador(double x, double y, double velocidad) {
         // Bicho raro que aparece si te quedás quieto
         super("Acechador", x, y, 20, 20, Color.MAGENTA, 8, 2);
-        this.tiempoDeteccion = 5; // Segundos antes de empezar a perseguirte
+        this.tiempoDeteccion = 1.5; // Segundos antes de empezar a perseguirte
         this.activo = false;
         this.momentoUltimoMovimiento = System.currentTimeMillis();
+        this.VELOCIDAD_PERSECUCION = velocidad;
     }
 
     public void perseguir(Heroe h) {
         if(!activo) {
-            // Si no está activo, no hace nada
-            if (h.getX()!= ultimaXHeroe || h.getY()!= ultimaYHeroe) {
+            double difX = Math.abs(h.getX() - ultimaXHeroe);
+            double difY = Math.abs(h.getY() - ultimaYHeroe);
+            if (difX > 3.0 || difY > 3.0) {
                 // Si el héroe se movió, reiniciamos el tiempo de detección
                 momentoUltimoMovimiento = System.currentTimeMillis();
                 ultimaXHeroe = h.getX();
@@ -38,10 +40,11 @@ public class EnemigoAcechador extends Enemigo {
             }
         //Revisamos si el héroe se quedó quieto el tiempo suficiente para activar al acechador
         long tiempoQuieto = System.currentTimeMillis() - momentoUltimoMovimiento;
-        if (tiempoQuieto >= tiempoDeteccion * 1000L){
-            //se cumplen los 5 segundos, el acechador se activa y aparece a cierta distancia del héroe
-            setX(h.getX() + DISTANCIA_APARICION);
-            setY(h.getY());
+        if (tiempoQuieto >= (long) tiempoDeteccion * 1000){
+            System.out.println("¡EL ACECHADOR SE ACTIVÓ EN LA CONSOLA!");
+            //se cumplen los 1.5 segundos, el acechador se activa y aparece a cierta distancia del héroe
+            setX(h.getX() + DISTANCIA_APARICION + (Math.random() * 100 - 50));
+            setY(h.getY() - 20 - (Math.random() * 60)); // Aparece un poco arriba del héroe
             activo = true;
         } 
         return; // No persigue en el mismo frame que aparece

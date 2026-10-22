@@ -9,7 +9,7 @@ public class EnemigoTorreta extends Enemigo {
     public EnemigoTorreta(double x, double y) {
         // No se mueve, así que lo hacemos un poco más alto y duro
         super("Torreta", x, y, 20, 40, Color.ORANGE, 15, 2);
-        this.cadenciaDisparo = 3; // Ejemplo: dispara cada 3 segundos
+        this.cadenciaDisparo = 1; // Ejemplo: dispara cada 1 segundo
         this.ultimoDisparo = System.currentTimeMillis();
     }
 

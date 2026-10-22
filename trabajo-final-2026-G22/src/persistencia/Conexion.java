@@ -10,7 +10,7 @@ public class Conexion {
     //Constructor para el patron Singleton
     private Conexion() throws SQLException {
         //Genera el archivo juego.db en la raiz automaticamente
-        conexion = DriverManager.getConnection("jdbc:sqlite:juego.db");
+        conexion = DriverManager.getConnection("jdbc:sqlite:Ranking.db");
     }
     public static synchronized Conexion getInstancia() throws SQLException {
         if (instancia == null) {
