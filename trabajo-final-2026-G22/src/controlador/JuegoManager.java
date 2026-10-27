@@ -8,7 +8,7 @@ public class JuegoManager implements Observador {
     private static JuegoManager instance;
 
     // La torre tiene 6 pantallas; la puerta de la meta esta en la ultima
-    public static final int TOTAL_PANTALLAS = 6;
+    public static final int TOTAL_PANTALLAS = 7;
     private static final int PRIMERA_PANTALLA_CON_TORMENTA = 4;
 
     private Escenario escenarioActual;
@@ -154,6 +154,7 @@ public class JuegoManager implements Observador {
             case 4: return new FabricaNivel4();
             case 5: return new FabricaNivel5();
             case 6: return new FabricaNivel6();
+            case 7: return new FabricaNivel7();
             default: throw new IllegalArgumentException("No existe la pantalla " + pantalla);
         }
     }

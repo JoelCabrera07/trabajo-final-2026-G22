@@ -31,7 +31,7 @@ public class FabricaNivel3 implements FabricaNivel {
         List<Enemigo> enemigos = new ArrayList<>();
 
         // Cuida la llegada
-        enemigos.add(new EnemigoTerrestre(540, 410));
+        enemigos.add(new EnemigoTerrestre(540, 390));
         // Molesta en el salto del barro a la plataforma alta
         enemigos.add(new EnemigoVolador(520, 250));
         enemigos.add(new EnemigoAcechador(0, 0, 1.0));
