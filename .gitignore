@@ -26,4 +26,4 @@ replay_pid*
 # Carpeta de compilacion de Java
 bin/
 !trabajo-final-2026-G22/lib/*.jar
-trabajo-final-2026-G22/juego.db
+*.db
