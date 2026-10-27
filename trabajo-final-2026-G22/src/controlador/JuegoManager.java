@@ -7,6 +7,10 @@ public class JuegoManager implements Observador {
 
     private static JuegoManager instance;
 
+    // La torre tiene 6 pantallas; la puerta de la meta esta en la ultima
+    public static final int TOTAL_PANTALLAS = 6;
+    private static final int PRIMERA_PANTALLA_CON_TORMENTA = 4;
+
     private Escenario escenarioActual;
     private Heroe heroe;
     private boolean juegoCorriendo;
@@ -115,22 +119,11 @@ public class JuegoManager implements Observador {
         // Transicion de pantalla hacia arriba: si el heroe supera el techo
         if (heroe.getY() < 0) {
             int pantalla = escenarioActual.getPantallaActual();
-            if (pantalla == 1) {
-                escenarioActual.cargarPantalla(2, new FabricaNivel2());
-                if (vista != null) vista.cargarFondoNivel(2);
-                heroe.setY(520);
-            } else if (pantalla == 2) {
-                escenarioActual.cargarPantalla(3, new FabricaNivel3());
-                if (vista != null) vista.cargarFondoNivel(3);
-                heroe.setY(520);
-            } else if (pantalla == 3) {
-                escenarioActual.cargarPantalla(4, new FabricaNivel4());
-                if (vista != null) {vista.cargarFondoNivel(4);
-                vista.reproducirAmbienteNivel4();
-            }
-                heroe.setY(520);
-            } else if (pantalla == 4) {
-                // Llegó a la cima más alta (Nivel 4)
+            if (pantalla < TOTAL_PANTALLAS) {
+                cambiarPantalla(pantalla + 1);
+                heroe.setY(520); // aparece abajo de la pantalla nueva, todavia subiendo
+            } else {
+                // Llegó a la cima más alta: arriba de la ultima pantalla no hay nada
                 heroe.setY(0);
                 heroe.setVelocidadY(0);
             }
@@ -138,28 +131,42 @@ public class JuegoManager implements Observador {
         // Transicion hacia abajo si cae al vacio
         if (heroe.getY() > 650) {
             int pantalla = escenarioActual.getPantallaActual();
-            if (pantalla == 4) {
-                escenarioActual.cargarPantalla(3, new FabricaNivel3());
-                if (vista != null) {vista.cargarFondoNivel(3);
-                vista.detenerAmbienteNivel4();
-            }
-                heroe.setY(0);
-                heroe.setVelocidadY(0);
-            } else if (pantalla == 3) {
-                escenarioActual.cargarPantalla(2, new FabricaNivel2());
-                if (vista != null) vista.cargarFondoNivel(2);
-                heroe.setY(0);
-                heroe.setVelocidadY(0);
-            } else if (pantalla == 2) {
-                escenarioActual.cargarPantalla(1, new FabricaNivel1());
-                if (vista != null) vista.cargarFondoNivel(1);
-                heroe.setY(0); // Cae desde el techo de la pantalla 1
+            if (pantalla > 1) {
+                cambiarPantalla(pantalla - 1);
+                heroe.setY(0); // cae desde el techo de la pantalla de abajo
                 heroe.setVelocidadY(0);
             } else {
                 // Si cae al vacío en la pantalla 1, vuelve al piso base
                 heroe.setX(50);
                 heroe.setY(500);
                 heroe.setVelocidadY(0);
+            }
+        }
+    }
+
+    // Patron Factory: cada pantalla de la torre tiene su propia fabrica.
+    // Para agregar un nivel nuevo alcanza con sumar un case y subir TOTAL_PANTALLAS.
+    public static FabricaNivel crearFabrica(int pantalla) {
+        switch (pantalla) {
+            case 1: return new FabricaNivel1();
+            case 2: return new FabricaNivel2();
+            case 3: return new FabricaNivel3();
+            case 4: return new FabricaNivel4();
+            case 5: return new FabricaNivel5();
+            case 6: return new FabricaNivel6();
+            default: throw new IllegalArgumentException("No existe la pantalla " + pantalla);
+        }
+    }
+
+    private void cambiarPantalla(int nuevaPantalla) {
+        escenarioActual.cargarPantalla(nuevaPantalla, crearFabrica(nuevaPantalla));
+        if (vista != null) {
+            vista.cargarFondoNivel(nuevaPantalla);
+            // De la pantalla 4 para arriba se esta afuera, en la tormenta
+            if (nuevaPantalla >= PRIMERA_PANTALLA_CON_TORMENTA) {
+                vista.reproducirAmbienteNivel4(); // si ya estaba sonando, sigue sin cortarse
+            } else {
+                vista.detenerAmbienteNivel4();
             }
         }
     }

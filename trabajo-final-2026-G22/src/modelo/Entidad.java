@@ -100,4 +100,12 @@ private String nombre;
         // Rectangle trabaja con números enteros
         return new Rectangle((int) x, (int) y, ancho, alto);
     }
+
+    // Rectangulo donde la vista dibuja el sprite. Por defecto es lo de siempre: arriba a la
+    // izquierda de la hitbox, con su ancho y 50 px de alto. Las entidades cuyo dibujo tiene
+    // otro tamaño que la hitbox (Acechador, Torreta, Proyectil) lo redefinen, asi la vista
+    // no tiene que preguntar de que tipo es cada una.
+    public Rectangle getAreaSprite() {
+        return new Rectangle((int) x, (int) y, ancho, 50);
+    }
 }

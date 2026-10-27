@@ -32,6 +32,9 @@ public class PanelJuego extends JPanel {
     private javax.sound.sampled.Clip clipAmbienteNivel4;
     private javax.sound.sampled.Clip clipEfecto;
     private static final int HP_POR_CORAZON = 10; // Cada corazón representa 10 puntos de vida
+    // Tamaño "logico" del juego: la fisica y las colisiones siempre usan estas medidas
+    private static final int ANCHO_JUEGO = 800;
+    private static final int ALTO_JUEGO = 600;
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -51,9 +54,24 @@ public class PanelJuego extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // Pixel art: al agrandar, que los pixeles queden nitidos y no borrosos
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+        // El juego se calcula siempre en 800x600. Si la ventana es mas grande (pantalla completa)
+        // se agranda todo con la misma escala y se centra, dejando bandas a los costados.
+        double escala = Math.min(getWidth() / (double) ANCHO_JUEGO, getHeight() / (double) ALTO_JUEGO);
+        int margenX = (int) ((getWidth() - ANCHO_JUEGO * escala) / 2);
+        int margenY = (int) ((getHeight() - ALTO_JUEGO * escala) / 2);
+        if (escala != 1.0) {
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
+        g2.translate(margenX, margenY);
+        g2.scale(escala, escala);
+        g2.clipRect(0, 0, ANCHO_JUEGO, ALTO_JUEGO);
 
         if (fondo != null) {
-            g2.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+            g2.drawImage(fondo, 0, 0, ANCHO_JUEGO, ALTO_JUEGO, this);
         }
 
         if (escenario == null) {
@@ -104,6 +122,7 @@ public class PanelJuego extends JPanel {
         int y = (int) entidad.getY();
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
+        int yTexto = y; // el nombre va arriba de lo que se dibuje
 
         if (entidad.getSprite() != null) {
             java.awt.image.BufferedImage img = entidad.getSprite();
@@ -111,7 +130,10 @@ public class PanelJuego extends JPanel {
             if (entidad instanceof Plataforma) {
                 dibujarSpritePlataforma(g, img, x, y, ancho, alto);
             } else {
-                g.drawImage(img, x, y, ancho, 50, null);
+                // Cada entidad dice donde y de que tamaño va su sprite (ver Entidad.getAreaSprite)
+                java.awt.Rectangle area = entidad.getAreaSprite();
+                g.drawImage(img, area.x, area.y, area.width, area.height, null);
+                yTexto = Math.min(y, area.y);
             }
         } else {
             g.setColor(entidad.getColor());
@@ -121,7 +143,7 @@ public class PanelJuego extends JPanel {
         }
 
         g.setColor(Color.WHITE);
-        g.drawString(entidad.getNombre(), x, y - 4);
+        g.drawString(entidad.getNombre(), x, yTexto - 4);
     }
 
     // Dibuja el sprite de una plataforma SIN deformarlo: siempre se escala con la misma
@@ -215,7 +237,7 @@ public class PanelJuego extends JPanel {
         String texto = "Nivel " + pantalla + "  |  " + metros + " m";
         FontMetrics fm = g2.getFontMetrics();
         int anchoTexto = fm.stringWidth(texto);
-        int x = getWidth() - anchoTexto - 25;
+        int x = ANCHO_JUEGO - anchoTexto - 25;
         int y = 25;
 
         // Fondo oscuro semitransparente

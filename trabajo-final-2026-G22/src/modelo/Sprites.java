@@ -78,7 +78,11 @@ public class Sprites {
     }
 
     // Metodo para pedirle el corte del EnemigoTerreste (4 fotogramas limpios sin líneas)
+    private static BufferedImage[] framesTerrestre = null;   // se recortan una sola vez
+    private static BufferedImage[] framesVolador = null;
+
     public static BufferedImage[] getEnemigoTerrestre() {
+        if (framesTerrestre != null) return framesTerrestre;
         cargarHojaMaestra();
         if (hojaEnemigos == null) return null;
 
@@ -94,11 +98,13 @@ public class Sprites {
             BufferedImage sub = hojaEnemigos.getSubimage(coords[i][0], coords[i][1], coords[i][2], coords[i][3]);
             frames[i] = limpiarSprite(sub);
         }
+        framesTerrestre = frames;
         return frames;
     }
 
     // Metodo para pedirle los fotogramas de vuelo del Enemigo Volador
     public static BufferedImage[] getEnemigoVolador() {
+        if (framesVolador != null) return framesVolador;
         cargarHojaMaestra();
         if (hojaEnemigos == null) return null;
 
@@ -106,12 +112,17 @@ public class Sprites {
         BufferedImage f1 = limpiarSprite(hojaEnemigos.getSubimage(283, 563, 246, 240)); // Alas medio
         BufferedImage f2 = limpiarSprite(hojaEnemigos.getSubimage(533, 563, 233, 240)); // Alas arriba
 
-        return new BufferedImage[] { f0, f1, f2, f1 };
+        framesVolador = new BufferedImage[] { f0, f1, f2, f1 };
+        return framesVolador;
     }
+
+    // Las animaciones ya espejadas, para no volver a espejarlas cada vez que aparece un enemigo
+    private static final java.util.Map<BufferedImage[], BufferedImage[]> animacionesVolteadas = new java.util.IdentityHashMap<>();
 
     // Metodo espejo para que la animacion tenga mas sentido al cambiar de orientacion
     public static BufferedImage[] voltearAnimacion(BufferedImage[] original) {
         if (original == null) return null;
+        if (animacionesVolteadas.containsKey(original)) return animacionesVolteadas.get(original);
         BufferedImage[] volteados = new BufferedImage[original.length];
 
         for (int i = 0; i < original.length; i++) {
@@ -125,6 +136,7 @@ public class Sprites {
 
             volteados[i] = flipped;
         }
+        animacionesVolteadas.put(original, volteados);
         return volteados;
     }
 
@@ -254,7 +266,15 @@ public class Sprites {
     // (antes se recorrian los 4 millones de pixeles cada vez que se creaba una plataforma).
     private static BufferedImage hojaPlataformasLimpia = null;
 
+    // Los cuadros ya recortados de cada fila, para no recortarlos de nuevo cada vez que se
+    // crea una plataforma (antes se recorrian todos sus pixeles en cada cambio de pantalla).
+    private static final BufferedImage[][] framesPlataformaPorFila = new BufferedImage[5][];
+
     public static BufferedImage[] getSpritesPlataforma(int filaTipo) {
+        if (filaTipo >= 0 && filaTipo < framesPlataformaPorFila.length
+                && framesPlataformaPorFila[filaTipo] != null) {
+            return framesPlataformaPorFila[filaTipo];
+        }
         cargarHojaPlataformas();
         if (hojaPlataformas == null) return null;
 
@@ -276,6 +296,9 @@ public class Sprites {
             BufferedImage cuadro = hojaLimpia.getSubimage(i * anchoFrame, filaTipo * altoFrame, anchoFrame, altoFrame);
             frames[i] = recortarTransparente(cuadro);
         }
+        if (filaTipo >= 0 && filaTipo < framesPlataformaPorFila.length) {
+            framesPlataformaPorFila[filaTipo] = frames;
+        }
         return frames;
     }
 
@@ -294,5 +317,97 @@ public class Sprites {
         }
         if (maxX < 0) return img; // imagen totalmente transparente: se deja como esta
         return img.getSubimage(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    // =========================================================================
+    // -- SPRITES SUELTOS (un PNG por fotograma): Acechador, Torreta magica y Orbe --
+    // =========================================================================
+    // Hay varios acechadores y torretas por nivel, asi que cada animacion se lee del
+    // disco UNA sola vez y despues todos comparten el mismo arreglo.
+    private static final java.util.Map<String, BufferedImage[]> secuenciasCargadas = new java.util.HashMap<>();
+
+    private static BufferedImage[] cargarSecuencia(String carpeta, String... archivos) {
+        String clave = carpeta + archivos[0];
+        if (secuenciasCargadas.containsKey(clave)) {
+            return secuenciasCargadas.get(clave);
+        }
+        BufferedImage[] frames = new BufferedImage[archivos.length];
+        for (int i = 0; i < archivos.length; i++) {
+            frames[i] = cargar(carpeta + archivos[i]);
+            if (frames[i] == null) {
+                frames = null; // si falta alguno, la entidad sigue con su rectangulo de color
+                break;
+            }
+        }
+        secuenciasCargadas.put(clave, frames);
+        return frames;
+    }
+
+    // Arma los nombres "prefijo0.png", "prefijo1.png", ...
+    private static String[] numerados(String prefijo, int cantidad) {
+        String[] nombres = new String[cantidad];
+        for (int i = 0; i < cantidad; i++) {
+            nombres[i] = prefijo + i + ".png";
+        }
+        return nombres;
+    }
+
+    // --- Acechador (todos los fotogramas miran a la derecha) ---
+    private static final String CARPETA_ACECHADOR = "/assets/enemigoAcechador/";
+
+    public static BufferedImage[] getAcechadorAparecer() {
+        return cargarSecuencia(CARPETA_ACECHADOR, numerados("acechador_aparecer_", 5));
+    }
+
+    public static BufferedImage[] getAcechadorFlotar() {
+        return cargarSecuencia(CARPETA_ACECHADOR, numerados("acechador_flotar_", 6));
+    }
+
+    public static BufferedImage[] getAcechadorAtacar() {
+        return cargarSecuencia(CARPETA_ACECHADOR, numerados("acechador_atacar_", 3));
+    }
+
+    public static BufferedImage[] getAcechadorDesaparecer() {
+        return cargarSecuencia(CARPETA_ACECHADOR, numerados("acechador_desaparecer_", 4));
+    }
+
+    // --- Torreta magica: 0-3 reposo, 4-5 carga, 6 disparo, 7-8 enfriando ---
+    private static final String CARPETA_TORRETA = "/assets/enemigoTorreta/";
+
+    public static BufferedImage[] getTorretaMagica() {
+        return cargarSecuencia(CARPETA_TORRETA,
+                "torreta_magica_0_reposo_1.png", "torreta_magica_1_reposo_2.png",
+                "torreta_magica_2_reposo_3.png", "torreta_magica_3_reposo_4.png",
+                "torreta_magica_4_carga_1.png", "torreta_magica_5_carga_2.png",
+                "torreta_magica_6_disparo.png",
+                "torreta_magica_7_enfriando_1.png", "torreta_magica_8_enfriando_2.png");
+    }
+
+    // --- Portal dimensional de la meta (8 fotogramas que giran) ---
+    public static BufferedImage[] getPortal() {
+        return cargarSecuencia("/assets/meta/", numerados("portal_", 8));
+    }
+
+    // --- Orbe que dispara la torreta (mira a la derecha) ---
+    public static BufferedImage[] getOrbe() {
+        return cargarSecuencia(CARPETA_TORRETA, numerados("orbe_", 4));
+    }
+
+    /**
+     * Devuelve una copia de la imagen girada 'angulo' radianes alrededor de su centro,
+     * sobre un lienzo cuadrado de 'lado' x 'lado' (tiene que ser mas grande que la
+     * diagonal de la imagen para que no se corten las puntas).
+     */
+    public static BufferedImage rotar(BufferedImage img, double angulo, int lado) {
+        if (img == null) return null;
+        BufferedImage girada = new BufferedImage(lado, lado, BufferedImage.TYPE_INT_ARGB);
+        java.awt.Graphics2D g = girada.createGraphics();
+        g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+                java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.translate(lado / 2.0, lado / 2.0);
+        g.rotate(angulo);
+        g.drawImage(img, -img.getWidth() / 2, -img.getHeight() / 2, null);
+        g.dispose();
+        return girada;
     }
 }
