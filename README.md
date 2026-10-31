@@ -9,7 +9,7 @@
 
 ## 2.Dominio y Alcance del Sistema.
 
-###Descripcion del problema
+### Descripcion del problema
 
 Buscamos desarrollar una aplicacion de escritorio del juego Jump king. El jugador debera controlar al personaje usando el salto como su principal movimiento,subiendo las plataformas,esquivando enemigos y calculando los saltos ya que entre mas tiempo tenga pulsado el boton de salto la distancia sera mayor para llegar a la cima.
 
@@ -19,7 +19,7 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 
 ### Funcionalidades principales (Features).
 
-- **Mecanicas del Jugador y Fisicas: **
+- **Mecanicas del Jugador y Fisicas:**
 -El jugador puede moverse horizontalmente.
 -El sistema de salto sera dinamico, ya que la altura y distancia de la parabola se calcula en base al tiempo que se mantenga pulsado el boton de salto.
 -Se aplica constante de gravedad y mecanicas de caida libre.
@@ -28,7 +28,7 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 -Posicionamiento estatico de plataformas para crear  un mapa de progresion vertical.
 -Sistema de deteccion de colisiones(hitboxes) preciso entre el jugador,los limites de la pantalla y las superficies de las plataformas.
 
-- **Sistema de Obstaculos y Enemigos: **
+- **Sistema de Obstaculos y Enemigos:**
 -Generacion de entidades hostiles en el mapa con patrones de movimiento simple.
 -Deteccion de colisiones con enemigos que penalicen al jugador (ej: interrumpiendo el salto, empujandolo hacia abajo o quitando vida).
 
@@ -36,7 +36,7 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 -Renderizado visualdel personaje , los enemigos, las plataformas y el entorno.
 -Indicador visual en pantalla (barra de potencia) que muestre la fuerza de carga del salto en tiempo real.
 
-- **Condiciones de Juego: **
+- **Condiciones de Juego:**
 -Ausencia de Game over tradicional: el castigo por fallar es la perdida de progreso al caer o poner Game Over si aplicamos vidas.
 -Condicion de victoria al alcanzar la plataforma mas alta del nivel.
 
@@ -44,8 +44,24 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 -Sistema de guardado y carga del estado de la pantalla.
 -Almacenamiento local de los datos del jugador(como las coordenadas exactas del personaje) para permitir retomar el ascenso en sesiones futuras
 
+## 3.Capturas del Juego
 
-## 3. Arquitectura y Diseño
+### Menú principal
+![Menú principal](docs/img/menu_principal.png)
+
+### Juego en acción
+![Salto](docs/img/heroe_saltando.png)
+
+### Plataformas y enemigos
+![Plataformas y enemigos](docs/img/plataformas.png)
+
+### Puerta de meta y victoria
+![Pantalla de victoria](docs/img/victoria.png)
+
+### Game Over y ranking
+![Game Over](docs/img/gameover.png)
+
+## 4. Arquitectura y Diseño
 
 ## Entrega: Aplicación de Patrones de Diseño
 ### 1. El problema: un enfoque con errores de diseño
@@ -94,7 +110,7 @@ Con este diseño tenemos beneficios:
 
 -**Cohesión y legibilidad**: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
 
--**Desacoplamiento*: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
+-**Desacoplamiento**: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
 
 ### Diagramas de Diseño
 
@@ -240,16 +256,26 @@ classDiagram
 <img width="590" height="336" alt="91e7c1b2-f1e7-46ec-9d11-460316710a72" src="https://github.com/user-attachments/assets/df5ce34c-46ac-40f3-a9f9-c1df09deb125" />
 <img width="1920" height="1440" alt="thumb-1920-1348538" src="https://github.com/user-attachments/assets/fd7d6031-8971-43e2-adfe-e0671501f65d" />
 
+## 5. Como ejecutar el juego
 
-## 4. Stack Tecnológico
+1. Instalar un JDK 17 o superior y abrir la carpeta del proyecto en VS Code con la extensión "Extension Pack for Java".
+2. El driver de SQLite ya está incluido en `trabajo-final-2026-G22/lib/sqlite-jdbc-3.50.3.0.jar`.
+3. Ejecutar la clase `src/controlador/App.java` (botón Run).
+4. La base de datos `Ranking.db` se crea sola la primera vez.
+
+**Controles:** flechas o A/D para moverse, mantener ESPACIO para cargar el salto y soltarlo para saltar, F11 para pantalla completa.
+
+Nota: con Java 22 o superior aparece un aviso de SQLite sobre acceso nativo. No es un error.
+
+## 6. Stack Tecnológico
 
 - **Lenguaje:** Java (Versión 17 o superior)
-- **IDE:** Eclipse IDE
-- **Persistencia de Datos:** Sistema de Archivos / Persistencia basada en Archivos Locales (para el guardado de la sesión y coordenadas).
+- **IDE:** VS Code
+- **Persistencia de Datos:** SQLite con JDBC
 - **Framework de IGU:** Java Swing 
 - **Control de Versiones:** Git y GitHub
 
-## 5. Herencia y Polimorfismo(Segunda Entrega)
+## 7. Herencia y Polimorfismo(Segunda Entrega)
 
 1. Herencia (Para no repetir código)
 Básicamente aplicamos herencia simple para no escribir mil veces los mismos atributos y mantener la arquitectura ordenada.
