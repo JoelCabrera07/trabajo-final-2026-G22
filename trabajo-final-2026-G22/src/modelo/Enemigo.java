@@ -11,4 +11,9 @@ public abstract class Enemigo extends Entidad implements Colisionable {
     public boolean debeDibujarse(){//solo acechador lo va a redefinir, los demas enemigos se dibujan siempre
         return true;
     }
+    
+    // Hacia dónde mira el enemigo. Por defecto a la derecha; cada uno lo redefine según su lógica
+    public boolean isMirandoDerecha() {
+        return true;
+    }
 }

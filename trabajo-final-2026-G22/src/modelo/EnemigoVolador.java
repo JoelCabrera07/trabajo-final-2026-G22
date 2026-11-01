@@ -22,6 +22,8 @@ public class EnemigoVolador extends Enemigo {
     private int tickAnimacion = 0;
     private int velocidadAnimacion = 8; // Cada 8 ticks cambia el cuadro del aleteo
 
+    private boolean mirandoDerecha = true; // mira hacia el héroe
+
     public EnemigoVolador(double x, double y) {
         // Un poco más frágil pero molesto (ajustamos a 35x30 para mejor proporción visual)
         super("Enemigo Volador", x, y, 35, 30, Color.CYAN, 5, 1);
@@ -73,11 +75,18 @@ public class EnemigoVolador extends Enemigo {
 
     @Override 
     public void actualizar(Heroe heroe, Escenario escenario) {
+        mirandoDerecha = heroe.getX() >= getX(); // si el héroe está a la derecha, mira a la derecha
         flotarVerticalmente();
         actualizarAnimacion(heroe);
     }
+    
     @Override
     public TipoEntidad getTipo() {
         return TipoEntidad.ENEMIGO_VOLADOR;
     }
+
+    @Override
+    public boolean isMirandoDerecha() {
+        return mirandoDerecha;
+   }
 }

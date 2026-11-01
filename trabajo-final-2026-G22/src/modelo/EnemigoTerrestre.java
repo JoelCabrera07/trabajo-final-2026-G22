@@ -149,5 +149,9 @@ public class EnemigoTerrestre extends Enemigo {
     public TipoEntidad getTipo() {
         return TipoEntidad.ENEMIGO_TERRESTRE;
     }
+        @Override
+    public boolean isMirandoDerecha() {
+        return moviendoseDerecha; // mira hacia donde camina
+    }
 
 }
