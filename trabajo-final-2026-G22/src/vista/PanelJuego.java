@@ -42,6 +42,9 @@ public class PanelJuego extends JPanel {
     private static final int MS_POR_FOTOGRAMA_PORTAL = 90;
     private static final int MS_POR_FOTOGRAMA_ENEMIGO = 130;
     private static final int ALTO_DIBUJO_ENEMIGO = 50; // mismo alto con que se dibujaban antes
+    private static final int MS_POR_FOTOGRAMA_CORRER = 100; // antes: cada 6 frames
+    private static final int MS_POR_FOTOGRAMA_QUIETO = 400; // antes: cada 25 frames
+    private static final int ALTO_DIBUJO_HEROE = 50;        // mismo alto con que se dibujaba antes
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -112,7 +115,7 @@ public class PanelJuego extends JPanel {
             // Si esta invencible, parpadea: se oculta en intervalos alternados de 100 ms
             boolean oculto = heroe.isInvencible() && (System.currentTimeMillis() / 100) % 2 == 0;
             if (!oculto) {
-                dibujarEntidad(g2, heroe);
+                dibujarHeroe(g2, heroe);
             }
             dibujarBarraVida(g2, heroe);
 
@@ -177,6 +180,47 @@ public class PanelJuego extends JPanel {
 
         g.setColor(Color.WHITE);
         g.drawString(enemigo.getNombre(), x, y - 4);
+    }
+
+        // El héroe se dibuja según su estado: la vista elige la animación y el fotograma
+    private void dibujarHeroe(Graphics2D g, Heroe heroe) {
+        BufferedImage[] fotogramas = catalogo.getAnimacionHeroe(heroe.getEstado(), heroe.isMirandoDerecha());
+
+        if (fotogramas == null) {
+            dibujarEntidad(g, heroe);
+            return;
+        }
+
+        BufferedImage img = fotogramas[elegirFotogramaHeroe(heroe, fotogramas.length)];
+        int x = (int) heroe.getX();
+        int y = (int) heroe.getY();
+        g.drawImage(img, x, y, heroe.getAncho(), ALTO_DIBUJO_HEROE, null);
+
+        g.setColor(Color.WHITE);
+        g.drawString(heroe.getNombre(), x, y - 4);
+    }
+
+    // Qué fotograma corresponde según lo que está haciendo el héroe
+    private int elegirFotogramaHeroe(Heroe heroe, int cantidad) {
+        long ahora = System.currentTimeMillis();
+        switch (heroe.getEstado()) {
+            case CARGANDO_SALTO:
+                return Math.min(3, (int) (heroe.getPorcentajeCargaSalto() * 4)); // 0 a 3 según cuánto cargó
+            case DESPEGANDO:
+                return 4;
+            case EN_EL_AIRE:
+                double vy = heroe.getVelocidadY();
+                if (vy < -3) return 1;   // subiendo
+                if (vy < 1.5) return 2;  // punto más alto
+                if (vy < 5) return 3;    // empezando a caer
+                return 4;                // cayendo rápido
+            case ATERRIZANDO:
+                return 5;
+            case CORRIENDO:
+                return (int) ((ahora / MS_POR_FOTOGRAMA_CORRER) % cantidad);
+            default: // QUIETO
+                return (int) ((ahora / MS_POR_FOTOGRAMA_QUIETO) % cantidad);
+        }
     }
 
     private void dibujarEntidad(Graphics2D g, Entidad entidad) {
