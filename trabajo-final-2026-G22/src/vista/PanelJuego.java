@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -32,9 +33,11 @@ public class PanelJuego extends JPanel {
     private javax.sound.sampled.Clip clipAmbienteNivel4;
     private javax.sound.sampled.Clip clipEfecto;
     private static final int HP_POR_CORAZON = 10; // Cada corazón representa 10 puntos de vida
-    // Tamaño "logico" del juego: la fisica y las colisiones siempre usan estas medidas
+    // Tamaño "logico" del juego: la fisica y las colisiones siempre usan estas
+    // medidas
     private static final int ANCHO_JUEGO = 800;
     private static final int ALTO_JUEGO = 600;
+    private final CatalogoSprites catalogo = new CatalogoSprites();
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -57,8 +60,10 @@ public class PanelJuego extends JPanel {
         // Pixel art: al agrandar, que los pixeles queden nitidos y no borrosos
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        // El juego se calcula siempre en 800x600. Si la ventana es mas grande (pantalla completa)
-        // se agranda todo con la misma escala y se centra, dejando bandas a los costados.
+        // El juego se calcula siempre en 800x600. Si la ventana es mas grande (pantalla
+        // completa)
+        // se agranda todo con la misma escala y se centra, dejando bandas a los
+        // costados.
         double escala = Math.min(getWidth() / (double) ANCHO_JUEGO, getHeight() / (double) ALTO_JUEGO);
         int margenX = (int) ((getWidth() - ANCHO_JUEGO * escala) / 2);
         int margenY = (int) ((getHeight() - ALTO_JUEGO * escala) / 2);
@@ -79,11 +84,11 @@ public class PanelJuego extends JPanel {
         }
 
         for (Plataforma plataforma : escenario.getPlataformas()) {
-            dibujarEntidad(g2, plataforma);
+            dibujarPlataforma(g2, plataforma);
         }
 
         if (escenario.getPuerta() != null) {
-            dibujarEntidad(g2, escenario.getPuerta());//dibujarEntidad en lo que buscamos un sprite para la puerta 
+            dibujarEntidad(g2, escenario.getPuerta());// dibujarEntidad en lo que buscamos un sprite para la puerta
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {
@@ -107,14 +112,28 @@ public class PanelJuego extends JPanel {
             }
             dibujarBarraVida(g2, heroe);
 
-            //solo aparece si el heroe esta cargando el salto
-            if (heroe.isCargandoSalto()) { 
+            // solo aparece si el heroe esta cargando el salto
+            if (heroe.isCargandoSalto()) {
                 dibujarBarraCarga(g2, heroe);
             }
         }
 
         // Medidor de progreso: Nivel actual y metros de altura
         dibujarMetrosHUD(g2);
+    }
+
+    // Las plataformas se dibujan con la imagen del catálogo según su tipo
+    private void dibujarPlataforma(Graphics2D g, Plataforma plataforma) {
+        int x = (int) plataforma.getX();
+        int y = (int) plataforma.getY();
+        BufferedImage imagen = catalogo.getImagen(plataforma.getTipo());
+
+        if (imagen != null) {
+            dibujarSpritePlataforma(g, imagen, x, y, plataforma.getAncho(), plataforma.getAlto());
+        } else {
+            g.setColor(plataforma.getColor());
+            g.fillRect(x, y, plataforma.getAncho(), plataforma.getAlto());
+        }
     }
 
     private void dibujarEntidad(Graphics2D g, Entidad entidad) {
@@ -124,17 +143,12 @@ public class PanelJuego extends JPanel {
         int alto = entidad.getAlto();
         int yTexto = y; // el nombre va arriba de lo que se dibuje
 
-        if (entidad.getSprite() != null) {
+        if (entidad.getSprite() != null) { 
             java.awt.image.BufferedImage img = entidad.getSprite();
-
-            if (entidad instanceof Plataforma) {
-                dibujarSpritePlataforma(g, img, x, y, ancho, alto);
-            } else {
-                // Cada entidad dice donde y de que tamaño va su sprite (ver Entidad.getAreaSprite)
-                java.awt.Rectangle area = entidad.getAreaSprite();
-                g.drawImage(img, area.x, area.y, area.width, area.height, null);
-                yTexto = Math.min(y, area.y);
-            }
+            // Cada entidad dice donde y de que tamaño va su sprite
+            java.awt.Rectangle area = entidad.getAreaSprite();
+            g.drawImage(img, area.x, area.y, area.width, area.height, null);
+            yTexto = Math.min(y, area.y);
         } else {
             g.setColor(entidad.getColor());
             g.fillRect(x, y, ancho, alto);
@@ -146,15 +160,18 @@ public class PanelJuego extends JPanel {
         g.drawString(entidad.getNombre(), x, yTexto - 4);
     }
 
-    // Dibuja el sprite de una plataforma SIN deformarlo: siempre se escala con la misma
+    // Dibuja el sprite de una plataforma SIN deformarlo: siempre se escala con la
+    // misma
     // proporcion en ancho y alto. El borde de arriba del dibujo queda justo en la
     // hitbox, que es donde el heroe apoya los pies.
-    private void dibujarSpritePlataforma(Graphics2D g, java.awt.image.BufferedImage img,int x, int y, int ancho, int alto) {
+    private void dibujarSpritePlataforma(Graphics2D g, java.awt.image.BufferedImage img, int x, int y, int ancho,
+            int alto) {
         int w = img.getWidth();
         int h = img.getHeight();
 
         if (ancho > 250) {
-            // Plataforma larga (el piso): alto = alto de la hitbox y se repite la parte central
+            // Plataforma larga (el piso): alto = alto de la hitbox y se repite la parte
+            // central
             // del sprite, sin los bordes redondeados, hasta cubrir todo el ancho.
             double escala = (double) alto / h;
             int anchoBaldosa = Math.max(1, (int) Math.round((w / 2) * escala)); // ancho de cada repeticion en pantalla
@@ -165,10 +182,11 @@ public class PanelJuego extends JPanel {
                 int anchoDibujo = Math.min(anchoBaldosa, x + ancho - xActual);
                 int origenFin = origenX + (int) Math.round(origenAncho * (double) anchoDibujo / anchoBaldosa);
                 g.drawImage(img, xActual, y, xActual + anchoDibujo, y + alto,
-                            origenX, 0, origenFin, h, null);
+                        origenX, 0, origenFin, h, null);
             }
         } else {
-            // Plataforma normal: el ancho lo da la hitbox y el alto sale de mantener la proporcion
+            // Plataforma normal: el ancho lo da la hitbox y el alto sale de mantener la
+            // proporcion
             int altoDibujo = (int) Math.round((double) ancho * h / w);
             g.drawImage(img, x, y, ancho, altoDibujo, null);
         }
@@ -197,7 +215,8 @@ public class PanelJuego extends JPanel {
             double llenado = Math.max(0, Math.min(1, hpDeEsteCorazon / HP_POR_CORAZON));
             int xCorazon = x + i * (tamanoCorazon + espacio);
 
-            // Primero el corazon vacio (gris) y encima el rojo, recortado segun cuanta vida queda
+            // Primero el corazon vacio (gris) y encima el rojo, recortado segun cuanta vida
+            // queda
             dibujarCorazon(g, xCorazon, y, tamanoCorazon, Color.GRAY);
             if (llenado > 0) {
                 java.awt.Shape clipOriginal = g.getClip();
@@ -209,25 +228,26 @@ public class PanelJuego extends JPanel {
     }
 
     private void dibujarBarraCarga(Graphics2D g, Heroe heroe) {
-    int anchoBarra = 40;
-    int altoBarra = 6;
-    int x = (int) heroe.getX();
-    int y = (int) heroe.getY() - 15; // un poco arriba de la cabeza del héroe
+        int anchoBarra = 40;
+        int altoBarra = 6;
+        int x = (int) heroe.getX();
+        int y = (int) heroe.getY() - 15; // un poco arriba de la cabeza del héroe
 
-    double porcentaje = heroe.getPorcentajeCargaSalto();
+        double porcentaje = heroe.getPorcentajeCargaSalto();
 
-    g.setColor(Color.DARK_GRAY);
-    g.fillRect(x, y, anchoBarra, altoBarra);
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(x, y, anchoBarra, altoBarra);
 
-    g.setColor(Color.YELLOW);
-    g.fillRect(x, y, (int) (anchoBarra * porcentaje), altoBarra);
+        g.setColor(Color.YELLOW);
+        g.fillRect(x, y, (int) (anchoBarra * porcentaje), altoBarra);
 
-    g.setColor(Color.WHITE);
-    g.drawRect(x, y, anchoBarra, altoBarra);
+        g.setColor(Color.WHITE);
+        g.drawRect(x, y, anchoBarra, altoBarra);
     }
 
     private void dibujarMetrosHUD(Graphics2D g2) {
-        if (escenario == null || heroe == null) return;
+        if (escenario == null || heroe == null)
+            return;
         int pantalla = escenario.getPantallaActual();
         // 10 píxeles = 1 metro desde la base Y=550 de la pantalla 1
         double alturaPx = ((pantalla - 1) * 600.0) + (550.0 - heroe.getY());
@@ -253,92 +273,102 @@ public class PanelJuego extends JPanel {
         g2.drawString(texto, x, y + 3);
     }
 
-//  Agregamos estos dos métodos al final de la clase PanelJuego:
-public void reproducirMusica() {
-    detenerMusica();
-    try {
-        java.net.URL urlAudio = getClass().getResource("/recursos/Escenario/Ascent_to_the_Iron_Spire.wav"); 
-        if (urlAudio != null) {
-            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(urlAudio);
-            clipFondo = javax.sound.sampled.AudioSystem.getClip();
-            clipFondo.open(audioStream);
-            clipFondo.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Que se repita infinito
-            clipFondo.start();
-        } else {
-            System.err.println("No se encontró la música del juego.");
-        }
-    } catch (Exception e) {
-        System.err.println("Error al reproducir música: " + e.getMessage());
-    }
-}
-
-public void detenerMusica() {
-    if (clipFondo != null && clipFondo.isRunning()) {
-        clipFondo.stop();
-        clipFondo.close();}
-    }
-public void reproducirEfectoSFX(String rutaSFX) {
-    new Thread(() -> {
-        detenerEfecto();
+    // Agregamos estos dos métodos al final de la clase PanelJuego:
+    public void reproducirMusica() {
+        detenerMusica();
         try {
-            URL urlAudio = getClass().getResource(rutaSFX);
+            java.net.URL urlAudio = getClass().getResource("/recursos/Escenario/Ascent_to_the_Iron_Spire.wav");
             if (urlAudio != null) {
-                javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(urlAudio);
-                clipEfecto = javax.sound.sampled.AudioSystem.getClip();
-                clipEfecto.open(audioStream);
-                clipEfecto.start();
+                javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem
+                        .getAudioInputStream(urlAudio);
+                clipFondo = javax.sound.sampled.AudioSystem.getClip();
+                clipFondo.open(audioStream);
+                clipFondo.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Que se repita infinito
+                clipFondo.start();
             } else {
-                System.err.println("No se encontró el efecto de sonido: " + rutaSFX);
+                System.err.println("No se encontró la música del juego.");
             }
         } catch (Exception e) {
-            System.err.println("Error al reproducir efecto SFX: " + e.getMessage());
+            System.err.println("Error al reproducir música: " + e.getMessage());
         }
-    }).start();
-}
-public void detenerEfecto() { // Detiene el efecto de sonido si está sonando
-    if (clipEfecto != null && clipEfecto.isRunning()) {
-        clipEfecto.stop();
-        clipEfecto.close();
     }
-}
-public void cargarFondoNivel(int nivel) {
-    try {
-        // Carga dinámicamente nivel_1.jpg, nivel_2.jpg, etc.
-        URL rutaFondo = getClass().getResource("/recursos/Escenario/nivel_" + nivel + ".gif"); 
-        if (rutaFondo != null) {
-            this.fondo = new ImageIcon(rutaFondo).getImage();
-            repaint(); // Fuerza a que se redibuje la pantalla al instante
-        } else {
-            System.err.println("No se pudo cargar el fondo del nivel: " + nivel);
-        }
-    } catch (Exception e) {
-        System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
-    }
-}
-public void reproducirAmbienteNivel4() {
-    // Si ya está sonando el ambiente del nivel 4, no lo volvemos a arrancar desde cero
-    if (clipAmbienteNivel4 != null && clipAmbienteNivel4.isRunning()) return;
-    
-    try {
-        URL urlAudio = getClass().getResource("/recursos/Escenario/nivel4_ambiente.wav"); 
-        if (urlAudio != null) {
-            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(urlAudio);
-            clipAmbienteNivel4 = javax.sound.sampled.AudioSystem.getClip();
-            clipAmbienteNivel4.open(audioStream);
-            clipAmbienteNivel4.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Bucle infinito
-            clipAmbienteNivel4.start();
-        } else {
-            System.err.println("No se encontró el audio de ambiente del nivel 4.");
-        }
-    } catch (Exception e) {
-        System.err.println("Error al reproducir ambiente del nivel 4: " + e.getMessage());
-    }
-}
 
-public void detenerAmbienteNivel4() {
-    if (clipAmbienteNivel4 != null && clipAmbienteNivel4.isRunning()) {
-        clipAmbienteNivel4.stop();
-        clipAmbienteNivel4.close();
+    public void detenerMusica() {
+        if (clipFondo != null && clipFondo.isRunning()) {
+            clipFondo.stop();
+            clipFondo.close();
+        }
     }
-}
+
+    public void reproducirEfectoSFX(String rutaSFX) {
+        new Thread(() -> {
+            detenerEfecto();
+            try {
+                URL urlAudio = getClass().getResource(rutaSFX);
+                if (urlAudio != null) {
+                    javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem
+                            .getAudioInputStream(urlAudio);
+                    clipEfecto = javax.sound.sampled.AudioSystem.getClip();
+                    clipEfecto.open(audioStream);
+                    clipEfecto.start();
+                } else {
+                    System.err.println("No se encontró el efecto de sonido: " + rutaSFX);
+                }
+            } catch (Exception e) {
+                System.err.println("Error al reproducir efecto SFX: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    public void detenerEfecto() { // Detiene el efecto de sonido si está sonando
+        if (clipEfecto != null && clipEfecto.isRunning()) {
+            clipEfecto.stop();
+            clipEfecto.close();
+        }
+    }
+
+    public void cargarFondoNivel(int nivel) {
+        try {
+            // Carga dinámicamente nivel_1.jpg, nivel_2.jpg, etc.
+            URL rutaFondo = getClass().getResource("/recursos/Escenario/nivel_" + nivel + ".gif");
+            if (rutaFondo != null) {
+                this.fondo = new ImageIcon(rutaFondo).getImage();
+                repaint(); // Fuerza a que se redibuje la pantalla al instante
+            } else {
+                System.err.println("No se pudo cargar el fondo del nivel: " + nivel);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
+        }
+    }
+
+    public void reproducirAmbienteNivel4() {
+        // Si ya está sonando el ambiente del nivel 4, no lo volvemos a arrancar desde
+        // cero
+        if (clipAmbienteNivel4 != null && clipAmbienteNivel4.isRunning())
+            return;
+
+        try {
+            URL urlAudio = getClass().getResource("/recursos/Escenario/nivel4_ambiente.wav");
+            if (urlAudio != null) {
+                javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem
+                        .getAudioInputStream(urlAudio);
+                clipAmbienteNivel4 = javax.sound.sampled.AudioSystem.getClip();
+                clipAmbienteNivel4.open(audioStream);
+                clipAmbienteNivel4.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Bucle infinito
+                clipAmbienteNivel4.start();
+            } else {
+                System.err.println("No se encontró el audio de ambiente del nivel 4.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al reproducir ambiente del nivel 4: " + e.getMessage());
+        }
+    }
+
+    public void detenerAmbienteNivel4() {
+        if (clipAmbienteNivel4 != null && clipAmbienteNivel4.isRunning()) {
+            clipAmbienteNivel4.stop();
+            clipAmbienteNivel4.close();
+        }
+    }
 }
