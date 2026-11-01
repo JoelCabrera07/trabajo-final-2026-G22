@@ -17,6 +17,7 @@ import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Plataforma;
 import modelo.Proyectil;
+import modelo.Puerta;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -38,6 +39,7 @@ public class PanelJuego extends JPanel {
     private static final int ANCHO_JUEGO = 800;
     private static final int ALTO_JUEGO = 600;
     private final CatalogoSprites catalogo = new CatalogoSprites();
+    private static final int MS_POR_FOTOGRAMA_PORTAL = 90;
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -88,7 +90,7 @@ public class PanelJuego extends JPanel {
         }
 
         if (escenario.getPuerta() != null) {
-            dibujarEntidad(g2, escenario.getPuerta());// dibujarEntidad en lo que buscamos un sprite para la puerta
+            dibujarPuerta(g2, escenario.getPuerta());
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {
@@ -134,6 +136,25 @@ public class PanelJuego extends JPanel {
             g.setColor(plataforma.getColor());
             g.fillRect(x, y, plataforma.getAncho(), plataforma.getAlto());
         }
+    }
+
+    // La puerta se anima con el reloj: cada 90 ms pasa al siguiente fotograma
+    private void dibujarPuerta(Graphics2D g, Puerta puerta) {
+        BufferedImage[] fotogramas = catalogo.getAnimacion(puerta.getTipo());
+
+        if (fotogramas == null) {
+            g.setColor(puerta.getColor());
+            g.fillRect((int) puerta.getX(), (int) puerta.getY(), puerta.getAncho(), puerta.getAlto());
+            return;
+        }
+
+        int i = (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_PORTAL) % fotogramas.length);
+        BufferedImage img = fotogramas[i];
+
+        // El portal es más grande que la hitbox: se centra sobre ella y apoya en el piso
+        int x = (int) puerta.getX() + puerta.getAncho() / 2 - img.getWidth() / 2;
+        int y = (int) puerta.getY() + puerta.getAlto() - img.getHeight();
+        g.drawImage(img, x, y, null);
     }
 
     private void dibujarEntidad(Graphics2D g, Entidad entidad) {
