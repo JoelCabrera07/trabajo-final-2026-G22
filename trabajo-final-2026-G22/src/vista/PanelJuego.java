@@ -40,6 +40,8 @@ public class PanelJuego extends JPanel {
     private static final int ALTO_JUEGO = 600;
     private final CatalogoSprites catalogo = new CatalogoSprites();
     private static final int MS_POR_FOTOGRAMA_PORTAL = 90;
+    private static final int MS_POR_FOTOGRAMA_ENEMIGO = 130;
+    private static final int ALTO_DIBUJO_ENEMIGO = 50; // mismo alto con que se dibujaban antes
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -99,7 +101,7 @@ public class PanelJuego extends JPanel {
             if (!enemigo.debeDibujarse()) {
                 continue;
             }
-            dibujarEntidad(g2, enemigo);
+            dibujarEnemigo(g2, enemigo);
         }
 
         for (Proyectil proyectil : escenario.getProyectiles()) {
@@ -151,10 +153,30 @@ public class PanelJuego extends JPanel {
         int i = (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_PORTAL) % fotogramas.length);
         BufferedImage img = fotogramas[i];
 
-        // El portal es más grande que la hitbox: se centra sobre ella y apoya en el piso
+        // El portal es más grande que la hitbox: se centra sobre ella y apoya en el
+        // piso
         int x = (int) puerta.getX() + puerta.getAncho() / 2 - img.getWidth() / 2;
         int y = (int) puerta.getY() + puerta.getAlto() - img.getHeight();
         g.drawImage(img, x, y, null);
+    }
+
+    // Los enemigos se dibujan con la animación del catálogo, según su tipo y hacia
+    // dónde miran
+    private void dibujarEnemigo(Graphics2D g, Enemigo enemigo) {
+        BufferedImage[] fotogramas = catalogo.getAnimacion(enemigo.getTipo(), enemigo.isMirandoDerecha());
+
+        if (fotogramas == null) {
+            dibujarEntidad(g, enemigo); // los que todavía no pasaron al catálogo
+            return;
+        }
+
+        int i = (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO) % fotogramas.length);
+        int x = (int) enemigo.getX();
+        int y = (int) enemigo.getY();
+        g.drawImage(fotogramas[i], x, y, enemigo.getAncho(), ALTO_DIBUJO_ENEMIGO, null);
+
+        g.setColor(Color.WHITE);
+        g.drawString(enemigo.getNombre(), x, y - 4);
     }
 
     private void dibujarEntidad(Graphics2D g, Entidad entidad) {
@@ -164,7 +186,7 @@ public class PanelJuego extends JPanel {
         int alto = entidad.getAlto();
         int yTexto = y; // el nombre va arriba de lo que se dibuje
 
-        if (entidad.getSprite() != null) { 
+        if (entidad.getSprite() != null) {
             java.awt.image.BufferedImage img = entidad.getSprite();
             // Cada entidad dice donde y de que tamaño va su sprite
             java.awt.Rectangle area = entidad.getAreaSprite();
