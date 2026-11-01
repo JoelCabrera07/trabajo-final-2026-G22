@@ -224,4 +224,8 @@ public class EnemigoAcechador extends Enemigo {
     public boolean debeDibujarse() {
         return isActivo(); // Solo se dibuja si está activo
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.ENEMIGO_ACECHADOR;
+    }
 }

@@ -35,4 +35,8 @@ public class PlataformaRompible extends Plataforma {
     public boolean debeEliminarse() {
         return this.isDestruida(); // Si está destruida, el escenario la va a eliminar de la lista
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.PLATAFORMA_ROMPIBLE;
+    }
 }

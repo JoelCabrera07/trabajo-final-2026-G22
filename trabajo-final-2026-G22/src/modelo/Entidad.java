@@ -108,4 +108,6 @@ private String nombre;
     public Rectangle getAreaSprite() {
         return new Rectangle((int) x, (int) y, ancho, 50);
     }
+        // Cada entidad concreta dice qué es, para que la vista elija cómo dibujarla
+    public abstract TipoEntidad getTipo();
 }

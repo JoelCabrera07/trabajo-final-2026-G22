@@ -76,4 +76,8 @@ public class EnemigoVolador extends Enemigo {
         flotarVerticalmente();
         actualizarAnimacion(heroe);
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.ENEMIGO_VOLADOR;
+    }
 }

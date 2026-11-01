@@ -13,6 +13,10 @@ public class PlataformaNormal extends Plataforma {
         h.setVelocidadY(0);
         h.setEnElSuelo(true);
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.PLATAFORMA_NORMAL;
+    }
 } 
     
 

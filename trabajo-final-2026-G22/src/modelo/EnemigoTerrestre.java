@@ -145,5 +145,9 @@ public class EnemigoTerrestre extends Enemigo {
         
         this.actualizarAnimacion(); // Hace que mueva las patitas mientras corre
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.ENEMIGO_TERRESTRE;
+    }
 
 }

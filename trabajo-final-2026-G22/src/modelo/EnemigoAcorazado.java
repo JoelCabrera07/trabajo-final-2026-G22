@@ -55,4 +55,8 @@ public class EnemigoAcorazado extends Enemigo {
     public void actualizar(Heroe heroe, Escenario escenario) {
         patrullar(); // Por ahora solo patrulla, no hace nada con el héroe ni con el escenario
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.ENEMIGO_ACORAZADO;
+    }
 }

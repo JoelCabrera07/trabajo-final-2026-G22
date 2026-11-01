@@ -63,4 +63,8 @@ public class Proyectil extends Entidad {
         int centroY = (int) getY() + getAlto() / 2;
         return new Rectangle(centroX - desfaseX, centroY - desfaseY, LADO_SPRITE, LADO_SPRITE);
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.PROYECTIL;
+    }
 }

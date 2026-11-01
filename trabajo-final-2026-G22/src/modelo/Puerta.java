@@ -41,4 +41,8 @@ public class Puerta extends Entidad implements Colisionable {
     public void aplicarEfectoColision(Heroe h) {
         h.completarNivel();
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.PUERTA;
+    }
 }

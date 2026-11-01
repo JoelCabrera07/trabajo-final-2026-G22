@@ -32,4 +32,8 @@ public class PlataformaHielo extends Plataforma {
             }
         }
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.PLATAFORMA_HIELO;
+    }
 }

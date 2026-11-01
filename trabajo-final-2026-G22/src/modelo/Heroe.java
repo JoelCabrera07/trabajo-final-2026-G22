@@ -306,4 +306,8 @@ public class Heroe extends Entidad {
             notificarObservadores(EventoJuego.HEROE_MURIO);
         }
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.HEROE;
+    }
 }

@@ -96,4 +96,8 @@ public class EnemigoTorreta extends Enemigo {
             escenario.getProyectiles().add(nuevo);
         }
     }
+    @Override
+    public TipoEntidad getTipo() {
+        return TipoEntidad.ENEMIGO_TORRETA;
+    }
 }
