@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.Rectangle;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -18,6 +19,7 @@ import modelo.Heroe;
 import modelo.Plataforma;
 import modelo.Proyectil;
 import modelo.Puerta;
+import modelo.EstadoEnemigo;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -44,7 +46,8 @@ public class PanelJuego extends JPanel {
     private static final int ALTO_DIBUJO_ENEMIGO = 50; // mismo alto con que se dibujaban antes
     private static final int MS_POR_FOTOGRAMA_CORRER = 100; // antes: cada 6 frames
     private static final int MS_POR_FOTOGRAMA_QUIETO = 400; // antes: cada 25 frames
-    private static final int ALTO_DIBUJO_HEROE = 50;        // mismo alto con que se dibujaba antes
+    private static final int ALTO_DIBUJO_HEROE = 50; // mismo alto con que se dibujaba antes
+    private static final int TICKS_POR_FOTOGRAMA_ENEMIGO = 6; // aparecer/desaparecer: un fotograma cada 6 frames
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -163,26 +166,45 @@ public class PanelJuego extends JPanel {
         g.drawImage(img, x, y, null);
     }
 
-    // Los enemigos se dibujan con la animación del catálogo, según su tipo y hacia
-    // dónde miran
+    // Los enemigos se dibujan con la animación del catálogo, según su tipo, su
+    // estado y hacia dónde miran
     private void dibujarEnemigo(Graphics2D g, Enemigo enemigo) {
-        BufferedImage[] fotogramas = catalogo.getAnimacion(enemigo.getTipo(), enemigo.isMirandoDerecha());
+        BufferedImage[] fotogramas = catalogo.getAnimacionEnemigo(
+                enemigo.getTipo(), enemigo.getEstado(), enemigo.isMirandoDerecha());
 
         if (fotogramas == null) {
             dibujarEntidad(g, enemigo); // los que todavía no pasaron al catálogo
             return;
         }
 
-        int i = (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO) % fotogramas.length);
+        BufferedImage img = fotogramas[elegirFotogramaEnemigo(enemigo, fotogramas.length)];
         int x = (int) enemigo.getX();
         int y = (int) enemigo.getY();
-        g.drawImage(fotogramas[i], x, y, enemigo.getAncho(), ALTO_DIBUJO_ENEMIGO, null);
+
+        // Si el catálogo no indica otra cosa, se dibuja en su posición con el tamaño
+        // normal
+        Rectangle area = catalogo.getAreaDibujo(enemigo.getTipo());
+        if (area == null) {
+            area = new Rectangle(0, 0, enemigo.getAncho(), ALTO_DIBUJO_ENEMIGO);
+        }
+        g.drawImage(img, x + area.x, y + area.y, area.width, area.height, null);
 
         g.setColor(Color.WHITE);
-        g.drawString(enemigo.getNombre(), x, y - 4);
+        g.drawString(enemigo.getNombre(), x, Math.min(y, y + area.y) - 4);
     }
 
-        // El héroe se dibuja según su estado: la vista elige la animación y el fotograma
+    // Aparecer y desaparecer se ven una sola vez, según cuánto llevan; el resto se
+    // repite con el reloj
+    private int elegirFotogramaEnemigo(Enemigo enemigo, int cantidad) {
+        EstadoEnemigo estado = enemigo.getEstado();
+        if (estado == EstadoEnemigo.APARECIENDO || estado == EstadoEnemigo.DESAPARECIENDO) {
+            return Math.min(cantidad - 1, enemigo.getTicksEnEstado() / TICKS_POR_FOTOGRAMA_ENEMIGO);
+        }
+        return (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO) % cantidad);
+    }
+
+    // El héroe se dibuja según su estado: la vista elige la animación y el
+    // fotograma
     private void dibujarHeroe(Graphics2D g, Heroe heroe) {
         BufferedImage[] fotogramas = catalogo.getAnimacionHeroe(heroe.getEstado(), heroe.isMirandoDerecha());
 
@@ -210,10 +232,13 @@ public class PanelJuego extends JPanel {
                 return 4;
             case EN_EL_AIRE:
                 double vy = heroe.getVelocidadY();
-                if (vy < -3) return 1;   // subiendo
-                if (vy < 1.5) return 2;  // punto más alto
-                if (vy < 5) return 3;    // empezando a caer
-                return 4;                // cayendo rápido
+                if (vy < -3)
+                    return 1; // subiendo
+                if (vy < 1.5)
+                    return 2; // punto más alto
+                if (vy < 5)
+                    return 3; // empezando a caer
+                return 4; // cayendo rápido
             case ATERRIZANDO:
                 return 5;
             case CORRIENDO:
