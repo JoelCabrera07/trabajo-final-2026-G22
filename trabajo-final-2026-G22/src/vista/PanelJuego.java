@@ -48,6 +48,8 @@ public class PanelJuego extends JPanel {
     private static final int MS_POR_FOTOGRAMA_QUIETO = 400; // antes: cada 25 frames
     private static final int ALTO_DIBUJO_HEROE = 50; // mismo alto con que se dibujaba antes
     private static final int TICKS_POR_FOTOGRAMA_ENEMIGO = 6; // aparecer/desaparecer: un fotograma cada 6 frames
+    private static final int MS_POR_FOTOGRAMA_PROYECTIL = 64;
+    private static final int DIST_CABEZA_PROYECTIL = 9;
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -111,7 +113,7 @@ public class PanelJuego extends JPanel {
         }
 
         for (Proyectil proyectil : escenario.getProyectiles()) {
-            dibujarEntidad(g2, proyectil);
+            dibujarProyectil(g2, proyectil);
         }
 
         if (heroe != null) {
@@ -193,12 +195,32 @@ public class PanelJuego extends JPanel {
         g.drawString(enemigo.getNombre(), x, Math.min(y, y + area.y) - 4);
     }
 
+    private void dibujarProyectil(Graphics2D g2, Proyectil proyectil) {
+        BufferedImage[] frames = catalogo.getAnimacion(proyectil.getTipo());
+        if (frames == null) {
+            dibujarEntidad(g2, proyectil);
+            return;
+        }
+        int indice = (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_PROYECTIL) % frames.length);
+        BufferedImage frame = frames[indice];
+
+        double angulo = Math.atan2(proyectil.getVelocidadY(), proyectil.getVelocidadX());
+        double centroX = proyectil.getX() + proyectil.getAncho() / 2.0;
+        double centroY = proyectil.getY() + proyectil.getAlto() / 2.0;
+
+        Graphics2D g = (Graphics2D) g2.create();
+        g.translate(centroX, centroY);
+        g.rotate(angulo);
+        g.drawImage(frame, -DIST_CABEZA_PROYECTIL - frame.getWidth() / 2, -frame.getHeight() / 2, null);
+        g.dispose();
+    }
+
     // Aparecer y desaparecer se ven una sola vez, según cuánto llevan; el resto se
     // repite con el reloj
     private int elegirFotogramaEnemigo(Enemigo enemigo, int cantidad) {
         EstadoEnemigo estado = enemigo.getEstado();
-        if (estado == EstadoEnemigo.APARECIENDO || estado == EstadoEnemigo.DESAPARECIENDO 
-            || estado == EstadoEnemigo.CARGANDO || estado == EstadoEnemigo.ENFRIANDO) {
+        if (estado == EstadoEnemigo.APARECIENDO || estado == EstadoEnemigo.DESAPARECIENDO
+                || estado == EstadoEnemigo.CARGANDO || estado == EstadoEnemigo.ENFRIANDO) {
             return Math.min(cantidad - 1, enemigo.getTicksEnEstado() / TICKS_POR_FOTOGRAMA_ENEMIGO);
         }
         return (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO) % cantidad);
@@ -254,23 +276,12 @@ public class PanelJuego extends JPanel {
         int y = (int) entidad.getY();
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
-        int yTexto = y; // el nombre va arriba de lo que se dibuje
-
-        if (entidad.getSprite() != null) {
-            java.awt.image.BufferedImage img = entidad.getSprite();
-            // Cada entidad dice donde y de que tamaño va su sprite
-            java.awt.Rectangle area = entidad.getAreaSprite();
-            g.drawImage(img, area.x, area.y, area.width, area.height, null);
-            yTexto = Math.min(y, area.y);
-        } else {
-            g.setColor(entidad.getColor());
-            g.fillRect(x, y, ancho, alto);
-            g.setColor(Color.BLACK);
-            g.drawRect(x, y, ancho, alto);
-        }
-
+         g.setColor(entidad.getColor());
+        g.fillRect(x, y, ancho, alto);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, ancho, alto);
         g.setColor(Color.WHITE);
-        g.drawString(entidad.getNombre(), x, yTexto - 4);
+        g.drawString(entidad.getNombre(), x, y - 4);
     }
 
     // Dibuja el sprite de una plataforma SIN deformarlo: siempre se escala con la

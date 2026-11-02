@@ -1,4 +1,4 @@
-package modelo;
+package vista;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -391,23 +391,5 @@ public class Sprites {
     // --- Orbe que dispara la torreta (mira a la derecha) ---
     public static BufferedImage[] getOrbe() {
         return cargarSecuencia(CARPETA_TORRETA, numerados("orbe_", 4));
-    }
-
-    /**
-     * Devuelve una copia de la imagen girada 'angulo' radianes alrededor de su centro,
-     * sobre un lienzo cuadrado de 'lado' x 'lado' (tiene que ser mas grande que la
-     * diagonal de la imagen para que no se corten las puntas).
-     */
-    public static BufferedImage rotar(BufferedImage img, double angulo, int lado) {
-        if (img == null) return null;
-        BufferedImage girada = new BufferedImage(lado, lado, BufferedImage.TYPE_INT_ARGB);
-        java.awt.Graphics2D g = girada.createGraphics();
-        g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
-                java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.translate(lado / 2.0, lado / 2.0);
-        g.rotate(angulo);
-        g.drawImage(img, -img.getWidth() / 2, -img.getHeight() / 2, null);
-        g.dispose();
-        return girada;
     }
 }

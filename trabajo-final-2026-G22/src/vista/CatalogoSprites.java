@@ -7,7 +7,6 @@ import java.awt.Rectangle;
 import java.util.Arrays;
 import modelo.EstadoEnemigo;
 import modelo.EstadoHeroe;
-import modelo.Sprites;
 import modelo.TipoEntidad;
 
 public class CatalogoSprites {
@@ -35,6 +34,7 @@ public class CatalogoSprites {
         animaciones.put(TipoEntidad.ENEMIGO_TERRESTRE, Sprites.getEnemigoTerrestre());
         animacionesIzquierda.put(TipoEntidad.ENEMIGO_TERRESTRE,
                 Sprites.voltearAnimacion(Sprites.getEnemigoTerrestre()));
+        animaciones.put(TipoEntidad.PROYECTIL, Sprites.getOrbe());
         // Héroe: una animación por estado (las versiones izquierda se generan
         // espejadas)
         animacionesHeroe.put(EstadoHeroe.QUIETO, Sprites.getHeroeQuieto());
@@ -46,6 +46,11 @@ public class CatalogoSprites {
         // El acechador mide 20x20 pero su dibujo es de 68x72: se centra sobre la hitbox
         areasDibujo.put(TipoEntidad.ENEMIGO_ACECHADOR, new Rectangle(-24, -24, 68, 72));
 
+        BufferedImage acorazado = Sprites.cargar("/assets/enemigo_acorazado.png");
+        if (acorazado != null) {
+            animaciones.put(TipoEntidad.ENEMIGO_ACORAZADO, new BufferedImage[] { acorazado });
+        }
+
         areasDibujo.put(TipoEntidad.ENEMIGO_TORRETA, new Rectangle(-20, -32, 60, 72));
         // Torreta: los 9 fotogramas se reparten según la fase del disparo
         BufferedImage[] torreta = Sprites.getTorretaMagica();
@@ -55,7 +60,7 @@ public class CatalogoSprites {
             animacionesPorEstado.put(EstadoEnemigo.DISPARANDO, Arrays.copyOfRange(torreta, 6, 7));
             animacionesPorEstado.put(EstadoEnemigo.ENFRIANDO, Arrays.copyOfRange(torreta, 7, 9));
         }
-        
+
         for (EstadoHeroe estado : EstadoHeroe.values()) {
             animacionesHeroeIzquierda.put(estado, Sprites.voltearAnimacion(animacionesHeroe.get(estado)));
         }

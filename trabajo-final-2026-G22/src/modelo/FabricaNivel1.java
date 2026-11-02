@@ -36,7 +36,6 @@ public class FabricaNivel1 implements FabricaNivel {
         enemigos.add(new EnemigoTerrestre(160, 390));
         // Empuja al heroe por el piso
         EnemigoAcorazado acorazado1 = new EnemigoAcorazado(470, 500);
-        acorazado1.setSprite(Sprites.cargar("/assets/enemigo_acorazado.png"));
         enemigos.add(acorazado1);
         // Cruza el hueco entre el barro y el hielo
         enemigos.add(new EnemigoVolador(455, 250));

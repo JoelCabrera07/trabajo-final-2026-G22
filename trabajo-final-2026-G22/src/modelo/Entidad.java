@@ -1,22 +1,21 @@
 package modelo;
+
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
+
 public abstract class Entidad {
-    
-private String nombre;
-    private double x;//posicion en el eje x
-    private double y;//posicion en el eje y
-    private int ancho;//tamaño de la hitbox
-    private int alto;//tamaño de la hitbox
-    private Color color;//necesario para poder ponerle colores al programa
-    private int hp;//hp actual
-    private int hpMax;//limite de hp
-    private int ataque;//cantidad de hp que pueden quitar 
-    private BufferedImage sprite;//imagen a dibujar; si no tiene ningun sprite, se sigue dibujando el rectangulo de color
 
+    private String nombre;
+    private double x;// posicion en el eje x
+    private double y;// posicion en el eje y
+    private int ancho;// tamaño de la hitbox
+    private int alto;// tamaño de la hitbox
+    private Color color;// necesario para poder ponerle colores al programa
+    private int hp;// hp actual
+    private int hpMax;// limite de hp
+    private int ataque;// cantidad de hp que pueden quitar
 
-    public Entidad(String nombre, double x, double y,int ancho, int alto, Color color, int hp, int ataque) {
+    public Entidad(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
         this.nombre = nombre;
         this.x = x;
         this.y = y;
@@ -71,43 +70,28 @@ private String nombre;
         return color;
     }
 
-
-    public int getHp() { 
-        return hp; 
-    }
-    public void setHp(int hp){ //Faltaba el Setter, ahora esta implementado
-        this.hp=hp;
+    public int getHp() {
+        return hp;
     }
 
-    public int getHpMax() { 
+    public void setHp(int hp) { // Faltaba el Setter, ahora esta implementado
+        this.hp = hp;
+    }
+
+    public int getHpMax() {
         return hpMax;
     }
 
-    public int getAtaque() { 
-        return ataque; 
+    public int getAtaque() {
+        return ataque;
     }
 
-    public BufferedImage getSprite() {
-        return sprite;
-    }
-
-    public void setSprite(BufferedImage sprite) {
-        this.sprite = sprite;
-    }
-
-    //lo mejor es poner el metodo aca, para que todos lo aprendan automáticamente.
+    // lo mejor es poner el metodo aca, para que todos lo aprendan automáticamente.
     public Rectangle getHitbox() {
         // Rectangle trabaja con números enteros
         return new Rectangle((int) x, (int) y, ancho, alto);
     }
 
-    // Rectangulo donde la vista dibuja el sprite. Por defecto es lo de siempre: arriba a la
-    // izquierda de la hitbox, con su ancho y 50 px de alto. Las entidades cuyo dibujo tiene
-    // otro tamaño que la hitbox (Acechador, Torreta, Proyectil) lo redefinen, asi la vista
-    // no tiene que preguntar de que tipo es cada una.
-    public Rectangle getAreaSprite() {
-        return new Rectangle((int) x, (int) y, ancho, 50);
-    }
-        // Cada entidad concreta dice qué es, para que la vista elija cómo dibujarla
+    // Cada entidad concreta dice qué es, para que la vista elija cómo dibujarla
     public abstract TipoEntidad getTipo();
 }
