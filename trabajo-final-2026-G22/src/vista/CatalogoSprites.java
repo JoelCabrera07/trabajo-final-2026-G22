@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.Rectangle;
+import java.util.Arrays;
 import modelo.EstadoEnemigo;
 import modelo.EstadoHeroe;
 import modelo.Sprites;
@@ -44,6 +45,17 @@ public class CatalogoSprites {
         animacionesHeroe.put(EstadoHeroe.ATERRIZANDO, Sprites.getHeroeSaltoCaida());
         // El acechador mide 20x20 pero su dibujo es de 68x72: se centra sobre la hitbox
         areasDibujo.put(TipoEntidad.ENEMIGO_ACECHADOR, new Rectangle(-24, -24, 68, 72));
+
+        areasDibujo.put(TipoEntidad.ENEMIGO_TORRETA, new Rectangle(-20, -32, 60, 72));
+        // Torreta: los 9 fotogramas se reparten según la fase del disparo
+        BufferedImage[] torreta = Sprites.getTorretaMagica();
+        if (torreta != null) {
+            animacionesPorEstado.put(EstadoEnemigo.REPOSO, Arrays.copyOfRange(torreta, 0, 4));
+            animacionesPorEstado.put(EstadoEnemigo.CARGANDO, Arrays.copyOfRange(torreta, 4, 6));
+            animacionesPorEstado.put(EstadoEnemigo.DISPARANDO, Arrays.copyOfRange(torreta, 6, 7));
+            animacionesPorEstado.put(EstadoEnemigo.ENFRIANDO, Arrays.copyOfRange(torreta, 7, 9));
+        }
+        
         for (EstadoHeroe estado : EstadoHeroe.values()) {
             animacionesHeroeIzquierda.put(estado, Sprites.voltearAnimacion(animacionesHeroe.get(estado)));
         }

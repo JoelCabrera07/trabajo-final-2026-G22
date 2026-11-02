@@ -7,4 +7,8 @@ public enum EstadoEnemigo {
     PERSIGUIENDO,
     ATACANDO,
     DESAPARECIENDO,
+    REPOSO,
+    CARGANDO,
+    DISPARANDO,
+    ENFRIANDO,
 }

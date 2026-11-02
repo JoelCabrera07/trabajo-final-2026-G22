@@ -197,7 +197,8 @@ public class PanelJuego extends JPanel {
     // repite con el reloj
     private int elegirFotogramaEnemigo(Enemigo enemigo, int cantidad) {
         EstadoEnemigo estado = enemigo.getEstado();
-        if (estado == EstadoEnemigo.APARECIENDO || estado == EstadoEnemigo.DESAPARECIENDO) {
+        if (estado == EstadoEnemigo.APARECIENDO || estado == EstadoEnemigo.DESAPARECIENDO 
+            || estado == EstadoEnemigo.CARGANDO || estado == EstadoEnemigo.ENFRIANDO) {
             return Math.min(cantidad - 1, enemigo.getTicksEnEstado() / TICKS_POR_FOTOGRAMA_ENEMIGO);
         }
         return (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO) % cantidad);
