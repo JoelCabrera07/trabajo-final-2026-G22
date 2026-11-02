@@ -3,9 +3,9 @@
 ## 1. Integrantes del Equipo 
 
 - Cabrera, Joel. 
-- Hidalgo,Lautaro.
+- Hidalgo,Lautaro.(Abandono)
 - Millar,Juan Cruz.
-- Valentino,Ernesto Paez.
+- Valentino,Ernesto Paez.(Abandono) 
 
 ## 2.Dominio y Alcance del Sistema.
 
