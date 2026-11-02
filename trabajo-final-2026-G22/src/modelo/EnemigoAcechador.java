@@ -178,7 +178,7 @@ public class EnemigoAcechador extends Enemigo {
     }
 
     @Override
-    public boolean debeDibujarse() {
+    public boolean isVisible() {
         return isActivo(); // Solo se dibuja si está activo
     }
 

@@ -8,7 +8,7 @@ public abstract class Enemigo extends Entidad implements Colisionable {
     
     public abstract void actualizar(Heroe heroe, Escenario escenario); // Cada tipo de enemigo tiene su propia logica de movimiento y ataque, por eso es abstracta
 
-    public boolean debeDibujarse(){//solo acechador lo va a redefinir, los demas enemigos se dibujan siempre
+    public boolean isVisible(){
         return true;
     }
     

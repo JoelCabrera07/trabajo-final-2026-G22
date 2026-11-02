@@ -21,7 +21,7 @@ public class Heroe extends Entidad {
     private boolean enElSuelo; // true si está parado sobre una plataforma/piso, decide si puede saltar y si le
                                // aplica gravedad
     private boolean mirandoDerecha = true; // Hacia qué lado mira el personaje; sirve para dirección del salto y del
-                                           // sprite
+
     private static final double ESCALA_SALTO = Math.sqrt(0.75);// Escala de la altura del salto: sqrt(0.75) = 0.866,
                                                                // para que el salto sea un poco más bajo que la
                                                                // distancia horizontal recorrida
@@ -38,14 +38,12 @@ public class Heroe extends Entidad {
     private int ticksDespegue = 0;
     private boolean estabaEnElSuelo = true;
 
-    // Constructor: arma el Heroe pasándole todo lo genérico a Entidad e inicializa
-    // sus animaciones
+    // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
     public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
         super(nombre, x, y, ancho, alto, color, hp, ataque);
     }
 
-    // Se llama en cada frame del juego: aplica gravedad, mueve y actualiza el
-    // sprite actual
+    // Se llama en cada frame del juego: aplica gravedad, mueve y actualiza su estado
     public void actualizar() {
         this.actualizarCarga();
         velocidadY += GRAVEDAD;
@@ -67,9 +65,7 @@ public class Heroe extends Entidad {
         this.actualizarEstado();
     }
 
-    // Gestiona los estados correspondientes a cada fila de movimientos
-    // Decide en qué situación está el héroe. La vista usa este estado para elegir
-    // la imagen
+    // Decide en qué situación está el héroe. La vista usa este estado para elegir la imagen
     private void actualizarEstado() {
         // Detecta el momento en que toca el suelo viniendo del aire
         if (!estabaEnElSuelo && enElSuelo) {

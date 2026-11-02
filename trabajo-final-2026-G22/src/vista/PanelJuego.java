@@ -106,7 +106,7 @@ public class PanelJuego extends JPanel {
         for (Enemigo enemigo : escenario.getEnemigos()) {
             // Cada enemigo decide solo si debe mostrarse (el Acechador solo se
             // dibuja despues de activarse); no hace falta preguntar de que tipo es.
-            if (!enemigo.debeDibujarse()) {
+            if (!enemigo.isVisible()) {
                 continue;
             }
             dibujarEnemigo(g2, enemigo);
@@ -175,7 +175,7 @@ public class PanelJuego extends JPanel {
                 enemigo.getTipo(), enemigo.getEstado(), enemigo.isMirandoDerecha());
 
         if (fotogramas == null) {
-            dibujarEntidad(g, enemigo); // los que todavía no pasaron al catálogo
+            dibujarEntidad(g, enemigo); // si la imagen no cargo
             return;
         }
 
@@ -276,7 +276,7 @@ public class PanelJuego extends JPanel {
         int y = (int) entidad.getY();
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
-         g.setColor(entidad.getColor());
+        g.setColor(entidad.getColor());
         g.fillRect(x, y, ancho, alto);
         g.setColor(Color.BLACK);
         g.drawRect(x, y, ancho, alto);

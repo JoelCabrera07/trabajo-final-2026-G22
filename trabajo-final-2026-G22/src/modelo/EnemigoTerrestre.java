@@ -91,13 +91,13 @@ public class EnemigoTerrestre extends Enemigo {
 
         if (heroe.getX() > this.getX()) {
             this.setX(this.getX() + velocidadAtaque);
-            moviendoseDerecha = true; // Para que el sprite mire a la derecha
+            moviendoseDerecha = true; // Ahora mira a la derecha/izquierda
             // Freno de emergencia para que no se caiga al vacío persiguiéndote
             if (this.getX() > limiteDerecho)
                 this.setX(limiteDerecho);
         } else if (heroe.getX() < this.getX()) {
             this.setX(this.getX() - velocidadAtaque);
-            moviendoseDerecha = false; // Para que el sprite mire a la izquierda
+            moviendoseDerecha = false; // Ahora mira a la derecha/izquierda
             // Freno de emergencia para que no se caiga al vacío
             if (this.getX() < limiteIzquierdo)
                 this.setX(limiteIzquierdo);
