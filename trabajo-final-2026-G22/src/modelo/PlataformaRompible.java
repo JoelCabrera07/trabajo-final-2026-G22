@@ -37,4 +37,10 @@ public class PlataformaRompible extends Plataforma {
     public TipoEntidad getTipo() {
         return TipoEntidad.PLATAFORMA_ROMPIBLE;
     }
+
+    @Override
+    public void alGolpearDesdeAbajo(Heroe h){
+        super.alGolpearDesdeAbajo(h); //frena al heroe como cualquier plataforma
+        romper();                     //y ademas se rompe
+    }
 }

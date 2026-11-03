@@ -249,13 +249,7 @@ public class JuegoManager implements Observador {
             // El héroe va subiendo, venía de abajo y su cabeza impacta contra la base de la plataforma
             if (heroe.getVelocidadY() < 0 && bordeSuperiorAnterior >= bordeInferiorPlataforma - 6 && solapaVertical) {
                 heroe.setY(bordeInferiorPlataforma);
-                heroe.setVelocidadY(0);
-                heroe.setEnElSuelo(false);
-
-                // Si es una plataforma rompible, se rompe al impactarla desde abajo
-                if (plataforma instanceof PlataformaRompible) {
-                    ((PlataformaRompible) plataforma).romper();
-                }
+                plataforma.alGolpearDesdeAbajo(heroe);
                 hitboxHeroe = heroe.getHitbox();
             }
         }

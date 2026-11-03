@@ -14,6 +14,11 @@ public abstract class Plataforma extends Entidad implements Colisionable {
         h.setVelocidadY(0);
         h.setEnElSuelo(true);
     }
+    // El heroe golpea con la cabeza desde abajo, por defecto deja subir
+    public void alGolpearDesdeAbajo(Heroe h){
+        h.setVelocidadY(0);
+        h.setEnElSuelo(false);
+    }
 
     
     public void actualizar() {
