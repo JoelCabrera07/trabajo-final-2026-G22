@@ -17,6 +17,7 @@ public class PlataformaTrampolin extends Plataforma {
         return multiplicadorRebote;
     }
 
+    //No llama a super: el trampolin hace rebotar
     @Override
     public void aplicarEfectoColision(Heroe h) {
         // le mandamos una velocidad negativa (hacia arriba) para que rebote, en java para que vaya hacia arriba la velocidad es negativa

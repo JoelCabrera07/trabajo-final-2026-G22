@@ -24,10 +24,9 @@ public class PlataformaRompible extends Plataforma {
     @Override
     public void aplicarEfectoColision(Heroe h) {
         if (!this.isDestruida()){
-            h.setVelocidadY(0); //Frena la caída del héroe para que no siga de largo
-            h.setEnElSuelo(true); //Le avisa que esta pisando el suelo para que pueda saltar de nuevo
+            super.aplicarEfectoColision(h); //solose puede aterrizar si todavia esta entera
         }
-        this.romper(); // La plataforma se rompe al primer contacto, sin importar si el héroe está en el suelo o no
+        romper(); // La plataforma se rompe al primer contacto, sin importar si el héroe está en el suelo o no
     }
 
     @Override 

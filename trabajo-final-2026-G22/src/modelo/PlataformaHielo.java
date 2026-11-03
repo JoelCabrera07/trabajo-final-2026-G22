@@ -19,8 +19,7 @@ public class PlataformaHielo extends Plataforma {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        h.setVelocidadY(0); 
-        h.setEnElSuelo(true);
+        super.aplicarEfectoColision(h);
         
         // Efecto resbalón: Si el jugador soltó la tecla y su velocidad horizontal es 0
         if (h.getVelocidadX() == 0) { 

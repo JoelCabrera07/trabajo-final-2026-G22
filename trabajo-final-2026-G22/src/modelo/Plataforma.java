@@ -7,9 +7,13 @@ public abstract class Plataforma extends Entidad implements Colisionable {
         // Llama al constructor de Entidad (HP 1, Ataque 0)
         super(nombre, x, y, alto, ancho, color, hp,ataque); // 1 seria la vida de la plataforma, 0 el ataque porque es inofensivo
     }
-    // Obligamos a todas las plataformas hijas a tener este metodo
+    // Por defecto, una plataforma hace aterrizar al heroe.
+    // Las hijas que hacen algo mas lo refinan llamando a super
     @Override
-    public abstract void aplicarEfectoColision(Heroe h);
+    public void aplicarEfectoColision(Heroe h){
+        h.setVelocidadY(0);
+        h.setEnElSuelo(true);
+    }
 
     
     public void actualizar() {
