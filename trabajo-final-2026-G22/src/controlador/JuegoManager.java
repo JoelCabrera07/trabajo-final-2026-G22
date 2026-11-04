@@ -178,7 +178,7 @@ public class JuegoManager implements Observador {
         if (heroe == null || escenarioActual == null) return;
 
         // --- Colisiones con enemigos ---
-        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las plataformas rompibles (como plataformaHielo) destruidas antes de verificar colisiones
+        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las plataformas que ya cumplieron su funcion(las rompibles destruidas)
         Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
             if (hitboxHeroe.intersects(enemigo.getHitbox())) {

@@ -1,6 +1,5 @@
 package modelo;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 
 public class EnemigoAcechador extends Enemigo {
@@ -38,7 +37,7 @@ public class EnemigoAcechador extends Enemigo {
 
     public EnemigoAcechador(double x, double y, double velocidad) {
         // Bicho raro que aparece si te quedás quieto
-        super("Acechador", x, y, 20, 20, Color.MAGENTA, 8, 2);
+        super("Acechador", x, y, 20, 20,2);
         this.tiempoDeteccion = 1.5; // Segundos antes de empezar a perseguirte
         this.momentoUltimoMovimiento = System.currentTimeMillis();
         this.VELOCIDAD_PERSECUCION = velocidad;
@@ -54,7 +53,7 @@ public class EnemigoAcechador extends Enemigo {
                 moverHacia(h);
                 break;
             default:
-                // APARECIENDO y DESAPARECIENDO: se queda quieto mientras dura la animacion
+                // APARECIENDO y DESAPARECIENDO: se queda quieto mientras aparece o desaparece
                 break;
         }
     }
@@ -114,8 +113,6 @@ public class EnemigoAcechador extends Enemigo {
             mirandoDerecha = false;
 
         // Cerca del heroe estira las manos; si se aleja vuelve a flotar.
-        // (60 para empezar y 80 para dejar, asi no cambia de animacion a cada rato en
-        // el limite)
         double distancia = Math.hypot(h.getX() - getX(), h.getY() - getY());
         if (estado == EstadoEnemigo.PERSIGUIENDO && distancia < DISTANCIA_ATAQUE) {
             cambiarEstado(EstadoEnemigo.ATACANDO);

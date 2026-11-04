@@ -31,6 +31,7 @@ public class PanelJuego extends JPanel {
 
     private final Escenario escenario;
     private final Heroe heroe;
+    private static final Color COLOR_RESPALDO = Color.MAGENTA; //si falta una imagen, se nota enseguida
     private Image fondo; // GIF animado de fondo; si queda null se usa el color liso de siempre
     private javax.sound.sampled.Clip clipFondo;
     private javax.sound.sampled.Clip clipAmbienteNivel4;
@@ -143,7 +144,7 @@ public class PanelJuego extends JPanel {
         if (imagen != null) {
             dibujarSpritePlataforma(g, imagen, x, y, plataforma.getAncho(), plataforma.getAlto());
         } else {
-            g.setColor(plataforma.getColor());
+            g.setColor(COLOR_RESPALDO);
             g.fillRect(x, y, plataforma.getAncho(), plataforma.getAlto());
         }
     }
@@ -153,7 +154,7 @@ public class PanelJuego extends JPanel {
         BufferedImage[] fotogramas = catalogo.getAnimacion(puerta.getTipo());
 
         if (fotogramas == null) {
-            g.setColor(puerta.getColor());
+            g.setColor(COLOR_RESPALDO);
             g.fillRect((int) puerta.getX(), (int) puerta.getY(), puerta.getAncho(), puerta.getAlto());
             return;
         }
@@ -276,7 +277,7 @@ public class PanelJuego extends JPanel {
         int y = (int) entidad.getY();
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
-        g.setColor(entidad.getColor());
+        g.setColor(COLOR_RESPALDO);
         g.fillRect(x, y, ancho, alto);
         g.setColor(Color.BLACK);
         g.drawRect(x, y, ancho, alto);

@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class PlataformaMovil extends Plataforma {
     
@@ -9,8 +8,7 @@ public class PlataformaMovil extends Plataforma {
     private boolean moviendoDerecha;
 
     public PlataformaMovil(double x, double y, int ancho, int alto, double limiteIzq, double limiteDer) {
-        // Pasamos nombre, X, Y, ancho, alto, color, HP y Ataque (0) a la superclase
-        super("Plataforma Móvil", x, y, ancho, alto, Color.LIGHT_GRAY, 100, 0);
+        super("Plataforma Móvil", x, y, ancho, alto);
         this.velocidadX = 3.0; // Velocidad estándar de desplazamiento
         this.limiteIzquierdo = limiteIzq;
         this.limiteDerecho = limiteDer;
@@ -30,7 +28,6 @@ public class PlataformaMovil extends Plataforma {
                 moviendoDerecha = true;  // Toca el límite izquierdo y da la vuelta
             }
         }
-        this.getHitbox().setLocation((int)this.getX(), (int)this.getY()); // Actualizamos la hitbox para que coincida con la nueva posición, osea movemos la hitbox con esto
     }
 
     @Override

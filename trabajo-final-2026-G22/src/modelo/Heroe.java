@@ -1,6 +1,6 @@
 package modelo;
 
-import java.awt.Color;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -33,16 +33,35 @@ public class Heroe extends Entidad {
                                                                                // lo que le pasa al heroe
     private EstadoHeroe estado = EstadoHeroe.QUIETO; // en qué situación está el héroe
 
+    private int hp; //vida actual
+    private final int hpMax; //vida maxima
+
     // Contadores del estado: cuánto dura el despegue y el aterrizaje
     private int ticksAterrizaje = 0;
     private int ticksDespegue = 0;
     private boolean estabaEnElSuelo = true;
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
-    public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
-        super(nombre, x, y, ancho, alto, color, hp, ataque);
+    public Heroe(String nombre, double x, double y, int ancho, int alto, int hp) {
+        super(nombre, x, y, ancho, alto);
+        this.hp = hp;
+        this.hpMax = hp;
+    }
+     public int getHp( ){
+        return hp;
     }
 
+    public void setHp(int hp){
+        this.hp = hp;
+    }
+
+    public int getHpMax(){
+        return hpMax;
+    }
+
+    public boolean estaVivo(){
+        return hp > 0;
+    }
     // Se llama en cada frame del juego: aplica gravedad, mueve y actualiza su estado
     public void actualizar() {
         this.actualizarCarga();
@@ -226,20 +245,20 @@ public class Heroe extends Entidad {
         return System.currentTimeMillis() < finInvencibilidad;
     }
 
-    @Override
-    public void recibirDanio(int cantidad) {
-        if (!estaVivo() || isInvencible()) {
+    public void recibirDanio(int cantidad){
+        if (!estaVivo() || isInvencible()){
             return;
         }
-        super.recibirDanio(cantidad);
-        // System.out.println("Vida del heroe: " + getHp()); debug para ver si baja la
-        // vida en la terminal
+        hp -= cantidad;
+        if (hp < 0){
+            hp = 0;
+        }
         finInvencibilidad = System.currentTimeMillis() + DURACION_INVENCIBILIDAD_MS;
         notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
-        if (!estaVivo()) {
+        if(!estaVivo()){
             notificarObservadores(EventoJuego.HEROE_MURIO);
         }
-    }
+    }    
 
     @Override
     public TipoEntidad getTipo() {
