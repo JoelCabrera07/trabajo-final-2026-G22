@@ -155,7 +155,7 @@ public class EnemigoAcechador extends Enemigo {
         if (h.isInvencible())
             return;
 
-        h.recibirDanio(this.getAtaque());
+        super.aplicarEfectoColision(h);
         if (DESAPARECE_AL_GOLPEAR) {
             cambiarEstado(EstadoEnemigo.DESAPARECIENDO);
         }

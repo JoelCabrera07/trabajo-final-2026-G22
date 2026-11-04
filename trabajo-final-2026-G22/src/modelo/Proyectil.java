@@ -1,10 +1,11 @@
 package modelo;
 import java.awt.Color;
 
-public class Proyectil extends Entidad {
+public class Proyectil extends EntidadHostil {
 
     private double velocidadX;
     private double velocidadY;
+    private boolean impacto = false;
 
     public Proyectil(double x, double y, double dirX, double dirY, int ataque) {
         super("Proyectil", x, y, 10, 10, Color.YELLOW, 1, ataque);
@@ -27,6 +28,17 @@ public class Proyectil extends Entidad {
         return TipoEntidad.PROYECTIL;
     }
 
+    //Lastima como cualquier hostil y ademas se consume
+    @Override
+    public void aplicarEfectoColision(Heroe h){
+        super.aplicarEfectoColision(h);
+        impacto = true;
+    }
+
+    //Se elimina si ya pego o si salio de la pantalla
+    public boolean debeEliminarse(){
+        return impacto || getX()< -100 || getX() > 900 || getY()< -100 || getY()> 700;
+    }
     public double getVelocidadX() { return velocidadX; }
     public double getVelocidadY() { return velocidadY; }
 }

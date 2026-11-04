@@ -36,7 +36,7 @@ public class EnemigoAcorazado extends Enemigo {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        h.recibirDanio(this.getAtaque());
+        super.aplicarEfectoColision(h);
       // Al tener super armadura, el héroe rebota hacia atrás al golpearlo.
         // Si el héroe está a la derecha del acorazado, lo empuja más hacia la derecha;
         // si está a la izquierda, lo empuja más hacia la izquierda.

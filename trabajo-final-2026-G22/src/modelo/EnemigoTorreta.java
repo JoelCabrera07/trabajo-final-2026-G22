@@ -47,10 +47,6 @@ public class EnemigoTorreta extends Enemigo {
         // salida
         return new Proyectil(salidaX - 5, salidaY - 5, dirX, dirY, this.getAtaque());
     }
-    @Override
-    public void aplicarEfectoColision(Heroe h) {
-        h.recibirDanio(this.getAtaque());
-    }
 
     @Override
     public void actualizar(Heroe heroe, Escenario escenario) {

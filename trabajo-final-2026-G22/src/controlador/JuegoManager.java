@@ -190,9 +190,7 @@ public class JuegoManager implements Observador {
         for (Proyectil p: escenarioActual.getProyectiles()) {
             if (hitboxHeroe.intersects(p.getHitbox())) {
                 System.out.println("¡Colisión detectada con un proyectil!");
-                heroe.recibirDanio(p.getAtaque());
-                p.setX(-9999);// Mueve el proyectil fuera de la pantalla para "destruirlo"
-            
+                p.aplicarEfectoColision(heroe);
             }
         }
 
@@ -203,9 +201,7 @@ public class JuegoManager implements Observador {
         }
             
         //Sacamos los proyectiles que ya se salieron de la pantalla para no seguir calculando colisiones con ellos
-        escenarioActual.getProyectiles().removeIf(p -> p.getX() < -100 || p.getX() > 900 || p.getY() < -100 || p.getY() > 700
-        );
-      
+        escenarioActual.getProyectiles().removeIf(p -> p.debeEliminarse());
         
         // --- Colisiones con plataformas ---
         hitboxHeroe = heroe.getHitbox();

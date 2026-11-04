@@ -38,11 +38,6 @@ public class EnemigoVolador extends Enemigo {
     }
 
     @Override
-    public void aplicarEfectoColision(Heroe h) {
-        h.recibirDanio(this.getAtaque());
-    }
-
-    @Override
     public void actualizar(Heroe heroe, Escenario escenario) {
         mirandoDerecha = heroe.getX() >= getX(); // si el héroe está a la derecha, mira a la derecha
         flotarVerticalmente();
