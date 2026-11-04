@@ -1,4 +1,5 @@
 package controlador;
+
 import java.awt.Rectangle; //El asterisco importa todas las clases del paquete modelo
 import modelo.*;
 import vista.PanelJuego;
@@ -29,9 +30,10 @@ public class JuegoManager implements Observador {
     // Sistema de puntaje por metros recorridos hacia arriba
     private int metrosMaximosAlcanzados = 0;
 
-    public void setEventoGameOver(Runnable evento){
+    public void setEventoGameOver(Runnable evento) {
         this.eventoGameOver = evento;
     }
+
     private JuegoManager() {
         this.juegoCorriendo = false;
     }
@@ -58,7 +60,7 @@ public class JuegoManager implements Observador {
         this.vista = vista;
     }
 
-    public void setEventoNivelCompletado(Runnable evento){
+    public void setEventoNivelCompletado(Runnable evento) {
         this.eventoNivelCompletado = evento;
     }
 
@@ -70,19 +72,22 @@ public class JuegoManager implements Observador {
 
     private void buclePrincipal() {
         while (juegoCorriendo) {
+            synchronized (escenarioActual) { // Sincronizamos el a cceso al escenario para evitar problemas de
+                                             // concurrencia
+                // PASO A: Actualizar logicas (fisicas, movimiento, trayectoria)
+                actualizarFisicas();
 
-            // PASO A: Actualizar logicas (fisicas, movimiento, trayectoria)
-            actualizarFisicas();
-    
-            // PASO B: Chequear colisiones (Heroe tocando cofres, enemigos o plataformas)
-            verificarColisiones();
+                // PASO B: Chequear colisiones (Heroe tocando cofres, enemigos o plataformas)
+                verificarColisiones();
+            }
 
             // PASO C: Mandar a redibujar la pantalla (La Vista)
             if (vista != null) {
                 vista.repaint();
             }
 
-            // Un pequeño freno para que la compu no explote calculando a la velocidad de la luz
+            // Un pequeño freno para que la compu no explote calculando a la velocidad de la
+            // luz
             try {
                 Thread.sleep(16); // 16 milisegundos = aprox 60 FPS
             } catch (InterruptedException e) {
@@ -92,7 +97,8 @@ public class JuegoManager implements Observador {
     }
 
     private void actualizarFisicas() {
-        if (heroe == null || escenarioActual == null) return;
+        if (heroe == null || escenarioActual == null)
+            return;
         // 1. Actualiza la posición del héroe
         heroe.actualizar();
 
@@ -108,7 +114,7 @@ public class JuegoManager implements Observador {
         }
 
         // 3. Hace patrullar a los enemigos terrestres
-        for (Enemigo e : escenarioActual.getEnemigos()){
+        for (Enemigo e : escenarioActual.getEnemigos()) {
             e.actualizar(heroe, escenarioActual);
         }
 
@@ -145,17 +151,26 @@ public class JuegoManager implements Observador {
     }
 
     // Patron Factory: cada pantalla de la torre tiene su propia fabrica.
-    // Para agregar un nivel nuevo alcanza con sumar un case y subir TOTAL_PANTALLAS.
+    // Para agregar un nivel nuevo alcanza con sumar un case y subir
+    // TOTAL_PANTALLAS.
     public static FabricaNivel crearFabrica(int pantalla) {
         switch (pantalla) {
-            case 1: return new FabricaNivel1();
-            case 2: return new FabricaNivel2();
-            case 3: return new FabricaNivel3();
-            case 4: return new FabricaNivel4();
-            case 5: return new FabricaNivel5();
-            case 6: return new FabricaNivel6();
-            case 7: return new FabricaNivel7();
-            default: throw new IllegalArgumentException("No existe la pantalla " + pantalla);
+            case 1:
+                return new FabricaNivel1();
+            case 2:
+                return new FabricaNivel2();
+            case 3:
+                return new FabricaNivel3();
+            case 4:
+                return new FabricaNivel4();
+            case 5:
+                return new FabricaNivel5();
+            case 6:
+                return new FabricaNivel6();
+            case 7:
+                return new FabricaNivel7();
+            default:
+                throw new IllegalArgumentException("No existe la pantalla " + pantalla);
         }
     }
 
@@ -172,13 +187,18 @@ public class JuegoManager implements Observador {
         }
     }
 
-    
     private void verificarColisiones() {
-        // Verificamos si el heroe no es nulo y si el escenario ya esta cargado para evitar errores
-        if (heroe == null || escenarioActual == null) return;
+        // Verificamos si el heroe no es nulo y si el escenario ya esta cargado para
+        // evitar errores
+        if (heroe == null || escenarioActual == null)
+            return;
 
         // --- Colisiones con enemigos ---
-        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las plataformas que ya cumplieron su funcion(las rompibles destruidas)
+        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las
+                                                                                              // plataformas que ya
+                                                                                              // cumplieron su
+                                                                                              // funcion(las rompibles
+                                                                                              // destruidas)
         Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
             if (hitboxHeroe.intersects(enemigo.getHitbox())) {
@@ -187,7 +207,7 @@ public class JuegoManager implements Observador {
             }
         }
 
-        for (Proyectil p: escenarioActual.getProyectiles()) {
+        for (Proyectil p : escenarioActual.getProyectiles()) {
             if (hitboxHeroe.intersects(p.getHitbox())) {
                 System.out.println("¡Colisión detectada con un proyectil!");
                 p.aplicarEfectoColision(heroe);
@@ -199,10 +219,11 @@ public class JuegoManager implements Observador {
         if (puerta != null && hitboxHeroe.intersects(puerta.getHitbox())) {
             puerta.aplicarEfectoColision(heroe);
         }
-            
-        //Sacamos los proyectiles que ya se salieron de la pantalla para no seguir calculando colisiones con ellos
+
+        // Sacamos los proyectiles que ya se salieron de la pantalla para no seguir
+        // calculando colisiones con ellos
         escenarioActual.getProyectiles().removeIf(p -> p.debeEliminarse());
-        
+
         // --- Colisiones con plataformas ---
         hitboxHeroe = heroe.getHitbox();
         double bordeInferiorAnterior = yAnteriorHeroe + hitboxHeroe.height;
@@ -232,7 +253,8 @@ public class JuegoManager implements Observador {
                     && (hitboxHeroe.y + hitboxHeroe.height) > bordeSuperiorPlataforma;
 
             // 1. ATERRIZAJE DESDE ARRIBA:
-            // El héroe cae o está en reposo, venía de arriba y su borde inferior toca o cruza la plataforma
+            // El héroe cae o está en reposo, venía de arriba y su borde inferior toca o
+            // cruza la plataforma
             if (heroe.getVelocidadY() >= 0 && bordeInferiorAnterior <= bordeSuperiorPlataforma + 6 && solapaVertical) {
                 heroe.setY(bordeSuperiorPlataforma - hitboxHeroe.height);
                 plataforma.aplicarEfectoColision(heroe);
@@ -242,7 +264,8 @@ public class JuegoManager implements Observador {
             }
 
             // 2. CHOQUE DESDE ABAJO (GOLPE DE CABEZA / NO ATRAVESAR):
-            // El héroe va subiendo, venía de abajo y su cabeza impacta contra la base de la plataforma
+            // El héroe va subiendo, venía de abajo y su cabeza impacta contra la base de la
+            // plataforma
             if (heroe.getVelocidadY() < 0 && bordeSuperiorAnterior >= bordeInferiorPlataforma - 6 && solapaVertical) {
                 heroe.setY(bordeInferiorPlataforma);
                 plataforma.alGolpearDesdeAbajo(heroe);
@@ -250,7 +273,8 @@ public class JuegoManager implements Observador {
             }
         }
 
-        // Si el héroe no está apoyado en ninguna plataforma y está cayendo, no está en el suelo
+        // Si el héroe no está apoyado en ninguna plataforma y está cayendo, no está en
+        // el suelo
         if (!apoyadoEnAlgunaPlataforma && heroe.getVelocidadY() > 1.0) {
             heroe.setEnElSuelo(false);
         }
@@ -269,21 +293,21 @@ public class JuegoManager implements Observador {
         }
     }
 
-    public void terminarJuego(){
+    public void terminarJuego() {
         frenarJuego();
-        if (this.eventoGameOver != null){
+        if (this.eventoGameOver != null) {
             javax.swing.SwingUtilities.invokeLater(this.eventoGameOver);
         }
     }
 
-    public void completarNivel(){
+    public void completarNivel() {
         frenarJuego();
-        if (this.eventoNivelCompletado != null){
+        if (this.eventoNivelCompletado != null) {
             javax.swing.SwingUtilities.invokeLater(this.eventoNivelCompletado);
         }
     }
 
-    private void frenarJuego(){
+    private void frenarJuego() {
         int metrosFinales = getMetrosActuales();
         if (metrosFinales > metrosMaximosAlcanzados) {
             metrosMaximosAlcanzados = metrosFinales;
@@ -292,7 +316,8 @@ public class JuegoManager implements Observador {
     }
 
     public int getMetrosActuales() {
-        if (heroe == null || escenarioActual == null) return 0;
+        if (heroe == null || escenarioActual == null)
+            return 0;
         int pantalla = escenarioActual.getPantallaActual();
         // Altura vertical en píxeles desde el suelo base de la pantalla 1 (Y=550)
         double alturaPx = ((pantalla - 1) * 600.0) + (550.0 - heroe.getY());
@@ -307,4 +332,3 @@ public class JuegoManager implements Observador {
         this.metrosMaximosAlcanzados = 0;
     }
 }
-

@@ -31,7 +31,7 @@ public class PanelJuego extends JPanel {
 
     private final Escenario escenario;
     private final Heroe heroe;
-    private static final Color COLOR_RESPALDO = Color.MAGENTA; //si falta una imagen, se nota enseguida
+    private static final Color COLOR_RESPALDO = Color.MAGENTA; // si falta una imagen, se nota enseguida
     private Image fondo; // GIF animado de fondo; si queda null se usa el color liso de siempre
     private javax.sound.sampled.Clip clipFondo;
     private javax.sound.sampled.Clip clipAmbienteNivel4;
@@ -95,44 +95,45 @@ public class PanelJuego extends JPanel {
         if (escenario == null) {
             return;
         }
-
-        for (Plataforma plataforma : escenario.getPlataformas()) {
-            dibujarPlataforma(g2, plataforma);
-        }
-
-        if (escenario.getPuerta() != null) {
-            dibujarPuerta(g2, escenario.getPuerta());
-        }
-
-        for (Enemigo enemigo : escenario.getEnemigos()) {
-            // Cada enemigo decide solo si debe mostrarse (el Acechador solo se
-            // dibuja despues de activarse); no hace falta preguntar de que tipo es.
-            if (!enemigo.isVisible()) {
-                continue;
+        synchronized (escenario) { // Sincronizamos el acceso al escenario para evitar problemas de concurrencia
+            for (Plataforma plataforma : escenario.getPlataformas()) {
+                dibujarPlataforma(g2, plataforma);
             }
-            dibujarEnemigo(g2, enemigo);
-        }
 
-        for (Proyectil proyectil : escenario.getProyectiles()) {
-            dibujarProyectil(g2, proyectil);
-        }
-
-        if (heroe != null) {
-            // Si esta invencible, parpadea: se oculta en intervalos alternados de 100 ms
-            boolean oculto = heroe.isInvencible() && (System.currentTimeMillis() / 100) % 2 == 0;
-            if (!oculto) {
-                dibujarHeroe(g2, heroe);
+            if (escenario.getPuerta() != null) {
+                dibujarPuerta(g2, escenario.getPuerta());
             }
-            dibujarBarraVida(g2, heroe);
 
-            // solo aparece si el heroe esta cargando el salto
-            if (heroe.isCargandoSalto()) {
-                dibujarBarraCarga(g2, heroe);
+            for (Enemigo enemigo : escenario.getEnemigos()) {
+                // Cada enemigo decide solo si debe mostrarse (el Acechador solo se
+                // dibuja despues de activarse); no hace falta preguntar de que tipo es.
+                if (!enemigo.isVisible()) {
+                    continue;
+                }
+                dibujarEnemigo(g2, enemigo);
             }
-        }
 
-        // Medidor de progreso: Nivel actual y metros de altura
-        dibujarMetrosHUD(g2);
+            for (Proyectil proyectil : escenario.getProyectiles()) {
+                dibujarProyectil(g2, proyectil);
+            }
+
+            if (heroe != null) {
+                // Si esta invencible, parpadea: se oculta en intervalos alternados de 100 ms
+                boolean oculto = heroe.isInvencible() && (System.currentTimeMillis() / 100) % 2 == 0;
+                if (!oculto) {
+                    dibujarHeroe(g2, heroe);
+                }
+                dibujarBarraVida(g2, heroe);
+
+                // solo aparece si el heroe esta cargando el salto
+                if (heroe.isCargandoSalto()) {
+                    dibujarBarraCarga(g2, heroe);
+                }
+            }
+
+            // Medidor de progreso: Nivel actual y metros de altura
+            dibujarMetrosHUD(g2);
+        }
     }
 
     // Las plataformas se dibujan con la imagen del catálogo según su tipo

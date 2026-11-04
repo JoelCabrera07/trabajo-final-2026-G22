@@ -51,7 +51,7 @@ public class App {
                 ventana.setVisible(true);
 
                 // Escuchador de teclado para el héroe
-                ventana.addKeyListener(new ControladorTeclado(heroe));
+                ventana.addKeyListener(new ControladorTeclado(heroe, escenario));
 
                 // Botón "Salir" del menú
                 menu.getBotonSalir().addActionListener(e -> System.exit(0));
