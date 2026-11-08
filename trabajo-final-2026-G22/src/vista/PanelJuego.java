@@ -79,11 +79,11 @@ public class PanelJuego extends JPanel {
         }
 
         for (Plataforma plataforma : escenario.getPlataformas()) {
-            dibujarEntidad(g2, plataforma);
+            dibujarPlataforma(g2, plataforma);
         }
 
         if (escenario.getPuerta() != null) {
-            dibujarEntidad(g2, escenario.getPuerta());//dibujarEntidad en lo que buscamos un sprite para la puerta 
+            dibujarEntidad(g2, escenario.getPuerta());
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {
@@ -118,32 +118,51 @@ public class PanelJuego extends JPanel {
     }
 
     private void dibujarEntidad(Graphics2D g, Entidad entidad) {
-        int x = (int) entidad.getX();
         int y = (int) entidad.getY();
-        int ancho = entidad.getAncho();
-        int alto = entidad.getAlto();
         int yTexto = y; // el nombre va arriba de lo que se dibuje
 
         if (entidad.getSprite() != null) {
             java.awt.image.BufferedImage img = entidad.getSprite();
-
-            if (entidad instanceof Plataforma) {
-                dibujarSpritePlataforma(g, img, x, y, ancho, alto);
-            } else {
-                // Cada entidad dice donde y de que tamaño va su sprite (ver Entidad.getAreaSprite)
-                java.awt.Rectangle area = entidad.getAreaSprite();
-                g.drawImage(img, area.x, area.y, area.width, area.height, null);
-                yTexto = Math.min(y, area.y);
-            }
-        } else {
-            g.setColor(entidad.getColor());
-            g.fillRect(x, y, ancho, alto);
-            g.setColor(Color.BLACK);
-            g.drawRect(x, y, ancho, alto);
+            // Cada entidad dice donde y de que tamaño va su sprite (ver Entidad.getAreaSprite)
+            java.awt.Rectangle area = entidad.getAreaSprite();
+            g.drawImage(img, area.x, area.y, area.width, area.height, null);
+            yTexto = Math.min(y, area.y);
+        } else { //se dibuja un rectangulo de color si no tiene sprite
+            dibujarSinSprite(g, entidad);
         }
+        dibujarNombre(g, entidad, yTexto);
+    }
 
+    private void dibujarPlataforma (Graphics2D g, Plataforma plataforma) {
+        int x = (int) plataforma.getX();
+        int y = (int) plataforma.getY();
+        int ancho = plataforma.getAncho();
+        int alto = plataforma.getAlto();
+
+        if (plataforma.getSprite() != null) {
+            dibujarSpritePlataforma(g, plataforma.getSprite(), x, y, ancho, alto);
+        } else {    // Si no tiene sprite, dibuja un rectángulo de color
+            dibujarSinSprite(g, plataforma);
+        }
+        dibujarNombre(g, plataforma, y);
+    }
+
+    private void dibujarSinSprite(Graphics2D g, Entidad entidad) {
+        int x = (int) entidad.getX();
+        int y = (int) entidad.getY();
+        int ancho = entidad.getAncho();
+        int alto = entidad.getAlto();
+
+        g.setColor(entidad.getColor());
+        g.fillRect(x, y, ancho, alto);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, ancho, alto);
+    }
+
+    private void dibujarNombre(Graphics2D g, Entidad entidad, int yBase) {
+        int x = (int) entidad.getX();
         g.setColor(Color.WHITE);
-        g.drawString(entidad.getNombre(), x, yTexto - 4);
+        g.drawString(entidad.getNombre(), x, yBase-4);
     }
 
     // Dibuja el sprite de una plataforma SIN deformarlo: siempre se escala con la misma
