@@ -178,7 +178,7 @@ public class JuegoManager implements Observador {
         if (heroe == null || escenarioActual == null) return;
 
         // --- Colisiones con enemigos ---
-        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las plataformas rompibles (como plataformaHielo) destruidas antes de verificar colisiones
+        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las plataformas rompibles (como plataformaRompible) destruidas despues de verificar colisiones
         Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
             if (hitboxHeroe.intersects(enemigo.getHitbox())) {
@@ -252,10 +252,8 @@ public class JuegoManager implements Observador {
                 heroe.setVelocidadY(0);
                 heroe.setEnElSuelo(false);
 
-                // Si es una plataforma rompible, se rompe al impactarla desde abajo
-                if (plataforma instanceof PlataformaRompible) {
-                    ((PlataformaRompible) plataforma).romper();
-                }
+                // Se avisa que la plataforma fue golpeada desde abajo, para que pueda reaccionar (como romperse si es una PlataformaRompible)
+                plataforma.golpeadaDesdeAbajo();
                 hitboxHeroe = heroe.getHitbox();
             }
         }

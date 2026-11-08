@@ -20,5 +20,9 @@ public abstract class Plataforma extends Entidad implements Colisionable {
         // Por defecto, las plataformas no se eliminan nunca, pero si alguna tiene logica propia puede redefinirlo
         return false;
     }
+
+    public void golpeadaDesdeAbajo() {
+        // Por defecto, no pasa nada, pero si alguna tiene logica propia puede redefinirlo
+    }    
     
 }

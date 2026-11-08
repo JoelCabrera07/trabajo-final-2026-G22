@@ -15,16 +15,14 @@ public class PlataformaRompible extends Plataforma {
 
     public void romper() {
         this.destruida = true;
-        // Más adelante, el Escenario va a tener que revisar este booleano para borrarla de la lista
+        // Solo marca el estado, JuegoManager se encargará de eliminarla del escenario en la siguiente actualización
     }
 
-    public boolean isDestruida() {
-        return destruida;
-    }
+    
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        if (!this.isDestruida()){
+        if (!this.destruida){
             h.setVelocidadY(0); //Frena la caída del héroe para que no siga de largo
             h.setEnElSuelo(true); //Le avisa que esta pisando el suelo para que pueda saltar de nuevo
         }
@@ -33,6 +31,12 @@ public class PlataformaRompible extends Plataforma {
 
     @Override 
     public boolean debeEliminarse() {
-        return this.isDestruida(); // Si está destruida, el escenario la va a eliminar de la lista
+        return this.destruida; // Juegomanager usa esto para sacarla de la lista de plataformas del escenario.
+    }
+
+    @Override 
+    public void golpeadaDesdeAbajo() {
+        // Si el héroe golpea la plataforma desde abajo, se rompe
+        this.romper();
     }
 }
