@@ -7,6 +7,7 @@ public class Proyectil extends Entidad {
 
     private double velocidadX;
     private double velocidadY;
+    private final int ataque;
 
     // --- Animacion del orbe ---
     // El dibujo original mira a la derecha; al crearse se gira UNA vez hacia donde viaja.
@@ -20,8 +21,9 @@ public class Proyectil extends Entidad {
     private int desfaseY;
 
     public Proyectil(double x, double y, double dirX, double dirY, int ataque) {
-        super("Proyectil", x, y, 10, 10, Color.YELLOW, ataque);
-
+        super("Proyectil", x, y, 10, 10, Color.YELLOW);
+        this.ataque = ataque; 
+        
         double magnitud = Math.sqrt(dirX * dirX + dirY * dirY);
         if (magnitud == 0) magnitud = 1;
 
@@ -40,6 +42,10 @@ public class Proyectil extends Entidad {
         }
         desfaseX = (int) Math.round(LADO_SPRITE / 2.0 + DIST_CABEZA * Math.cos(angulo));
         desfaseY = (int) Math.round(LADO_SPRITE / 2.0 + DIST_CABEZA * Math.sin(angulo));
+    }
+
+    public int getAtaque(){
+        return ataque;
     }
 
     public void actualizar() {

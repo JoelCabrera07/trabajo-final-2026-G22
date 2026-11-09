@@ -7,7 +7,7 @@ public class PlataformaRompible extends Plataforma {
 
     public PlataformaRompible(double x, double y, int ancho, int alto) {
         // Color gris oscuro
-        super("Plataforma Rompible", x, y, ancho, alto, Color.DARK_GRAY, 0);
+        super("Plataforma Rompible", x, y, ancho, alto, Color.DARK_GRAY);
         setSprite(Sprites.getSpritesPlataforma(3)[0]); // sprite de plataforma rompible fila 3, columna 0
         
         this.destruida = false;

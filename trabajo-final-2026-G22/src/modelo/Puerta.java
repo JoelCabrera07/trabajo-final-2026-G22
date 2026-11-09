@@ -14,7 +14,7 @@ public class Puerta extends Entidad implements Colisionable {
     private static final int MS_POR_FOTOGRAMA = 90;
 
     public Puerta(double x, double y) {
-        super("Meta", x, y, 40, 60, new Color(150, 95, 45), 0); // 40x60;
+        super("Meta", x, y, 40, 60, new Color(150, 95, 45)); // 40x60;
         this.fotogramas = Sprites.getPortal();
     }
 

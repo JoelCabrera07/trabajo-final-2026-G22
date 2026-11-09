@@ -19,7 +19,7 @@ public class App {
         escenario.cargarPantalla(1, new FabricaNivel1());
 
         // Heroe con dimensiones proporcionales a su hoja de sprites (32x48)
-        Heroe heroe = new Heroe("Heroe", 50, 500, 32, 48, Color.BLUE, 30, 10);
+        Heroe heroe = new Heroe("Heroe", 50, 500, 32, 48, Color.BLUE, 30);
 
         // --- 2. Conectar el modelo con el controlador ---
         JuegoManager manager = JuegoManager.getInstance();

@@ -4,24 +4,22 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 public abstract class Entidad {
     
-private String nombre;
+    private String nombre;
     private double x;//posicion en el eje x
     private double y;//posicion en el eje y
     private int ancho;//tamaño de la hitbox
     private int alto;//tamaño de la hitbox
     private Color color;//necesario para poder ponerle colores al programa
-    private int ataque;//cantidad de hp que pueden quitar 
     private BufferedImage sprite;//imagen a dibujar; si no tiene ningun sprite, se sigue dibujando el rectangulo de color
 
 
-    public Entidad(String nombre, double x, double y,int ancho, int alto, Color color, int ataque) {
+    public Entidad(String nombre, double x, double y,int ancho, int alto, Color color) {
         this.nombre = nombre;
         this.x = x;
         this.y = y;
         this.ancho = ancho;
         this.alto = alto;
         this.color = color;
-        this.ataque = ataque;
     }
 
     public String getNombre() {
@@ -54,10 +52,6 @@ private String nombre;
 
     public Color getColor() {
         return color;
-    }
-
-    public int getAtaque() { 
-        return ataque; 
     }
 
     public BufferedImage getSprite() {

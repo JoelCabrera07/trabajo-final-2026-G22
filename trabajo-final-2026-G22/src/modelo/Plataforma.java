@@ -3,8 +3,8 @@ import java.awt.Color;
 
 public abstract class Plataforma extends Entidad implements Colisionable {
     
-    public Plataforma(String nombre, double x, double y, int alto, int ancho, Color color, int ataque) {
-        super(nombre, x, y, alto, ancho, color,ataque); 
+    public Plataforma(String nombre, double x, double y, int alto, int ancho, Color color) {
+        super(nombre, x, y, alto, ancho, color); 
     }
     // Obligamos a todas las plataformas hijas a tener este metodo
     @Override

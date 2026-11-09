@@ -50,8 +50,8 @@ public class Heroe extends Entidad {
     private boolean estabaEnElSuelo = true;
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad e inicializa sus animaciones
-    public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
-        super(nombre, x, y, ancho, alto, color, ataque);
+    public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp) {
+        super(nombre, x, y, ancho, alto, color);
         cargarSprites();
         this.hp = hp;
         this.hpMax = hp; 
