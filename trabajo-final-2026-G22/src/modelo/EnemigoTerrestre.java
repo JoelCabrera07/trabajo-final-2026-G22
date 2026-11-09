@@ -19,7 +19,7 @@ public class EnemigoTerrestre extends Enemigo {
     
 
     public EnemigoTerrestre(double x, double y) {
-        super("Enemigo Terrestre", x, y, 30, 30, Color.RED, 10, 1);
+        super("Enemigo Terrestre", x, y, 30, 30, Color.RED, 1);
         this.animacionDerecha = Sprites.getEnemigoTerrestre();
         this.animacionIzquierda = Sprites.voltearAnimacion(this.animacionDerecha);
 

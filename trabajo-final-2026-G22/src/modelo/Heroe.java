@@ -23,6 +23,9 @@ public class Heroe extends Entidad {
     private boolean nivelCompletado = false; // evita avisar dos veces que el nivel se completó a los observadores
     private final List<Observador> observadores = new CopyOnWriteArrayList<>();//lista de quienes quieren enterarse de lo que le pasa al heroe
 
+    private int hp;
+    private int hpMax;
+
     // --- Animaciones del Héroe según la hoja de sprites ---
     // Fila 1: Quieto (0, 1) y Movimiento (2, 3, 4, 5)
     private BufferedImage[] animacionQuieto;
@@ -48,8 +51,30 @@ public class Heroe extends Entidad {
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad e inicializa sus animaciones
     public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp, int ataque) {
-        super(nombre, x, y, ancho, alto, color, hp, ataque);
+        super(nombre, x, y, ancho, alto, color, ataque);
         cargarSprites();
+        this.hp = hp;
+        this.hpMax = hp; 
+    }
+
+    public boolean estaVivo() {
+        return this.hp > 0;
+    }
+
+    public void recibirDanio(int cantidad) {
+        if (!estaVivo() || isInvencible()) {
+            return;
+        }
+        this.hp -= cantidad;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        //System.out.println("Vida del heroe: " + getHp()); debug para ver si baja la vida en la terminal
+        finInvencibilidad = System.currentTimeMillis() + DURACION_INVENCIBILIDAD_MS;
+        notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
+        if (!estaVivo()) {
+            notificarObservadores(EventoJuego.HEROE_MURIO);
+        }
     }
 
     private void cargarSprites() {
@@ -192,6 +217,17 @@ public class Heroe extends Entidad {
         this.enElSuelo = enElSuelo;
     }
 
+    public int getHp() { 
+        return hp; 
+    }
+    public void setHp(int hp){ //Faltaba el Setter, ahora esta implementado
+        this.hp=hp;
+    }
+
+    public int getHpMax() { 
+        return hpMax;
+    }
+
     public double getVelocidadY() {
         return this.velocidadY;
     }
@@ -292,18 +328,5 @@ public class Heroe extends Entidad {
     public boolean isInvencible() {
         return System.currentTimeMillis() < finInvencibilidad;
     }
-
-    @Override
-    public void recibirDanio(int cantidad) {
-        if (!estaVivo() || isInvencible()) {
-            return;
-        }
-        super.recibirDanio(cantidad);
-        //System.out.println("Vida del heroe: " + getHp()); debug para ver si baja la vida en la terminal
-        finInvencibilidad = System.currentTimeMillis() + DURACION_INVENCIBILIDAD_MS;
-        notificarObservadores(EventoJuego.HEROE_RECIBIO_DANIO);
-        if (!estaVivo()) {
-            notificarObservadores(EventoJuego.HEROE_MURIO);
-        }
-    }
+    
 }

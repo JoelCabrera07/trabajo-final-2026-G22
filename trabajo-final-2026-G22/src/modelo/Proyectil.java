@@ -20,7 +20,7 @@ public class Proyectil extends Entidad {
     private int desfaseY;
 
     public Proyectil(double x, double y, double dirX, double dirY, int ataque) {
-        super("Proyectil", x, y, 10, 10, Color.YELLOW, 1, ataque);
+        super("Proyectil", x, y, 10, 10, Color.YELLOW, ataque);
 
         double magnitud = Math.sqrt(dirX * dirX + dirY * dirY);
         if (magnitud == 0) magnitud = 1;
