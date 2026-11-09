@@ -3,8 +3,6 @@ import java.awt.Color;
 
 public class EnemigoAcorazado extends Enemigo {
     
-    private final boolean superArmadura;
-
     // Patrulla, igual que EnemigoTerrestre, pero un poco más lento por ser pesado
     private final double velocidadPatrullaje;
     private final double limiteIzquierdo;
@@ -17,7 +15,6 @@ public class EnemigoAcorazado extends Enemigo {
     public EnemigoAcorazado(double x, double y) {
         // Grande, pesado y pega fuerte
         super("Acorazado", x, y, 50, 50, Color.DARK_GRAY, 30, 3);
-        this.superArmadura = true;
         this.velocidadPatrullaje = 1.5;
         this.limiteIzquierdo = x - 80;
         this.limiteDerecho = x + 80;
@@ -40,7 +37,7 @@ public class EnemigoAcorazado extends Enemigo {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        h.recibirDanio(this.getAtaque());
+        super.aplicarEfectoColision(h);
       // Al tener super armadura, el héroe rebota hacia atrás al golpearlo.
         // Si el héroe está a la derecha del acorazado, lo empuja más hacia la derecha;
         // si está a la izquierda, lo empuja más hacia la izquierda.

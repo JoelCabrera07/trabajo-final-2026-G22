@@ -190,8 +190,8 @@ public class EnemigoAcechador extends Enemigo {
         // Mientras aparece o se desvanece todavia no es "solido": no lastima
         if (estado != Estado.PERSIGUIENDO && estado != Estado.ATACANDO) return;
         if (h.isInvencible()) return;
-
-        h.recibirDanio(this.getAtaque());
+        // Se hace en este momento para que el acechador gaste su ataque y se desvanezca, si realmente golpe al heroe
+        super.aplicarEfectoColision(h);
         if (DESAPARECE_AL_GOLPEAR) {
             cambiarEstado(Estado.DESAPARECIENDO);
         }

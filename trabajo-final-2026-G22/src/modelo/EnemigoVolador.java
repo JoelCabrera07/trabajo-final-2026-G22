@@ -66,11 +66,6 @@ public class EnemigoVolador extends Enemigo {
         }
     }
 
-    @Override
-    public void aplicarEfectoColision(Heroe h) {
-        h.recibirDanio(this.getAtaque());
-    }
-
     @Override 
     public void actualizar(Heroe heroe, Escenario escenario) {
         flotarVerticalmente();

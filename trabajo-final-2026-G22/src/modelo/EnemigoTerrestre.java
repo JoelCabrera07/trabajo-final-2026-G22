@@ -79,12 +79,6 @@ public class EnemigoTerrestre extends Enemigo {
     }
 
     @Override
-    public void aplicarEfectoColision(Heroe h) {
-        // Aplicamos polimorfismo: le saca vida al héroe según el ataque de este bicho
-        h.recibirDanio(this.getAtaque());
-    }
-
-    @Override
     public void actualizar(Heroe heroe, Escenario escenario) {
         // 1. Calculamos los bordes de la plataforma una sola vez
         if (!limitesAjustados && escenario != null) {

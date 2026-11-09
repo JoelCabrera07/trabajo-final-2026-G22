@@ -77,11 +77,6 @@ public class EnemigoTorreta extends Enemigo {
     }
 
     @Override
-    public void aplicarEfectoColision(Heroe h) {
-        h.recibirDanio(this.getAtaque());
-    }
-
-    @Override
     public Rectangle getAreaSprite() {
         int x = (int) getX() + getAncho() / 2 - SPRITE_ANCHO / 2;
         int y = (int) getY() + getAlto() - SPRITE_ALTO;
