@@ -7,7 +7,7 @@ import java.util.List;
  * Pantalla 5: La aguja de hierro
  * Dos plataformas moviles seguidas, fuego cruzado de dos torretas y voladores en el camino.
  */
-public class FabricaNivel5 implements FabricaNivel {
+public class Nivel5 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {

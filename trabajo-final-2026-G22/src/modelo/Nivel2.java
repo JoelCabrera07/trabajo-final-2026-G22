@@ -8,7 +8,7 @@ import java.util.List;
  * El hielo de la izquierda te empuja hacia el vacio y la plataforma movil hay que agarrarla a tiempo,
  * sin quedarse quieto mucho porque aparece el acechador.
  */
-public class FabricaNivel2 implements FabricaNivel {
+public class Nivel2 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {

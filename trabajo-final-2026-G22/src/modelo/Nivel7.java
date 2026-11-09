@@ -9,7 +9,7 @@ import java.util.List;
  * espacio extra para completar el arco del salto y volver a caer sobre la plataforma
  * de la puerta. No redefine crearPuerta(), asi que usa el valor por defecto (null).
  */
-public class FabricaNivel7 implements FabricaNivel {
+public class Nivel7 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {

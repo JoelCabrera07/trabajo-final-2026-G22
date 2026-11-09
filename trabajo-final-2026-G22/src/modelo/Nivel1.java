@@ -7,7 +7,7 @@ import java.util.List;
  * Pantalla 1: Planta baja
  * Calentamiento: saltos medianos, el primer hielo y una salida que pide carga fuerte.
  */
-public class FabricaNivel1 implements FabricaNivel {
+public class Nivel1 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {

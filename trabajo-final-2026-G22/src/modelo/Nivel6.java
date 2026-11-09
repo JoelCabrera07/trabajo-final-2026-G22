@@ -8,7 +8,7 @@ import java.util.List;
  * La puerta esta en la punta derecha de la cima, custodiada por un acorazado que empuja al vacio.
  * Hay que saltarlo justo cuando se acerca (y sin esperar mucho, que aparecen los acechadores).
  */
-public class FabricaNivel6 implements FabricaNivel {
+public class Nivel6 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {

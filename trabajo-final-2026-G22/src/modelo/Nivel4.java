@@ -8,7 +8,7 @@ import java.util.List;
  * Hay que caer en el trampolin y dirigir el rebote hasta la cornisa de la derecha,
  * despues de romper el techo que lo tapa.
  */
-public class FabricaNivel4 implements FabricaNivel {
+public class Nivel4 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {

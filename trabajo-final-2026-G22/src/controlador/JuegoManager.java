@@ -153,29 +153,29 @@ public class JuegoManager implements Observador {
     // Patron Factory: cada pantalla de la torre tiene su propia fabrica.
     // Para agregar un nivel nuevo alcanza con sumar un case y subir
     // TOTAL_PANTALLAS.
-    public static FabricaNivel crearFabrica(int pantalla) {
+    public static Nivel crearNivel(int pantalla) {
         switch (pantalla) {
             case 1:
-                return new FabricaNivel1();
+                return new Nivel1();
             case 2:
-                return new FabricaNivel2();
+                return new Nivel2();
             case 3:
-                return new FabricaNivel3();
+                return new Nivel3();
             case 4:
-                return new FabricaNivel4();
+                return new Nivel4();
             case 5:
-                return new FabricaNivel5();
+                return new Nivel5();
             case 6:
-                return new FabricaNivel6();
+                return new Nivel6();
             case 7:
-                return new FabricaNivel7();
+                return new Nivel7();
             default:
                 throw new IllegalArgumentException("No existe la pantalla " + pantalla);
         }
     }
 
     private void cambiarPantalla(int nuevaPantalla) {
-        escenarioActual.cargarPantalla(nuevaPantalla, crearFabrica(nuevaPantalla));
+        escenarioActual.cargarPantalla(nuevaPantalla, crearNivel(nuevaPantalla));
         if (vista != null) {
             vista.cargarFondoNivel(nuevaPantalla);
             // De la pantalla 4 para arriba se esta afuera, en la tormenta

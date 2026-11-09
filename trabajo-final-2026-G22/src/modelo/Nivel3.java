@@ -7,7 +7,7 @@ import java.util.List;
  * Pantalla 3: Muro derrumbado
  * Barro, hielo y un techo rompible sobre la salida: el primer salto lo rompe y el segundo pasa.
  */
-public class FabricaNivel3 implements FabricaNivel {
+public class Nivel3 implements Nivel {
 
     @Override
     public List<Plataforma> crearPlataformas() {
