@@ -25,4 +25,9 @@ public class PlataformaBarro extends Plataforma {
         h.setEnElSuelo(true); //Le avisa que esta pisando el suelo para que pueda saltar de nuevo 
         h.setVelocidadX(h.getVelocidadX()*0.5); //Reduce la velocidad del héroe a la mitad para simular que esta en barro
     }
+
+    @Override 
+    public TipoPlataforma getTipo(){
+        return TipoPlataforma.BARRO;
+    }
 }

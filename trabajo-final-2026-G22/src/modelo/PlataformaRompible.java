@@ -39,4 +39,9 @@ public class PlataformaRompible extends Plataforma {
         // Si el héroe golpea la plataforma desde abajo, se rompe
         this.romper();
     }
+
+    @Override 
+    public TipoPlataforma getTipo(){
+        return TipoPlataforma.ROMPIBLE;
+    }
 }

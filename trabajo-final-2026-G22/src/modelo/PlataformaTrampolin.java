@@ -24,4 +24,9 @@ public class PlataformaTrampolin extends Plataforma {
         h.setVelocidadY(-15.0 * this.multiplicadorRebote); // Ajusta el valor según la física del juego
         h.setEnElSuelo(false); // Le avisamos que ya no está en el suelo para que no pueda saltar de nuevo hasta tocar otra plataforma
     }
+
+    @Override 
+    public TipoPlataforma getTipo(){
+        return TipoPlataforma.TRAMPOLIN;
+    }
 }

@@ -24,4 +24,6 @@ public abstract class Plataforma extends Entidad implements Colisionable {
         // Por defecto, no pasa nada, pero si alguna tiene logica propia puede redefinirlo
     }    
     
+    public abstract TipoPlataforma getTipo();
+
 }

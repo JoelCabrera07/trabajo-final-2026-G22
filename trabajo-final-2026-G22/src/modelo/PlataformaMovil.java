@@ -52,4 +52,9 @@ public class PlataformaMovil extends Plataforma {
     public void actualizar() {
         mover(); // Cada frame, la plataforma se mueve
     }
+
+    @Override 
+    public TipoPlataforma getTipo(){
+        return TipoPlataforma.MOVIL;
+    }
 }
