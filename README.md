@@ -82,9 +82,7 @@ Si sumamos más enemigos y plataformas, este bloque crece sin control...
 
 -**Con 10 o 20 niveles y decenas de elementos por nivel, la clase Escenario se convertía en un archivo inmanejable de cientos de líneas dedicadas puramente a la instanciación de objetos.**
 
-2. **Patrón aplicado: Abstract Factory (Fábrica Abstracta)**
-
-#### A. Factory Method & Simple Factory
+#### Factory Method & Simple Factory
 - **Factory Method:** Se definió la interfaz `Nivel` con los métodos abstractos `crearPlataformas()`, `crearEnemigos()` y el método default `crearPuerta()`. Cada pantalla del juego es una fábrica concreta (`Nivel1` a `Nivel7`) responsable de instanciar su propia composición de elementos.
 - **Simple Factory:** El método estático `JuegoManager.crearNivel(int pantalla)` centraliza la selección de la fábrica de nivel correspondiente a la pantalla solicitada.
 - **Beneficio:** `Escenario.cargarPantalla(int numero, Nivel nivel)` se vuelve agnóstico a las clases concretas; solo recibe la abstracción `Nivel` y delega la instanciación.
