@@ -16,6 +16,11 @@ public class CatalogoSprites {
     private final BufferedImage[] portal = Sprites.getPortal();
     private final BufferedImage[] orbe = Sprites.getOrbe();
 
+    private final BufferedImage[] heroeQuieto = Sprites.getHeroeQuieto();
+    private final BufferedImage[] heroeCorrer = Sprites.getHeroeMovimiento();
+    private final BufferedImage[] heroeImpulso = Sprites.getHeroeImpulso();
+    private final BufferedImage[] heroeSaltoCaida = Sprites.getHeroeSaltoCaida();
+
     public CatalogoSprites() {
         plataformas.put(TipoPlataforma.NORMAL,     Sprites.getSpritesPlataforma(0)[0]);
         plataformas.put(TipoPlataforma.BARRO,      Sprites.getSpritesPlataforma(1)[0]);
@@ -44,7 +49,7 @@ public class CatalogoSprites {
         return plataformas.get(tipo);
     }
     public BufferedImage[] fotogramasDe(TipoEnemigo tipo, boolean haciaDerecha) {
-    return haciaDerecha ? enemigosDerecha.get(tipo) : enemigosIzquierda.get(tipo);
+        return haciaDerecha ? enemigosDerecha.get(tipo) : enemigosIzquierda.get(tipo);
     }
     public BufferedImage[] fotogramasPortal(){
         return portal;
@@ -52,4 +57,10 @@ public class CatalogoSprites {
     public BufferedImage[] fotogramasOrbe(){
         return orbe;
     }
+
+    // "voltearAnimacion" guarda el resultado, asi que espejar a cada consulta no cuesta nada
+    public BufferedImage[] heroeQuieto(boolean derecha)    { return derecha ? heroeQuieto : Sprites.voltearAnimacion(heroeQuieto); }
+    public BufferedImage[] heroeCorrer(boolean derecha)    { return derecha ? heroeCorrer : Sprites.voltearAnimacion(heroeCorrer); }
+    public BufferedImage[] heroeImpulso(boolean derecha)   { return derecha ? heroeImpulso : Sprites.voltearAnimacion(heroeImpulso); }
+    public BufferedImage[] heroeSaltoCaida(boolean derecha){ return derecha ? heroeSaltoCaida : Sprites.voltearAnimacion(heroeSaltoCaida); }
 }

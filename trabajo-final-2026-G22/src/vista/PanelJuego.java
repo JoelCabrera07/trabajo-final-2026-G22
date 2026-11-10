@@ -37,11 +37,17 @@ public class PanelJuego extends JPanel {
     // Tamaño "logico" del juego: la fisica y las colisiones siempre usan estas medidas
     private static final int ANCHO_JUEGO = 800;
     private static final int ALTO_JUEGO = 600;
+    //Constantes Proyectil
     private static final int MS_POR_FOTOGRAMA = 90;
     private static final int MS_POR_FOTOGRAMA_ORBE = 65; // antes: 4 ticks
     private static final int DIST_CABEZA = 9;            // la cabeza del orbe está 9 px adelante del centro del dibujo
+    //Constantes Enemigos
     private static final int MS_POR_FOTOGRAMA_ENEMIGO = 130;
     private static final int ALTO_SPRITE_ENEMIGO = 50; 
+    //Constantes Heroe
+    private static final int MS_POR_FOTOGRAMA_CORRER = 100;
+    private static final int MS_POR_FOTOGRAMA_QUIETO = 400;
+    private static final int ALTO_SPRITE_HEROE = 50;
 
     private final CatalogoSprites catalogo = new CatalogoSprites();
 
@@ -112,7 +118,7 @@ public class PanelJuego extends JPanel {
             // Si esta invencible, parpadea: se oculta en intervalos alternados de 100 ms
             boolean oculto = heroe.isInvencible() && (System.currentTimeMillis() / 100) % 2 == 0;
             if (!oculto) {
-                dibujarEntidad(g2, heroe);
+                dibujarHeroe(g2, heroe);
             }
             dibujarBarraVida(g2, heroe);
 
@@ -140,6 +146,48 @@ public class PanelJuego extends JPanel {
             dibujarSinSprite(g, entidad);
         }
         dibujarNombre(g, entidad, yTexto);
+    }
+
+    private void dibujarHeroe(Graphics2D g, Heroe h) {
+        BufferedImage img = imagenHeroe(h);
+        int y = (int) h.getY();
+        if (img == null) {
+            dibujarSinSprite(g, h);
+        } else {
+            g.drawImage(img, (int) h.getX(), y, h.getAncho(), ALTO_SPRITE_HEROE, null);
+        }
+        dibujarNombre(g, h, y);
+    }
+
+    private BufferedImage imagenHeroe(Heroe h) {
+        if (catalogo.heroeQuieto(true) == null) return null;   // no se cargo la hoja de sprites
+        boolean der = h.isMirandoDerecha();
+        long ahora = System.currentTimeMillis();
+
+        switch (h.getEstado()) {
+            case CARGANDO: {
+                double pct = h.getPorcentajeCargaSalto();
+                int i = pct < 0.25 ? 0 : pct < 0.50 ? 1 : pct < 0.75 ? 2 : 3;
+                return catalogo.heroeImpulso(der)[i];
+            }
+            case DESPEGANDO:
+                return catalogo.heroeImpulso(der)[4];
+            case EN_AIRE: {
+                double vy = h.getVelocidadY();
+                int i = vy < -3 ? 1 : vy < 1.5 ? 2 : vy < 5 ? 3 : 4;   // subiendo, cuspide, giro, caida
+                return catalogo.heroeSaltoCaida(der)[i];
+            }
+            case ATERRIZANDO:
+                return catalogo.heroeSaltoCaida(der)[5];
+            case CORRIENDO: {
+                BufferedImage[] f = catalogo.heroeCorrer(der);
+                return f[(int) (ahora / MS_POR_FOTOGRAMA_CORRER % f.length)];
+            }
+            default: {   // QUIETO
+                BufferedImage[] f = catalogo.heroeQuieto(der);
+                return f[(int) (ahora / MS_POR_FOTOGRAMA_QUIETO % f.length)];
+            }
+        }
     }
 
     private void dibujarPlataforma (Graphics2D g, Plataforma plataforma) {

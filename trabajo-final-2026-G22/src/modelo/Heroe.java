@@ -1,7 +1,6 @@
 package modelo;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,33 +25,15 @@ public class Heroe extends Entidad {
     private int hp;
     private int hpMax;
 
-    // --- Animaciones del Héroe según la hoja de sprites ---
-    // Fila 1: Quieto (0, 1) y Movimiento (2, 3, 4, 5)
-    private BufferedImage[] animacionQuieto;
-    private BufferedImage[] animacionQuietoIzq;
-    private BufferedImage[] animacionCorrer;
-    private BufferedImage[] animacionCorrerIzq;
-
-    // Fila 2: Tomando Impulso (0, 1, 2, 3) y Despegue (4)
-    private BufferedImage[] animacionImpulso;
-    private BufferedImage[] animacionImpulsoIzq;
-
-    // Fila 3: Salto y Caída (0 a 5)
-    private BufferedImage[] animacionSaltoCaida;
-    private BufferedImage[] animacionSaltoCaidaIzq;
-
-    // Contadores internos para cadencia de animación
-    private int tickAnimacion = 0;
-    private int frameCorrer = 0;
-    private int frameQuieto = 0;
+    // Tiempo de las poses de aterrizaje y despegue
     private int ticksAterrizaje = 0;
     private int ticksDespegue = 0;
     private boolean estabaEnElSuelo = true;
+    private EstadoHeroe estado = EstadoHeroe.QUIETO;
 
-    // Constructor: arma el Heroe pasándole todo lo genérico a Entidad e inicializa sus animaciones
+    // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
     public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp) {
         super(nombre, x, y, ancho, alto, color);
-        cargarSprites();
         this.hp = hp;
         this.hpMax = hp; 
     }
@@ -77,25 +58,7 @@ public class Heroe extends Entidad {
         }
     }
 
-    private void cargarSprites() {
-        this.animacionQuieto = Sprites.getHeroeQuieto();
-        this.animacionQuietoIzq = Sprites.voltearAnimacion(this.animacionQuieto);
-
-        this.animacionCorrer = Sprites.getHeroeMovimiento();
-        this.animacionCorrerIzq = Sprites.voltearAnimacion(this.animacionCorrer);
-
-        this.animacionImpulso = Sprites.getHeroeImpulso();
-        this.animacionImpulsoIzq = Sprites.voltearAnimacion(this.animacionImpulso);
-
-        this.animacionSaltoCaida = Sprites.getHeroeSaltoCaida();
-        this.animacionSaltoCaidaIzq = Sprites.voltearAnimacion(this.animacionSaltoCaida);
-
-        if (this.animacionQuieto != null && this.animacionQuieto.length > 0) {
-            this.setSprite(this.animacionQuieto[0]);
-        }
-    }
-
-    // Se llama en cada frame del juego: aplica gravedad, mueve y actualiza el sprite actual
+    // Se llama en cada frame del juego: aplica gravedad, mueve y actualiza su estado
     public void actualizar() {
         this.actualizarCarga();
         velocidadY += GRAVEDAD;
@@ -114,86 +77,42 @@ public class Heroe extends Entidad {
             setX(800 - getAncho());
         }
 
-        this.actualizarAnimacion();
+        this.actualizarEstado();
     }
 
-    // Gestiona los estados y fotogramas correspondientes a cada fila de movimientos
-    public void actualizarAnimacion() {
-        if (animacionQuieto == null) return;
+    public EstadoHeroe getEstado() {
+        return estado;
+    }
 
-        tickAnimacion++;
-
-        // Detectar el momento en que toca el suelo viniendo del aire
+    // Decide en que estado esta el heroe segun su fisica (la vista elige el dibujo)
+    private void actualizarEstado() {
         if (!estabaEnElSuelo && enElSuelo) {
-            ticksAterrizaje = 5; // Mostrar impacto de aterrizaje brevemente
+            ticksAterrizaje = 5; // el aterrizaje dura unos ticks
         }
         estabaEnElSuelo = enElSuelo;
 
-        // 1. FILA 2: TOMANDO IMPULSO (Carga progresiva del salto según porcentaje)
         if (cargandoSalto) {
             ticksAterrizaje = 0;
             ticksDespegue = 0;
-            double pct = getPorcentajeCargaSalto();
-            int idxImpulso;
-            if (pct < 0.25) {
-                idxImpulso = 0;
-            } else if (pct < 0.50) {
-                idxImpulso = 1;
-            } else if (pct < 0.75) {
-                idxImpulso = 2;
-            } else {
-                idxImpulso = 3;
-            }
-            setSprite(mirandoDerecha ? animacionImpulso[idxImpulso] : animacionImpulsoIzq[idxImpulso]);
-            return;
-        }
-
-        // 2. FILA 3: SALTO Y CAÍDA (Cuando está en el aire)
-        if (!enElSuelo) {
+            estado = EstadoHeroe.CARGANDO;
+        } else if (!enElSuelo) {
             ticksAterrizaje = 0;
-            // Impulso inicial de despegue (Fila 2 Frame 4)
             if (ticksDespegue > 0) {
                 ticksDespegue--;
-                setSprite(mirandoDerecha ? animacionImpulso[4] : animacionImpulsoIzq[4]);
-                return;
-            }
-
-            int idxAire;
-            if (velocidadY < -3) {
-                idxAire = 1; // Subiendo con puño arriba (Salto ascendente)
-            } else if (velocidadY < 1.5) {
-                idxAire = 2; // Cúspide del salto con brazos abiertos (Ápice)
-            } else if (velocidadY < 5) {
-                idxAire = 3; // En el aire girando / transición
+                estado = EstadoHeroe.DESPEGANDO;
             } else {
-                idxAire = 4; // Caída rápida con capa al viento
+                estado = EstadoHeroe.EN_AIRE;
             }
-            setSprite(mirandoDerecha ? animacionSaltoCaida[idxAire] : animacionSaltoCaidaIzq[idxAire]);
-            return;
-        }
-
-        // 3. FILA 3 FRAME 5: IMPACTO DE ATERRIZAJE AL TOCAR EL PISO
-        if (ticksAterrizaje > 0) {
+        } else if (ticksAterrizaje > 0) {
             ticksAterrizaje--;
-            setSprite(mirandoDerecha ? animacionSaltoCaida[5] : animacionSaltoCaidaIzq[5]);
-            return;
+            estado = EstadoHeroe.ATERRIZANDO;
+        } else if (Math.abs(velocidadX) > 0.1) {
+            estado = EstadoHeroe.CORRIENDO;
+        } else {
+            estado = EstadoHeroe.QUIETO;
         }
-
-        // 4. FILA 1: MOVIMIENTO (Caminar / Correr horizontalmente)
-        if (Math.abs(velocidadX) > 0.1) {
-            if (tickAnimacion % 6 == 0) {
-                frameCorrer = (frameCorrer + 1) % animacionCorrer.length;
-            }
-            setSprite(mirandoDerecha ? animacionCorrer[frameCorrer] : animacionCorrerIzq[frameCorrer]);
-            return;
-        }
-
-        // 5. FILA 1: QUIETO (Parado en reposo)
-        if (tickAnimacion % 25 == 0) {
-            frameQuieto = (frameQuieto + 1) % animacionQuieto.length;
-        }
-        setSprite(mirandoDerecha ? animacionQuieto[frameQuieto] : animacionQuietoIzq[frameQuieto]);
     }
+    
 
     public void moverIzquierda() {
         velocidadX = -4;
@@ -293,9 +212,7 @@ public class Heroe extends Entidad {
         this.mirandoDerecha = true;
         this.ticksAterrizaje = 0;
         this.ticksDespegue = 0;
-        if (this.animacionQuieto != null && this.animacionQuieto.length > 0) {
-            this.setSprite(this.animacionQuieto[0]);
-        }
+        this.estado = EstadoHeroe.QUIETO;
     }
 
     public void completarNivel() {
