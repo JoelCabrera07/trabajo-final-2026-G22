@@ -1,13 +1,11 @@
 package modelo;
-import java.awt.Color;
 
 public class PlataformaRompible extends Plataforma {
 
     private boolean destruida;
 
     public PlataformaRompible(double x, double y, int ancho, int alto) {
-        // Color gris oscuro
-        super("Plataforma Rompible", x, y, ancho, alto, Color.DARK_GRAY);
+        super("Plataforma Rompible", x, y, ancho, alto);
         this.destruida = false;
     }
 

@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class Proyectil extends Entidad {
 
@@ -8,7 +7,7 @@ public class Proyectil extends Entidad {
     private final int ataque;
 
     public Proyectil(double x, double y, double dirX, double dirY, int ataque) {
-        super("Proyectil", x, y, 10, 10, Color.YELLOW);
+        super("Proyectil", x, y, 10, 10);
         this.ataque = ataque; 
         
         double magnitud = Math.sqrt(dirX * dirX + dirY * dirY);

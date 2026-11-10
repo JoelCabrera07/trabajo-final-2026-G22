@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class EnemigoTorreta extends Enemigo {
 
@@ -19,7 +18,7 @@ public class EnemigoTorreta extends Enemigo {
 
     public EnemigoTorreta(double x, double y) {
         // No se mueve, así que lo hacemos un poco más alto y duro
-        super("Torreta", x, y, 20, 40, Color.ORANGE, 2);
+        super("Torreta", x, y, 20, 40, 2);
         this.cadenciaDisparo = 2; // Ejemplo: dispara cada 2 segundos
         this.ultimoDisparo = System.currentTimeMillis();
     }

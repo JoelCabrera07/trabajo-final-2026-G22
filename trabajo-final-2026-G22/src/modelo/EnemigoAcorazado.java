@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class EnemigoAcorazado extends Enemigo {
     
@@ -14,7 +13,7 @@ public class EnemigoAcorazado extends Enemigo {
 
     public EnemigoAcorazado(double x, double y) {
         // Grande, pesado y pega fuerte
-        super("Acorazado", x, y, 50, 50, Color.DARK_GRAY, 3);
+        super("Acorazado", x, y, 50, 50, 3);
         this.velocidadPatrullaje = 1.5;
         this.limiteIzquierdo = x - 80;
         this.limiteDerecho = x + 80;

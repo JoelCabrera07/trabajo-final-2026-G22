@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class PlataformaTrampolin extends Plataforma {
 
@@ -7,7 +6,7 @@ public class PlataformaTrampolin extends Plataforma {
 
     public PlataformaTrampolin(double x, double y, int ancho, int alto) {
         // Un verde llamativo
-        super("Trampolín", x, y, ancho, alto, Color.GREEN);
+        super("Trampolín", x, y, ancho, alto);
         // Multiplica la fuerza del salto por 1.5
         this.multiplicadorRebote = 1.5;
     }

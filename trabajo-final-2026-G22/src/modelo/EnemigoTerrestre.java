@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class EnemigoTerrestre extends Enemigo {    
     private double velocidadPatrullaje;
@@ -12,7 +11,7 @@ public class EnemigoTerrestre extends Enemigo {
     
 
     public EnemigoTerrestre(double x, double y) {
-        super("Enemigo Terrestre", x, y, 30, 30, Color.RED, 1);        
+        super("Enemigo Terrestre", x, y, 30, 30, 1);        
         this.velocidadPatrullaje = 2.0;
 
         // Por ahora patrulla 100px para cada lado de donde nace.

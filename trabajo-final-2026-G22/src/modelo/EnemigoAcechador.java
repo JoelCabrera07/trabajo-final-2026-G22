@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 import java.awt.Rectangle;
 
 public class EnemigoAcechador extends Enemigo {
@@ -35,7 +34,7 @@ public class EnemigoAcechador extends Enemigo {
 
     public EnemigoAcechador(double x, double y, double velocidad) {
         // Bicho raro que aparece si te quedás quieto
-        super("Acechador", x, y, 20, 20, Color.MAGENTA, 2);
+        super("Acechador", x, y, 20, 20, 2);
         this.tiempoDeteccion = 1.5; // Segundos antes de empezar a perseguirte
         this.momentoUltimoMovimiento = System.currentTimeMillis();
         this.VELOCIDAD_PERSECUCION = velocidad;

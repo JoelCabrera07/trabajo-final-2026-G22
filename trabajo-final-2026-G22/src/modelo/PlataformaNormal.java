@@ -1,10 +1,9 @@
 package modelo;
-import java.awt.Color;
 
 public class PlataformaNormal extends Plataforma {
 
-    public PlataformaNormal(double x, double y, int alto, int ancho) {
-        super("Plataforma Normal", x, y, alto, ancho, Color.GRAY);
+    public PlataformaNormal(double x, double y, int ancho, int alto) {
+        super("Plataforma Normal", x, y, ancho, alto);
     }
     @Override 
     public void aplicarEfectoColision(Heroe h) {

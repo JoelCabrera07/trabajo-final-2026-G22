@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 import java.awt.Rectangle;
 
 public abstract class Entidad {
@@ -9,15 +8,13 @@ public abstract class Entidad {
     private double y;//posicion en el eje y
     private int ancho;//tamaño de la hitbox
     private int alto;//tamaño de la hitbox
-    private Color color;//necesario para poder ponerle colores al programa
 
-    public Entidad(String nombre, double x, double y,int ancho, int alto, Color color) {
+    public Entidad(String nombre, double x, double y,int ancho, int alto) {
         this.nombre = nombre;
         this.x = x;
         this.y = y;
         this.ancho = ancho;
         this.alto = alto;
-        this.color = color;
     }
 
     public String getNombre() {
@@ -46,10 +43,6 @@ public abstract class Entidad {
 
     public int getAlto() {
         return alto;
-    }
-
-    public Color getColor() {
-        return color;
     }
 
     //lo mejor es poner el metodo aca, para que todos lo aprendan automáticamente.

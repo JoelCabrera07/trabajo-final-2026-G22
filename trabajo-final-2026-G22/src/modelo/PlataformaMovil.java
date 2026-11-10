@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class PlataformaMovil extends Plataforma {
     
@@ -10,7 +9,7 @@ public class PlataformaMovil extends Plataforma {
 
     public PlataformaMovil(double x, double y, int ancho, int alto, double limiteIzq, double limiteDer) {
         // Pasamos nombre, X, Y, ancho, alto, color, 
-        super("Plataforma Móvil", x, y, ancho, alto, Color.LIGHT_GRAY);
+        super("Plataforma Móvil", x, y, ancho, alto);
         this.velocidadX = 3.0; // Velocidad estándar de desplazamiento
         this.limiteIzquierdo = limiteIzq;
         this.limiteDerecho = limiteDer;

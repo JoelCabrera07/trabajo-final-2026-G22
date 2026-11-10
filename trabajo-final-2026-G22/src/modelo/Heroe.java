@@ -1,6 +1,4 @@
 package modelo;
-
-import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -32,8 +30,8 @@ public class Heroe extends Entidad {
     private EstadoHeroe estado = EstadoHeroe.QUIETO;
 
     // Constructor: arma el Heroe pasándole todo lo genérico a Entidad
-    public Heroe(String nombre, double x, double y, int ancho, int alto, Color color, int hp) {
-        super(nombre, x, y, ancho, alto, color);
+    public Heroe(String nombre, double x, double y, int ancho, int alto, int hp) {
+        super(nombre, x, y, ancho, alto);
         this.hp = hp;
         this.hpMax = hp; 
     }

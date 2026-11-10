@@ -1,5 +1,4 @@
 package modelo;
-import java.awt.Color;
 
 public class EnemigoVolador extends Enemigo {
     
@@ -18,7 +17,7 @@ public class EnemigoVolador extends Enemigo {
 
     public EnemigoVolador(double x, double y) {
         // Un poco más frágil pero molesto (ajustamos a 35x30 para mejor proporción visual)
-        super("Enemigo Volador", x, y, 35, 30, Color.CYAN, 1);
+        super("Enemigo Volador", x, y, 35, 30, 1);
         this.amplitudVuelo = 50.0; // Píxeles que se mueve de su eje
         this.centroY = y;
         this.angulo = 0;

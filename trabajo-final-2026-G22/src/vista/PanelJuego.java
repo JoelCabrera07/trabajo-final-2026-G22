@@ -49,6 +49,8 @@ public class PanelJuego extends JPanel {
     private static final int MS_POR_FOTOGRAMA_CORRER = 100;
     private static final int MS_POR_FOTOGRAMA_QUIETO = 400;
     private static final int ALTO_SPRITE_HEROE = 50;
+    // Solo se usa cuando falta una imagen: se dibuja un rectangulo de este color
+    private static final Color COLOR_SIN_SPRITE = Color.MAGENTA;
 
     private final CatalogoSprites catalogo = new CatalogoSprites();
 
@@ -264,7 +266,7 @@ public class PanelJuego extends JPanel {
         int ancho = entidad.getAncho();
         int alto = entidad.getAlto();
 
-        g.setColor(entidad.getColor());
+        g.setColor(COLOR_SIN_SPRITE);
         g.fillRect(x, y, ancho, alto);
         g.setColor(Color.BLACK);
         g.drawRect(x, y, ancho, alto);
