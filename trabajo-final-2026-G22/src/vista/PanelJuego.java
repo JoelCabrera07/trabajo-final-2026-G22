@@ -17,6 +17,7 @@ import modelo.Escenario;
 import modelo.Heroe;
 import modelo.Plataforma;
 import modelo.Proyectil;
+import modelo.Puerta;
 
 /**
  * La vista del juego. No calcula fisica ni colisiones: solo lee las
@@ -36,6 +37,7 @@ public class PanelJuego extends JPanel {
     // Tamaño "logico" del juego: la fisica y las colisiones siempre usan estas medidas
     private static final int ANCHO_JUEGO = 800;
     private static final int ALTO_JUEGO = 600;
+    private static final int MS_POR_FOTOGRAMA = 90;
     private final CatalogoSprites catalogo = new CatalogoSprites();
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
@@ -85,7 +87,7 @@ public class PanelJuego extends JPanel {
         }
 
         if (escenario.getPuerta() != null) {
-            dibujarEntidad(g2, escenario.getPuerta());
+            dibujarPuerta(g2, escenario.getPuerta());
         }
 
         for (Enemigo enemigo : escenario.getEnemigos()) {
@@ -148,6 +150,28 @@ public class PanelJuego extends JPanel {
             dibujarSinSprite(g, plataforma);
         }
         dibujarNombre(g, plataforma, y);
+    }
+
+    private void dibujarPuerta(Graphics2D g, Puerta puerta) {
+        BufferedImage[] fotogramas = catalogo.fotogramasPortal();
+
+         if (fotogramas == null) {
+            dibujarSinSprite(g, puerta);
+            dibujarNombre(g, puerta, (int) puerta.getY());
+            return;
+         }
+            //1.Elegir el fotograma segun el reloj
+            int i = (int) ((System.currentTimeMillis() / MS_POR_FOTOGRAMA) % fotogramas.length);
+            BufferedImage img = fotogramas[i];
+            //2.Calcular x e y para centrarlo sobre la hitbox y apoyarlo en el piso
+            int x = (int) puerta.getX() + puerta.getAncho() / 2 - img.getWidth() / 2;
+            int y = (int) puerta.getY() + puerta.getAlto() - img.getHeight();
+
+            // 3. Dibujar
+            g.drawImage(img, x, y, null);
+
+            // 4. El nombre va arriba de lo más alto entre la hitbox y el dibujo
+            dibujarNombre(g, puerta, Math.min((int) puerta.getY(), y));
     }
 
     private void dibujarSinSprite(Graphics2D g, Entidad entidad) {
