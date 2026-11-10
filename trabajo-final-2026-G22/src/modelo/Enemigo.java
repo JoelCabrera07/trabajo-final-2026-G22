@@ -21,7 +21,17 @@ public abstract class Enemigo extends Entidad implements Colisionable {
 
     public abstract TipoEnemigo getTipo();
 
-    public boolean mirandoDerecha() { return true; }
+    public boolean mirandoDerecha() { 
+        return true; 
+    }
+
+    public FaseEnemigo getFase() { 
+        return FaseEnemigo.NORMAL;//por defecto todo estan en su fase normal 
+    }
+
+    public long getMsEnFase() { 
+        return 0; 
+    }
 
     @Override 
     public void aplicarEfectoColision(Heroe h){

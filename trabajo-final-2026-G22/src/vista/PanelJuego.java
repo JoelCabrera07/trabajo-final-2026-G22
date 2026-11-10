@@ -8,9 +8,11 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.Rectangle;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import modelo.FaseEnemigo;
 import modelo.Enemigo;
 import modelo.Entidad;
 import modelo.Escenario;
@@ -42,8 +44,7 @@ public class PanelJuego extends JPanel {
     private static final int MS_POR_FOTOGRAMA_ORBE = 65; // antes: 4 ticks
     private static final int DIST_CABEZA = 9;            // la cabeza del orbe está 9 px adelante del centro del dibujo
     //Constantes Enemigos
-    private static final int MS_POR_FOTOGRAMA_ENEMIGO = 130;
-    private static final int ALTO_SPRITE_ENEMIGO = 50; 
+    private static final int MS_POR_FOTOGRAMA_ENEMIGO = 120;
     //Constantes Heroe
     private static final int MS_POR_FOTOGRAMA_CORRER = 100;
     private static final int MS_POR_FOTOGRAMA_QUIETO = 400;
@@ -132,22 +133,6 @@ public class PanelJuego extends JPanel {
         dibujarMetrosHUD(g2);
     }
 
-    private void dibujarEntidad(Graphics2D g, Entidad entidad) {
-        int y = (int) entidad.getY();
-        int yTexto = y; // el nombre va arriba de lo que se dibuje
-
-        if (entidad.getSprite() != null) {
-            java.awt.image.BufferedImage img = entidad.getSprite();
-            // Cada entidad dice donde y de que tamaño va su sprite (ver Entidad.getAreaSprite)
-            java.awt.Rectangle area = entidad.getAreaSprite();
-            g.drawImage(img, area.x, area.y, area.width, area.height, null);
-            yTexto = Math.min(y, area.y);
-        } else { //se dibuja un rectangulo de color si no tiene sprite
-            dibujarSinSprite(g, entidad);
-        }
-        dibujarNombre(g, entidad, yTexto);
-    }
-
     private void dibujarHeroe(Graphics2D g, Heroe h) {
         BufferedImage img = imagenHeroe(h);
         int y = (int) h.getY();
@@ -206,15 +191,27 @@ public class PanelJuego extends JPanel {
     }
 
     private void dibujarEnemigo(Graphics2D g, Enemigo enemigo) {
-        BufferedImage[] fotogramas = catalogo.fotogramasDe(enemigo.getTipo(), enemigo.mirandoDerecha());
+        FaseEnemigo fase = enemigo.getFase();
+        BufferedImage[] fotogramas = catalogo.fotogramasDe(enemigo.getTipo(), fase, enemigo.mirandoDerecha());
         if (fotogramas == null) {
-            dibujarEntidad(g, enemigo);  // Acechador y Torreta, hasta la etapa 5
+            dibujarSinSprite(g, enemigo);
+            dibujarNombre(g, enemigo, (int) enemigo.getY());
             return;
         }
-        int i = (int) (System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO % fotogramas.length);
-        int y = (int) enemigo.getY();
-        g.drawImage(fotogramas[i], (int) enemigo.getX(), y, enemigo.getAncho(), ALTO_SPRITE_ENEMIGO, null);
-        dibujarNombre(g, enemigo, y);
+        // Sin ciclo propio se usa el reloj; con ciclo, el tiempo que el modelo dice que lleva en la fase
+        long ms = (fase == FaseEnemigo.NORMAL) ? System.currentTimeMillis() : enemigo.getMsEnFase();
+        int i = (int) (ms / MS_POR_FOTOGRAMA_ENEMIGO);
+        // Las que se repiten dan la vuelta; las otras se quedan en el ultimo fotograma
+        i = seRepite(fase) ? i % fotogramas.length : Math.min(i, fotogramas.length - 1);
+
+        Rectangle area = catalogo.areaSprite(enemigo);
+        g.drawImage(fotogramas[i], area.x, area.y, area.width, area.height, null);
+        dibujarNombre(g, enemigo, Math.min((int) enemigo.getY(), area.y));
+    }
+
+    private boolean seRepite(FaseEnemigo fase) {
+        return fase == FaseEnemigo.NORMAL || fase == FaseEnemigo.REPOSO
+            || fase == FaseEnemigo.FLOTANDO || fase == FaseEnemigo.ATACANDO;
     }
 
     private void dibujarPuerta(Graphics2D g, Puerta puerta) {

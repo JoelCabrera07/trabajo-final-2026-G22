@@ -1,11 +1,10 @@
 package modelo;
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
 public class EnemigoAcechador extends Enemigo {
 
-    // Lo que esta haciendo el acechador. Cada estado tiene su animacion.
+    // Lo que esta haciendo el acechador.
     private enum Estado { OCULTO, APARECIENDO, PERSIGUIENDO, ATACANDO, DESAPARECIENDO }
 
     private double tiempoDeteccion; //segundos que el heroe debe quedarse quieto para que el acechador empiece a perseguirlo
@@ -14,11 +13,16 @@ public class EnemigoAcechador extends Enemigo {
     private static final double DISTANCIA_APARICION= 180; //px de distancia al aparecer
     private static final double DISTANCIA_ATAQUE = 60;   //a menos de esto del heroe estira las manos (es solo visual)
 
+    // Cuanto tarda en materializarse y en desvanecerse (mientras tanto no es solido)
+    private static final long DURACION_APARICION_MS = 600;
+    private static final long DURACION_DESAPARICION_MS = 480;
+
     // true: despues de golpear al heroe se desvanece y vuelve a esconderse hasta que el heroe
     // se quede quieto otra vez. false: lo persigue para siempre (como estaba antes).
     private static final boolean DESAPARECE_AL_GOLPEAR = true;
 
     private Estado estado = Estado.OCULTO;
+    private long momentoCambioEstado = System.currentTimeMillis();
 
     // Guardamos la ultima posición del héroe para saber si se quedó quieto
     private double ultimaXHeroe;
@@ -27,23 +31,7 @@ public class EnemigoAcechador extends Enemigo {
     // Momento del ultimo frame en que se actualizó la posición del héroe, para medir el tiempo que estuvo quieto
     private long momentoUltimoMovimiento;
 
-    // --- Animaciones (cada una en version derecha e izquierda, como el resto de los enemigos) ---
-    private BufferedImage[] aparecerDerecha, aparecerIzquierda;
-    private BufferedImage[] flotarDerecha, flotarIzquierda;
-    private BufferedImage[] atacarDerecha, atacarIzquierda;
-    private BufferedImage[] desaparecerDerecha, desaparecerIzquierda;
-    private int frameActual = 0;
-    private int tickAnimacion = 0;
-    private static final int VELOCIDAD_ANIMACION = 6; // cada 6 ticks cambia el cuadro
     private boolean mirandoDerecha = true;
-
-    // Cada fotograma mide 68x72. El punto (34, 34) del dibujo (el cuerpo del fantasma)
-    // se hace coincidir con el centro de la hitbox.
-    private static final int SPRITE_ANCHO = 68;
-    private static final int SPRITE_ALTO = 72;
-    private static final int CENTRO_SPRITE_X = 34;
-    private static final int CENTRO_SPRITE_Y = 34;
-
 
     public EnemigoAcechador(double x, double y, double velocidad) {
         // Bicho raro que aparece si te quedás quieto
@@ -51,15 +39,6 @@ public class EnemigoAcechador extends Enemigo {
         this.tiempoDeteccion = 1.5; // Segundos antes de empezar a perseguirte
         this.momentoUltimoMovimiento = System.currentTimeMillis();
         this.VELOCIDAD_PERSECUCION = velocidad;
-
-        this.aparecerDerecha = Sprites.getAcechadorAparecer();
-        this.aparecerIzquierda = Sprites.voltearAnimacion(aparecerDerecha);
-        this.flotarDerecha = Sprites.getAcechadorFlotar();
-        this.flotarIzquierda = Sprites.voltearAnimacion(flotarDerecha);
-        this.atacarDerecha = Sprites.getAcechadorAtacar();
-        this.atacarIzquierda = Sprites.voltearAnimacion(atacarDerecha);
-        this.desaparecerDerecha = Sprites.getAcechadorDesaparecer();
-        this.desaparecerIzquierda = Sprites.voltearAnimacion(desaparecerDerecha);
     }
 
     public void perseguir(Heroe h) {
@@ -72,7 +51,7 @@ public class EnemigoAcechador extends Enemigo {
                 moverHacia(h);
                 break;
             default:
-                // APARECIENDO y DESAPARECIENDO: se queda quieto mientras dura la animacion
+                // APARECIENDO y DESAPARECIENDO: se queda quieto mientras dura la transicion
                 break;
         }
     }
@@ -126,7 +105,7 @@ public class EnemigoAcechador extends Enemigo {
         if (difX < -2) mirandoDerecha = false;
 
         // Cerca del heroe estira las manos; si se aleja vuelve a flotar.
-        // (60 para empezar y 80 para dejar, asi no cambia de animacion a cada rato en el limite)
+        // (60 para empezar y 80 para dejar, asi no cambia de estado a cada rato en el limite)
         double distancia = Math.hypot(h.getX() - getX(), h.getY() - getY());
         if (estado == Estado.PERSIGUIENDO && distancia < DISTANCIA_ATAQUE) {
             cambiarEstado(Estado.ATACANDO);
@@ -137,47 +116,39 @@ public class EnemigoAcechador extends Enemigo {
 
     private void cambiarEstado(Estado nuevo) {
         estado = nuevo;
-        frameActual = 0;
-        tickAnimacion = 0;
+        momentoCambioEstado = System.currentTimeMillis();
     }
 
-    private BufferedImage[] animacionActual() {
+    // Termina las transiciones cuando se cumple su duracion
+    private void actualizarEstado() {
+        long enEstado = getMsEnFase();
+        if (estado == Estado.APARECIENDO && enEstado >= DURACION_APARICION_MS) {
+            cambiarEstado(Estado.PERSIGUIENDO);   // termino de materializarse
+        } else if (estado == Estado.DESAPARECIENDO && enEstado >= DURACION_DESAPARICION_MS) {
+            cambiarEstado(Estado.OCULTO);         // vuelve a esconderse
+            momentoUltimoMovimiento = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public FaseEnemigo getFase() {
         switch (estado) {
-            case APARECIENDO:    return mirandoDerecha ? aparecerDerecha : aparecerIzquierda;
-            case ATACANDO:       return mirandoDerecha ? atacarDerecha : atacarIzquierda;
-            case DESAPARECIENDO: return mirandoDerecha ? desaparecerDerecha : desaparecerIzquierda;
-            default:             return mirandoDerecha ? flotarDerecha : flotarIzquierda;
+            case APARECIENDO:    return FaseEnemigo.APARECIENDO;
+            case PERSIGUIENDO:   return FaseEnemigo.FLOTANDO;
+            case ATACANDO:       return FaseEnemigo.ATACANDO;
+            case DESAPARECIENDO: return FaseEnemigo.DESAPARECIENDO;
+            default:             return FaseEnemigo.NORMAL;
         }
     }
 
-    private void actualizarAnimacion() {
-        if (estado == Estado.OCULTO) return;
+    @Override
+    public long getMsEnFase() {
+        return System.currentTimeMillis() - momentoCambioEstado;
+    }
 
-        tickAnimacion++;
-        if (tickAnimacion >= VELOCIDAD_ANIMACION) {
-            tickAnimacion = 0;
-            frameActual++;
-
-            BufferedImage[] anim = animacionActual();
-            int largo = (anim != null) ? anim.length : 4; // sin sprites igual respeta los tiempos
-            if (frameActual >= largo) {
-                if (estado == Estado.APARECIENDO) {
-                    cambiarEstado(Estado.PERSIGUIENDO);   // termino de materializarse
-                } else if (estado == Estado.DESAPARECIENDO) {
-                    cambiarEstado(Estado.OCULTO);         // vuelve a esconderse
-                    momentoUltimoMovimiento = System.currentTimeMillis();
-                    setSprite(null);
-                    return;
-                } else {
-                    frameActual = 0;                      // flotar y atacar se repiten
-                }
-            }
-        }
-
-        BufferedImage[] anim = animacionActual();
-        if (anim != null) {
-            setSprite(anim[frameActual]);
-        }
+    @Override
+    public boolean mirandoDerecha() {
+        return mirandoDerecha;
     }
 
     //para que el panelJuego sepa si debe dibujar al acechador o no, ya que no aparece hasta que el heroe se queda quieto
@@ -206,18 +177,10 @@ public class EnemigoAcechador extends Enemigo {
         return super.getHitbox();
     }
 
-    // El dibujo (68x72) es mas grande que la hitbox (20x20): se centra sobre ella
-    @Override
-    public Rectangle getAreaSprite() {
-        int centroX = (int) getX() + getAncho() / 2;
-        int centroY = (int) getY() + getAlto() / 2;
-        return new Rectangle(centroX - CENTRO_SPRITE_X, centroY - CENTRO_SPRITE_Y, SPRITE_ANCHO, SPRITE_ALTO);
-    }
-
     @Override
     public void actualizar(Heroe heroe, Escenario escenario) {
         perseguir(heroe);
-        actualizarAnimacion();
+        actualizarEstado();
     }
 
     @Override
@@ -228,5 +191,5 @@ public class EnemigoAcechador extends Enemigo {
     @Override
     public TipoEnemigo getTipo(){
         return TipoEnemigo.ACECHADOR;
-    } 
+    }
 }
