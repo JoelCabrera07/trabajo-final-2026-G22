@@ -3,15 +3,10 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pantalla 6: La cima
- * La puerta esta en la punta derecha de la cima, custodiada por un acorazado que empuja al vacio.
- * Hay que saltarlo justo cuando se acerca (y sin esperar mucho, que aparecen los acechadores).
- */
-public class Nivel6 implements Nivel {
+public class Nivel6 extends Nivel {
 
     @Override
-    public List<Plataforma> crearPlataformas() {
+    protected List<Plataforma> crearPlataformas() {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Llegada desde la pantalla 5
@@ -30,7 +25,7 @@ public class Nivel6 implements Nivel {
     }
 
     @Override
-    public List<Enemigo> crearEnemigos() {
+    protected List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
 
         // Custodia la puerta: empuja al heroe hacia el vacio (hay que saltarlo)
@@ -44,7 +39,7 @@ public class Nivel6 implements Nivel {
     }
 
     @Override
-    public Puerta crearPuerta() {
+    protected Puerta crearPuerta() {
         // La meta: la puerta en lo mas alto de la torre
         return new Puerta(745, 110);
     }

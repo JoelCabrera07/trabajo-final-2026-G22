@@ -3,14 +3,10 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pantalla 3: Muro derrumbado
- * Barro, hielo y un techo rompible sobre la salida: el primer salto lo rompe y el segundo pasa.
- */
-public class Nivel3 implements Nivel {
+public class Nivel3 extends Nivel {
 
     @Override
-    public List<Plataforma> crearPlataformas() {
+    protected List<Plataforma> crearPlataformas() {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Llegada desde la pantalla 2
@@ -27,7 +23,7 @@ public class Nivel3 implements Nivel {
     }
 
     @Override
-    public List<Enemigo> crearEnemigos() {
+    protected List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
 
         // Cuida la llegada

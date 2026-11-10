@@ -3,15 +3,10 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pantalla 2: Salon de los estandartes
- * El hielo de la izquierda te empuja hacia el vacio y la plataforma movil hay que agarrarla a tiempo,
- * sin quedarse quieto mucho porque aparece el acechador.
- */
-public class Nivel2 implements Nivel {
+public class Nivel2 extends Nivel {
 
     @Override
-    public List<Plataforma> crearPlataformas() {
+    protected List<Plataforma> crearPlataformas() {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Llegada desde la pantalla 1
@@ -30,7 +25,7 @@ public class Nivel2 implements Nivel {
     }
 
     @Override
-    public List<Enemigo> crearEnemigos() {
+    protected List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
 
         enemigos.add(new EnemigoTorreta(720, 290));

@@ -3,7 +3,7 @@ package controlador;
 import javax.swing.SwingUtilities;
 import modelo.Escenario;
 import modelo.Heroe;
-import modelo.Nivel1;
+import modelo.FabricaNiveles;
 import vista.MenuPrincipal;
 import vista.PanelJuego;
 import vista.PantallaGameOver;
@@ -15,12 +15,12 @@ public class App {
 
         // --- 1. Armar el modelo ---
         Escenario escenario = new Escenario();
-        escenario.cargarPantalla(1, new Nivel1());
+        escenario.cargarPantalla(1, FabricaNiveles.crear(1));
 
         Heroe heroe = new Heroe("Heroe", 50, 500, 32, 48,30);
 
         // --- 2. Conectar el modelo con el controlador ---
-        JuegoManager manager = JuegoManager.getInstance();
+        JuegoManager manager = new JuegoManager();
         manager.setEscenario(escenario);
         manager.setHeroe(heroe);
         heroe.agregarObservador(manager); // JuegoManager se entera cuando el heroe muere
@@ -36,7 +36,7 @@ public class App {
         try {
             java.sql.Connection conexionDB = persistencia.Conexion.getInstancia().get();
             modelo.PuntajeDAO puntajesDAO = new persistencia.PuntajeDAOSQLite(conexionDB);
-            guardadorPuntaje = new GuardadorPuntaje(puntajesDAO);
+            guardadorPuntaje = new GuardadorPuntaje(puntajesDAO, manager);
             heroe.agregarObservador(guardadorPuntaje); // escucha cuando el heroe muere
             System.out.println("Base de datos conectada correctamente.");
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class App {
                     heroe.setHp(heroe.getHpMax());
                     heroe.setX(50);
                     heroe.setY(500);
-                    escenario.cargarPantalla(1, new Nivel1()); // siempre se arranca desde la pantalla 1
+                    escenario.cargarPantalla(1, FabricaNiveles.crear(1)); // siempre se arranca desde la pantalla 1
                     panel.cargarFondoNivel(1);
                     ventana.cambiarPanel(panel); 
                     
@@ -180,7 +180,7 @@ public class App {
                     heroe.setY(500);
 
                     // Recargamos el escenario y mostramos el panel del juego
-                    escenario.cargarPantalla(1, new Nivel1());
+                    escenario.cargarPantalla(1, FabricaNiveles.crear(1));
                     panel.cargarFondoNivel(1);
                     ventana.cambiarPanel(panel);
 

@@ -3,14 +3,10 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pantalla 1: Planta baja
- * Calentamiento: saltos medianos, el primer hielo y una salida que pide carga fuerte.
- */
-public class Nivel1 implements Nivel {
+public class Nivel1 extends Nivel {
 
     @Override
-    public List<Plataforma> crearPlataformas() {
+    protected List<Plataforma> crearPlataformas() {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Piso de la planta baja (aca arranca el heroe)
@@ -29,7 +25,7 @@ public class Nivel1 implements Nivel {
     }
 
     @Override
-    public List<Enemigo> crearEnemigos() {
+    protected List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
 
         // Patrulla la primera plataforma

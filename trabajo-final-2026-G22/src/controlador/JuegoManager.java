@@ -6,8 +6,6 @@ import vista.PanelJuego;
 
 public class JuegoManager implements Observador {
 
-    private static JuegoManager instance;
-
     // La torre tiene 6 pantallas; la puerta de la meta esta en la ultima
     public static final int TOTAL_PANTALLAS = 7;
     private static final int PRIMERA_PANTALLA_CON_TORMENTA = 4;
@@ -34,15 +32,8 @@ public class JuegoManager implements Observador {
         this.eventoGameOver = evento;
     }
 
-    private JuegoManager() {
+    public JuegoManager() {
         this.juegoCorriendo = false;
-    }
-
-    public static JuegoManager getInstance() {
-        if (instance == null) {
-            instance = new JuegoManager();
-        }
-        return instance;
     }
 
     // --- Conexion con el modelo y la vista, desde App.java ---
@@ -150,32 +141,8 @@ public class JuegoManager implements Observador {
         }
     }
 
-    // Patron Factory: cada pantalla de la torre tiene su propia fabrica.
-    // Para agregar un nivel nuevo alcanza con sumar un case y subir
-    // TOTAL_PANTALLAS.
-    public static Nivel crearNivel(int pantalla) {
-        switch (pantalla) {
-            case 1:
-                return new Nivel1();
-            case 2:
-                return new Nivel2();
-            case 3:
-                return new Nivel3();
-            case 4:
-                return new Nivel4();
-            case 5:
-                return new Nivel5();
-            case 6:
-                return new Nivel6();
-            case 7:
-                return new Nivel7();
-            default:
-                throw new IllegalArgumentException("No existe la pantalla " + pantalla);
-        }
-    }
-
     private void cambiarPantalla(int nuevaPantalla) {
-        escenarioActual.cargarPantalla(nuevaPantalla, crearNivel(nuevaPantalla));
+        escenarioActual.cargarPantalla(nuevaPantalla, FabricaNiveles.crear(nuevaPantalla));
         if (vista != null) {
             vista.cargarFondoNivel(nuevaPantalla);
             // De la pantalla 4 para arriba se esta afuera, en la tormenta
@@ -194,11 +161,7 @@ public class JuegoManager implements Observador {
             return;
 
         // --- Colisiones con enemigos ---
-        escenarioActual.getPlataformas().removeIf(plataforma -> plataforma.debeEliminarse()); // Eliminamos las
-                                                                                              // plataformas que ya
-                                                                                              // cumplieron su
-                                                                                              // funcion(las rompibles
-                                                                                              // destruidas)
+        escenarioActual.eliminarPlataformasRotas();
         Rectangle hitboxHeroe = heroe.getHitbox(); // Obtenemos la hitbox del héroe para usarla en las colisiones
         for (Enemigo enemigo : escenarioActual.getEnemigos()) {
             if (hitboxHeroe.intersects(enemigo.getHitbox())) {
@@ -222,7 +185,7 @@ public class JuegoManager implements Observador {
 
         // Sacamos los proyectiles que ya se salieron de la pantalla para no seguir
         // calculando colisiones con ellos
-        escenarioActual.getProyectiles().removeIf(p -> p.debeEliminarse());
+        escenarioActual.eliminarProyectilesTerminados();
 
         // --- Colisiones con plataformas ---
         hitboxHeroe = heroe.getHitbox();

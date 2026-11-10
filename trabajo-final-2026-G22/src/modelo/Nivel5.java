@@ -3,14 +3,10 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pantalla 5: La aguja de hierro
- * Dos plataformas moviles seguidas, fuego cruzado de dos torretas y voladores en el camino.
- */
-public class Nivel5 implements Nivel {
+public class Nivel5 extends Nivel {
 
     @Override
-    public List<Plataforma> crearPlataformas() {
+    protected List<Plataforma> crearPlataformas() {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Llegada desde la pantalla 4
@@ -28,7 +24,7 @@ public class Nivel5 implements Nivel {
     }
 
     @Override
-    public List<Enemigo> crearEnemigos() {
+    protected List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
 
         enemigos.add(new EnemigoTorreta(40, 210));

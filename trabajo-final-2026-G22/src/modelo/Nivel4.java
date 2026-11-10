@@ -3,15 +3,10 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pantalla 4: Balcon de la tormenta
- * Hay que caer en el trampolin y dirigir el rebote hasta la cornisa de la derecha,
- * despues de romper el techo que lo tapa.
- */
-public class Nivel4 implements Nivel {
+public class Nivel4 extends Nivel {
 
     @Override
-    public List<Plataforma> crearPlataformas() {
+    protected List<Plataforma> crearPlataformas() {
         List<Plataforma> plataformas = new ArrayList<>();
 
         // Llegada desde la pantalla 3
@@ -29,7 +24,7 @@ public class Nivel4 implements Nivel {
     }
 
     @Override
-    public List<Enemigo> crearEnemigos() {
+    protected List<Enemigo> crearEnemigos() {
         List<Enemigo> enemigos = new ArrayList<>();
 
         enemigos.add(new EnemigoTorreta(680, 260));

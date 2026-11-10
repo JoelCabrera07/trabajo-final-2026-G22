@@ -14,16 +14,18 @@ import modelo.PuntajeDAO;
 public class GuardadorPuntaje implements Observador {
 
     private final PuntajeDAO dao;
+    private final JuegoManager manager;
     private int ultimosMetros = 0;
 
-    public GuardadorPuntaje(PuntajeDAO dao) {
+    public GuardadorPuntaje(PuntajeDAO dao, JuegoManager manager) {
         this.dao = dao;
+        this.manager = manager;
     }
 
     @Override
     public void actualizar(EventoJuego evento, Heroe heroe) {
         if (evento == EventoJuego.HEROE_MURIO || evento == EventoJuego.NIVEL_COMPLETADO) {
-            this.ultimosMetros = JuegoManager.getInstance().getMetrosMaximos();
+            this.ultimosMetros = manager.getMetrosMaximos();
             System.out.println("GuardadorPuntaje: El heroe murio alcanzando " + ultimosMetros + " metros.");
         }
     }

@@ -26,7 +26,7 @@ public class EnemigoTorreta extends Enemigo {
         this.ultimoDisparo = System.currentTimeMillis();
     }
 
-    // Devuelve un Proyectil nuevo si ya toca disparar, o null si todavía no pasó el
+    // Devuelve un Proyectil nuevo si ya toca disparar, o null si todavia no paso el
     // tiempo
     public Proyectil disparar(Heroe h) {
         long ahora = System.currentTimeMillis();
@@ -48,12 +48,12 @@ public class EnemigoTorreta extends Enemigo {
 
     @Override
     public void actualizar(Heroe heroe, Escenario escenario) {
-        // Mira hacia el héroe, así el orbe sale del lado correcto
+        // Mira hacia el héroe, asi el orbe sale del lado correcto
         mirandoDerecha = (heroe.getX() + heroe.getAncho() / 2.0) >= (getX() + getAncho() / 2.0);
         actualizarEstado();
         Proyectil nuevo = disparar(heroe);
         if (nuevo != null) {
-            escenario.getProyectiles().add(nuevo);
+            escenario.agregarProyectil(nuevo);
         }
     }
 
@@ -77,8 +77,8 @@ public class EnemigoTorreta extends Enemigo {
         return mirandoDerecha; // mira hacia el héroe
     }
 
-    // Calcula en qué fase del ciclo de disparo está, según el tiempo desde el
-    // último disparo
+    // Calcula en que fase del ciclo de disparo esta, segun el tiempo desde el
+    // ultimo disparo
     private void actualizarEstado() {
         long t = System.currentTimeMillis() - ultimoDisparo;
         long ciclo = cadenciaDisparo * 1000L;

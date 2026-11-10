@@ -7,15 +7,9 @@ public class EnemigoAcechador extends Enemigo {
     private double tiempoDeteccion; // segundos que el heroe debe quedarse quieto para que el acechador empiece a
                                     // perseguirlo
 
-    private double VELOCIDAD_PERSECUCION; // pixeles por frame
+    private double velocidadPersecucion; // pixeles por frame
     private static final double DISTANCIA_APARICION = 180; // px de distancia al aparecer
-    private static final double DISTANCIA_ATAQUE = 60; // a menos de esto del heroe estira las manos (es solo visual)
-
-    // true: despues de golpear al heroe se desvanece y vuelve a esconderse hasta
-    // que el heroe
-    // se quede quieto otra vez. false: lo persigue para siempre (como estaba
-    // antes).
-    private static final boolean DESAPARECE_AL_GOLPEAR = true;
+    private static final double DISTANCIA_ATAQUE = 60; // a menos de esta distancia del heroe pasa a ATACANDO
 
     private EstadoEnemigo estado = EstadoEnemigo.OCULTO;
 
@@ -40,7 +34,7 @@ public class EnemigoAcechador extends Enemigo {
         super("Acechador", x, y, 20, 20,2);
         this.tiempoDeteccion = 1.5; // Segundos antes de empezar a perseguirte
         this.momentoUltimoMovimiento = System.currentTimeMillis();
-        this.VELOCIDAD_PERSECUCION = velocidad;
+        this.velocidadPersecucion = velocidad;
     }
 
     public void perseguir(Heroe h) {
@@ -93,15 +87,15 @@ public class EnemigoAcechador extends Enemigo {
     // al estar activo flota lentamente hacia el héroe (atraviesa las plataformas)
     private void moverHacia(Heroe h) {
         if (h.getX() > getX()) {
-            setX(getX() + VELOCIDAD_PERSECUCION);
+            setX(getX() + velocidadPersecucion);
         } else if (h.getX() < getX()) {
-            setX(getX() - VELOCIDAD_PERSECUCION);
+            setX(getX() - velocidadPersecucion);
         }
 
         if (h.getY() > getY()) {
-            setY(getY() + VELOCIDAD_PERSECUCION);
+            setY(getY() + velocidadPersecucion);
         } else if (h.getY() < getY()) {
-            setY(getY() - VELOCIDAD_PERSECUCION);
+            setY(getY() - velocidadPersecucion);
         }
 
         // Mira hacia el heroe (con 2 px de margen para que no tiemble cuando estan
@@ -153,9 +147,7 @@ public class EnemigoAcechador extends Enemigo {
             return;
 
         super.aplicarEfectoColision(h);
-        if (DESAPARECE_AL_GOLPEAR) {
-            cambiarEstado(EstadoEnemigo.DESAPARECIENDO);
-        }
+        cambiarEstado(EstadoEnemigo.DESAPARECIENDO); // despues de golpear se desvanece
     }
 
     // Mientras esta oculto no tiene que chocar con nada (antes lastimaba aunque
