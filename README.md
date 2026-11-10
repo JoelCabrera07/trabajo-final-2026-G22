@@ -84,33 +84,125 @@ Si sumamos más enemigos y plataformas, este bloque crece sin control...
 
 2. **Patrón aplicado: Abstract Factory (Fábrica Abstracta)**
 
-Para resolver este problema se implementó el patrón Abstract Factory. Se delegó la creación de las familias de elementos de cada pantalla (plataformas y enemigos) a fábricas especializadas e intercambiables, desacoplando completamente a Escenario de las clases concretas.
+#### A. Factory Method & Simple Factory
+- **Factory Method:** Se definió la interfaz `Nivel` con los métodos abstractos `crearPlataformas()`, `crearEnemigos()` y el método default `crearPuerta()`. Cada pantalla del juego es una fábrica concreta (`Nivel1` a `Nivel7`) responsable de instanciar su propia composición de elementos.
+- **Simple Factory:** El método estático `JuegoManager.crearNivel(int pantalla)` centraliza la selección de la fábrica de nivel correspondiente a la pantalla solicitada.
+- **Beneficio:** `Escenario.cargarPantalla(int numero, Nivel nivel)` se vuelve agnóstico a las clases concretas; solo recibe la abstracción `Nivel` y delega la instanciación.
 
+- Diagrama de clases
+- IMPLEMENTACION
+ ```mermaid
+classDiagram
+    class JuegoManager {
+        +crearNivel(int pantalla)$ Nivel
+    }
 
+    class Escenario {
+        -List~Plataforma~ plataformas
+        -List~Enemigo~ enemigos
+        -Puerta puerta
+        +cargarPantalla(int numeroPantalla, Nivel nivel)
+    }
+
+    class Nivel {
+        <<interface>>
+        +crearPlataformas()* List~Plataforma~
+        +crearEnemigos()* List~Enemigo~
+        +crearPuerta() Puerta
+    }
+
+    class Nivel1 { +crearPlataformas() +crearEnemigos() }
+    class Nivel2 { +crearPlataformas() +crearEnemigos() }
+    class Nivel3 { +crearPlataformas() +crearEnemigos() }
+    class Nivel4 { +crearPlataformas() +crearEnemigos() }
+    class Nivel5 { +crearPlataformas() +crearEnemigos() }
+    class Nivel6 { +crearPlataformas() +crearEnemigos() +crearPuerta() }
+    class Nivel7 { +crearPlataformas() +crearEnemigos() }
+
+    class Plataforma { <<abstract>> }
+    class Enemigo { <<abstract>> }
+    class Puerta
+
+    JuegoManager ..> Nivel : instancializa (Simple Factory)
+    Escenario ..> Nivel : consume
+    
+    Nivel1 ..|> Nivel
+    Nivel2 ..|> Nivel
+    Nivel3 ..|> Nivel
+    Nivel4 ..|> Nivel
+    Nivel5 ..|> Nivel
+    Nivel6 ..|> Nivel
+    Nivel7 ..|> Nivel
+
+    Nivel ..> Plataforma : fabrica (Factory Method)
+    Nivel ..> Enemigo : fabrica (Factory Method)
+    Nivel ..> Puerta : fabrica (Factory Method)
+  ```
+
+Patrón Observer (Sujeto / Observador)
+1. El problema: Polling activo y acoplamiento directo en la clase Heroe
+Antes de implementar este patrón, la notificación de eventos críticos del juego (como la muerte del personaje o la victoria al tocar la meta) presentaba dos fallas principales de diseño:
+
+Violación del patrón MVC y alto acoplamiento: Para que el héroe pudiera gatillar el fin de la partida o la persistencia del puntaje, la clase Heroe (Modelo) debía mantener referencias directas a JuegoManager (Controlador) y a GuardadorPuntaje (Persistencia). Esto contaminaba al Modelo con responsabilidades de flujo de pantalla y base de datos.
+
+Polling activo (Active Polling) e ineficiencia: La alternativa sin acoplamiento era hacer que JuegoManager consultara manualmente en cada frame del bucle de juego (~60 FPS) si el héroe se había quedado sin vida (if (heroe.getHp() <= 0)). Esto sobrecargaba el ciclo de físicas con comprobaciones constantes y dispersaba la lógica de eventos.
+
+Violación del Principio Abierto/Cerrado (OCP): Si en el futuro se deseaba agregar una nueva respuesta ante la muerte del personaje (por ejemplo, reproducir un efecto de sonido o registrar un logro), era obligatorio abrir y modificar la clase Heroe.
+
+#### B. Patrón Observer (Sujeto / Observador)
+- **Sujeto:** `Heroe` mantiene una lista thread-safe de observadores (`CopyOnWriteArrayList<Observador>`).
+- **Observadores:** `JuegoManager` y `GuardadorPuntaje` implementan la interfaz `Observador`.
+- **Funcionamiento:** Cuando el héroe muere (`HEROE_MURIO`) o completa la torre (`NIVEL_COMPLETADO`), notifica automáticamente a los observadores sin estar acoplado a la lógica de Game Over ni a la base de datos.
+- **Beneficio:** Modelo Puro: Heroe ignora la existencia de Swing, de los paneles de UI y de la base de datos SQLite.
+
+Extensibilidad (OCP): Es posible sumar N observadores nuevos (gestor de audio, estadísticas, logros) simplemente haciendo que implementen Observador y registrándolos en Heroe, sin tocar una sola línea del modelo.
 Diagrama de clases
-<img width="669" height="885" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/a2dc8943-fea0-46ad-a191-9bac4064eea8" />
 
-Implementación
-FabricaNivel.java (Interfaz de la Fábrica)
-<img width="999" height="197" alt="image" src="https://github.com/user-attachments/assets/8e343037-d82f-4067-9720-721e39ce9d91" />
+```mermaid
+classDiagram
+    class Observador {
+        <<interface>>
+        +actualizar(EventoJuego evento, Heroe heroe)*
+    }
 
-FabricaNivel1.java (Fábrica de la Pantalla 1)
-<img width="1009" height="659" alt="image" src="https://github.com/user-attachments/assets/3aa7d81b-24e8-4941-acf0-1bf8af4a8f90" />
-<img width="1005" height="276" alt="image" src="https://github.com/user-attachments/assets/28117a22-4d6a-4bd2-9d8c-ce45cd8c8b5b" />
+    class Heroe {
+        -List~Observador~ observadores
+        -int hp
+        +agregarObservador(Observador o) boolean
+        +quitarObservador(Observador o) boolean
+        -notificarObservadores(EventoJuego evento)
+        +recibirDanio(int cantidad)
+        +completarNivel()
+    }
 
-FabricaNivel2.java (Fábrica de la Pantalla 2)
-<img width="1005" height="658" alt="image" src="https://github.com/user-attachments/assets/d03da90e-f697-4f5c-919d-f76ee1c40fbb" />
+    class JuegoManager {
+        -Runnable eventoGameOver
+        -Runnable eventoNivelCompletado
+        +actualizar(EventoJuego evento, Heroe heroe)
+        +terminarJuego()
+        +completarNivel()
+    }
 
-Escenario.java (Cliente actualizado)
-<img width="1004" height="285" alt="image" src="https://github.com/user-attachments/assets/483b9520-d5ee-4492-b9df-a7c64da9f754" />
+    class GuardadorPuntaje {
+        -PuntajeDAO dao
+        -int ultimosMetros
+        +actualizar(EventoJuego evento, Heroe heroe)
+        +guardarPuntaje(String jugador, int metros) boolean
+    }
 
-Con este diseño tenemos beneficios:
+    class EventoJuego {
+        <<enumeration>>
+        HEROE_RECIBIO_DANIO
+        HEROE_MURIO
+        NIVEL_COMPLETADO
+    }
 
--**Extensibilidad**: Si queremos agregar un Nivel 3, solo creamos la clase FabricaNivel3 implements FabricaNivel. No se toca ni una sola línea de código existente en Escenario.
-
--**Cohesión y legibilidad**: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
-
--**Desacoplamiento**: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
+    JuegoManager ..|> Observador
+    GuardadorPuntaje ..|> Observador
+    Heroe "1" o-- "*" Observador : notifica a
+    Heroe ..> EventoJuego : transmite
+    Observador ..> EventoJuego : interpreta
+```
 
 ### Diagramas de Diseño
 
@@ -516,14 +608,34 @@ Nota: con Java 22 o superior aparece un aviso de SQLite sobre acceso nativo. No 
 - **Control de Versiones:** Git y GitHub
 
 ## 7. Herencia y Polimorfismo(Segunda Entrega)
+1. Jerarquía de Herencia
+Para reutilizar código y evitar redundancias, el modelo se organiza en una jerarquía clara:
 
-1. Herencia (Para no repetir código)
-Básicamente aplicamos herencia simple para no escribir mil veces los mismos atributos y mantener la arquitectura ordenada.
+Clase Base Entidad: Define los 5 atributos esenciales de cualquier objeto del mapa (nombre, x, y, ancho, alto), los getters/setters correspondientes y el método genérico getHitbox().
 
-Sistema de Entidades: En vez de programarle la vida, el nombre y las coordenadas al Héroe y después hacer lo mismo de cero para el Enemigo, creamos una clase abstracta padre llamada Entidad. De ahí heredan Heroe y Enemigo, llevándose toda esa base y sumando solo sus mecánicas específicas.
+Subclase EntidadHostil: Hereda de Entidad e incorpora el atributo ataque. Implementa la interfaz Colisionable definiendo la acción por defecto de restar vida al héroe (heroe.recibirDanio(this.ataque)).
 
-Plataformas: Hicimos la misma jugada. Tenemos una clase base Plataforma que se encarga de lo genérico (dibujarse en pantalla, detectar colisiones). De ahí sacamos las clases hijas como PlataformaHielo o PlataformaBarro, que heredan toda la física base pero modifican cosas puntuales como la fricción o la velocidad del jugador.
+Subclase Enemigo: Hereda de EntidadHostil y define el contrato abstracto actualizar(Heroe heroe, Escenario escenario) para la Inteligencia Artificial de los enemigos.
 
-2. Polimorfismo
-Lo implementamos más que nada en el sistema de interacciones y colisiones para mantener el motor del juego limpio.
-En lugar de armar una cadena enorme de if/else preguntando con qué tipo de bloque o entidad chocó el jugador, usamos un método general. Gracias a la sobrescritura en las clases hijas, cuando ocurre una colisión, es el propio objeto el que define qué efecto aplicar (por ejemplo, alterar la velocidad si es hielo ). De esta forma, el bucle principal del juego solo llama a la acción genérica, y si el día de mañana agregamos un obstáculo nuevo, no necesitamos modificar la lógica del motor, solo creamos la clase nueva.
+Enemigos Concretos: EnemigoTerrestre, EnemigoVolador, EnemigoAcechador, EnemigoAcorazado y EnemigoTorreta heredan de Enemigo reutilizando el manejo de vida y colisiones.
+
+Subclase Plataforma: Hereda de Entidad e implementa Colisionable. Subclases como PlataformaNormal, PlataformaBarro, PlataformaHielo, PlataformaMovil, PlataformaRompible y PlataformaTrampolin refinan comportamientos físicos específicos.
+
+2. Polimorfismo.
+El polimorfismo permite al motor (JuegoManager) iterar sobre colecciones abstractas sin conocer el tipo exacto del objeto:
+
+Bucle de Físicas (actualizar()): En cada frame, el motor recorre la lista List<Enemigo> invocando e.actualizar(heroe, escenario). Cada enemigo ejecuta su propia IA en tiempo de ejecución (el volador calcula la onda senoidal, la torreta dispara, el terrestre patrulla o persigue).
+
+Sistema de Colisiones (aplicarEfectoColision()):
+
+Los enemigos estándar (Terrestre, Volador) aprovechan la implementación base de EntidadHostil.
+
+EnemigoAcorazado sobrescribe el método para restar vida y además empujar al héroe hacia atrás.
+
+EnemigoAcechador sobrescribe el método para restar vida y cambiar su estado a desaparecer.
+
+Proyectil sobrescribe el método para restar vida y consumirse/marcar impacto.
+
+PlataformaTrampolin sobrescribe el método para impulsar al héroe hacia arriba.
+
+PlataformaRompible sobrescribe el método para marcarse como destruida al ser pisada o golpeada desde abajo.
