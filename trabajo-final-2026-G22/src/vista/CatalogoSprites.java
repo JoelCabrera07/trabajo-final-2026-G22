@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.function.Function;
 import modelo.Enemigo;
 import modelo.FaseEnemigo;
-import modelo.Sprites;
 import modelo.TipoEnemigo;
 import modelo.TipoPlataforma;
 

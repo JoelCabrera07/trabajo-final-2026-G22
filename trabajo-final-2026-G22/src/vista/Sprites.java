@@ -1,4 +1,4 @@
-package modelo;
+package vista;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
