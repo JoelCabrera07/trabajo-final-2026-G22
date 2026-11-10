@@ -117,138 +117,378 @@ Con este diseño tenemos beneficios:
 #### **Diagrama de Clases UML (Conceptual)**
 ```mermaid
 classDiagram
-    %% CONTROLADOR
-    class JuegoManager {
-        <<Singleton>>
-        -JuegoManager instance
-        -Escenario escenarioActual
-        -Heroe heroe
-        +getInstance() JuegoManager
-        +iniciarJuego() void
-        +buclePrincipal() void
+    namespace modelo {
+        class Entidad {
+            <<abstract>>
+            -String nombre
+            -double x
+            -double y
+            -int ancho
+            -int alto
+            +getNombre() String
+            +getX() double
+            +setX(double x)
+            +getY() double
+            +setY(double y)
+            +getAncho() int
+            +getAlto() int
+            +getHitbox() Rectangle
+            +getTipo()* TipoEntidad
+        }
+
+        class EntidadHostil {
+            <<abstract>>
+            -int ataque
+            +getAtaque() int
+            +aplicarEfectoColision(Heroe h)
+        }
+
+        class Heroe {
+            -int hp
+            -int hpMax
+            -double velocidadX
+            -double velocidadY
+            -double cargaSalto
+            -boolean cargandoSalto
+            -boolean enElSuelo
+            -boolean mirandoDerecha
+            -List~Observador~ observadores
+            -EstadoHeroe estado
+            +actualizar()
+            +moverIzquierda()
+            +moverDerecha()
+            +iniciarCargaSalto()
+            +ejecutarSalto()
+            +recibirDanio(int cantidad)
+            +completarNivel()
+            +agregarObservador(Observador o) boolean
+            +quitarObservador(Observador o) boolean
+        }
+
+        class Plataforma {
+            <<abstract>>
+            +aplicarEfectoColision(Heroe h)
+            +alGolpearDesdeAbajo(Heroe h)
+            +actualizar()
+            +debeEliminarse() boolean
+        }
+
+        class PlataformaNormal {
+            +getTipo() TipoEntidad
+        }
+        class PlataformaBarro {
+            -double reduccionVelocidad
+            +aplicarEfectoColision(Heroe h)
+            +getTipo() TipoEntidad
+        }
+        class PlataformaHielo {
+            +aplicarEfectoColision(Heroe h)
+            +getTipo() TipoEntidad
+        }
+        class PlataformaMovil {
+            -double velocidadX
+            -double limiteIzquierdo
+            -double limiteDerecho
+            -boolean moviendoDerecha
+            +mover()
+            +actualizar()
+            +aplicarEfectoColision(Heroe h)
+            +getTipo() TipoEntidad
+        }
+        class PlataformaRompible {
+            -boolean destruida
+            +romper()
+            +aplicarEfectoColision(Heroe h)
+            +alGolpearDesdeAbajo(Heroe h)
+            +debeEliminarse() boolean
+            +getTipo() TipoEntidad
+        }
+        class PlataformaTrampolin {
+            -double multiplicadorRebote
+            +aplicarEfectoColision(Heroe h)
+            +getTipo() TipoEntidad
+        }
+
+        class Enemigo {
+            <<abstract>>
+            +actualizar(Heroe heroe, Escenario escenario)*
+            +isVisible() boolean
+            +isMirandoDerecha() boolean
+            +getEstado() EstadoEnemigo
+            +getTicksEnEstado() int
+        }
+
+        class EnemigoTerrestre {
+            -double velocidadPatrullaje
+            -double limiteIzquierdo
+            -double limiteDerecho
+            -boolean moviendoseDerecha
+            +actualizar(Heroe heroe, Escenario escenario)
+            +getTipo() TipoEntidad
+        }
+        class EnemigoVolador {
+            -double amplitudVuelo
+            -double centroY
+            -double angulo
+            +flotarVerticalmente()
+            +actualizar(Heroe heroe, Escenario escenario)
+            +getTipo() TipoEntidad
+        }
+        class EnemigoAcechador {
+            -double tiempoDeteccion
+            -double VELOCIDAD_PERSECUCION
+            -EstadoEnemigo estado
+            +perseguir(Heroe h)
+            +actualizar(Heroe heroe, Escenario escenario)
+            +aplicarEfectoColision(Heroe h)
+            +getHitbox() Rectangle
+            +getTipo() TipoEntidad
+        }
+        class EnemigoAcorazado {
+            -double velocidadPatrullaje
+            +aplicarEfectoColision(Heroe h)
+            +actualizar(Heroe heroe, Escenario escenario)
+            +getTipo() TipoEntidad
+        }
+        class EnemigoTorreta {
+            -int cadenciaDisparo
+            -long ultimoDisparo
+            -EstadoEnemigo estado
+            +disparar(Heroe h) Proyectil
+            +actualizar(Heroe heroe, Escenario escenario)
+            +getTipo() TipoEntidad
+        }
+
+        class Proyectil {
+            -double velocidadX
+            -double velocidadY
+            -boolean impacto
+            +actualizar()
+            +aplicarEfectoColision(Heroe h)
+            +debeEliminarse() boolean
+            +getTipo() TipoEntidad
+        }
+
+        class Puerta {
+            +aplicarEfectoColision(Heroe h)
+            +getTipo() TipoEntidad
+        }
+
+        class Escenario {
+            -List~Plataforma~ plataformas
+            -List~Enemigo~ enemigos
+            -List~Proyectil~ proyectiles
+            -int pantallaActual
+            -Puerta puerta
+            +cargarPantalla(int numeroPantalla, Nivel nivel)
+            +getPlataformas() List~Plataforma~
+            +getEnemigos() List~Enemigo~
+            +getProyectiles() List~Proyectil~
+            +getPuerta() Puerta
+        }
+
+        class Puntaje {
+            -String jugador
+            -int puntos
+            +getJugador() String
+            +getPuntos() int
+        }
+
+        class Colisionable {
+            <<interface>>
+            +aplicarEfectoColision(Heroe h)*
+        }
+
+        class Observador {
+            <<interface>>
+            +actualizar(EventoJuego evento, Heroe heroe)*
+        }
+
+        class PuntajeDAO {
+            <<interface>>
+            +guardar(Puntaje puntaje) boolean*
+            +mejores(int cantidad) List~Puntaje~*
+        }
+
+        class Nivel {
+            <<interface>>
+            +crearEnemigos() List~Enemigo~*
+            +crearPlataformas() List~Plataforma~*
+            +crearPuerta() Puerta
+        }
+
+        class Nivel1 { Implements Nivel }
+        class Nivel2 { Implements Nivel }
+        class Nivel3 { Implements Nivel }
+        class Nivel4 { Implements Nivel }
+        class Nivel5 { Implements Nivel }
+        class Nivel6 { Implements Nivel }
+        class Nivel7 { Implements Nivel }
+
+        class TipoEntidad { <<enumeration>> }
+        class EstadoHeroe { <<enumeration>> }
+        class EstadoEnemigo { <<enumeration>> }
+        class EventoJuego { <<enumeration>> }
     }
 
-    class GuardadorPuntaje {
-        +guardar(Puntaje p) void
+    namespace controlador {
+        class App {
+            +main(String[] args)$
+        }
+
+        class JuegoManager {
+            -JuegoManager instance$
+            -Escenario escenarioActual
+            -Heroe heroe
+            -boolean juegoCorriendo
+            -PanelJuego vista
+            -Runnable eventoGameOver
+            -Runnable eventoNivelCompletado
+            -int metrosMaximosAlcanzados
+            +getInstance() JuegoManager$
+            +iniciarJuego()
+            -buclePrincipal()
+            -actualizarFisicas()
+            -verificarColisiones()
+            +crearNivel(int pantalla) Nivel$
+            +actualizar(EventoJuego evento, Heroe heroe)
+        }
+
+        class ControladorTeclado {
+            -Heroe heroe
+            -Escenario escenario
+            +keyPressed(KeyEvent e)
+            +keyReleased(KeyEvent e)
+        }
+
+        class GuardadorPuntaje {
+            -PuntajeDAO dao
+            -int ultimosMetros
+            +actualizar(EventoJuego evento, Heroe heroe)
+            +guardarPuntaje(String jugador, int metros) boolean
+            +obtenerMejoresPuntajes(int cantidad) List~Puntaje~
+        }
     }
 
-    %% INTERFACES Y PATRONES (MODELO)
-    class Observador {
-        <<interface>>
-        +actualizar(EventoJuego evento) void
+    namespace persistencia {
+        class Conexion {
+            -Conexion instancia$
+            -Connection conexion
+            +getInstancia() Conexion$
+            +get() Connection
+        }
+
+        class PuntajeDAOSQLite {
+            -Connection conexion
+            -crearTablaSiNoExiste()
+            +guardar(Puntaje p) boolean
+            +mejores(int cantidad) List~Puntaje~
+        }
     }
 
-    class Colisionable {
-        <<interface>>
-        +getHitbox() Rectangle
+    namespace vista {
+        class VentanaJuego {
+            -boolean pantallaCompleta
+            +alternarPantallaCompleta()
+            +cambiarPanel(JPanel nuevoPanel)
+        }
+
+        class PanelJuego {
+            -Escenario escenario
+            -Heroe heroe
+            -CatalogoSprites catalogo
+            +paintComponent(Graphics g)
+            +reproducirMusica()
+            +detenerMusica()
+            +cargarFondoNivel(int nivel)
+        }
+
+        class MenuPrincipal {
+            -JButton botonJugar
+            -JButton botonRanking
+            -JButton botonSalir
+            +reproducirAudioAmbiente(String ruta)
+            +detenerAudio()
+        }
+
+        class PantallaGameOver {
+            -JTextField campoNombre
+            -JButton botonGuardar
+            -JButton botonReintentar
+            -JButton botonMenu
+            +mostrarPuntaje(int metros)
+            +mostrarVictoria(int metros)
+        }
+
+        class CatalogoSprites {
+            -Map cache
+            +getImagen(TipoEntidad tipo) BufferedImage
+            +getAnimacionHeroe(EstadoHeroe estado, boolean mirandoDerecha)
+        }
+
+        class Sprites {
+            +cargar(String ruta)$
+            +getEnemigoTerrestre()$
+            +getHeroeQuieto()$
+            +getSpritesPlataforma(int filaTipo)$
+        }
     }
 
-    class PuntajeDAO {
-        <<interface>>
-        +guardarPuntaje(Puntaje p) boolean
-    }
-
-    %% ENTIDADES BASE
-    class Escenario {
-        -List~Plataforma~ plataformas
-        -List~Enemigo~ enemigos
-        +cargarMapa(FabricaNivel fabrica) void
-    }
-
-    class Entidad {
-        <<abstract>>
-        -String nombre
-        -double x
-        -double y
-        -int alto
-        -int ancho
-        -int hp
-        +recibirDanio(int cantidad) void
-    }
-
-    class Heroe {
-        -double velocidadY
-        -double velocidadX
-        +cargarSalto(long tiempoPulsado) void
-    }
-
-    class Proyectil {
-        -double velocidadX
-        -double velocidadY
-        +mover() void
-    }
-
-    %% FÁBRICAS DE NIVELES (PATRÓN BUILDER / FACTORY)
-    class FabricaNivel {
-        <<interface>>
-        +crearPlataformas() List~Plataforma~
-        +crearEnemigos() List~Enemigo~
-    }
-
-    class FabricaNivel1
-    class FabricaNivel2
-    class FabricaNivel3
-    class FabricaNivel4
-    class FabricaNivel5
-    class FabricaNivel6
-
-    FabricaNivel <|.. FabricaNivel1
-    FabricaNivel <|.. FabricaNivel2
-    FabricaNivel <|.. FabricaNivel3
-    FabricaNivel <|.. FabricaNivel4
-    FabricaNivel <|.. FabricaNivel5
-    FabricaNivel <|.. FabricaNivel6
-
-    %% HERENCIA Y POLIMORFISMO
-    Colisionable <|.. Entidad
+    %% Relaciones de Herencia e Implementacion
+    Entidad <|-- EntidadHostil
     Entidad <|-- Heroe
-    Entidad <|-- Proyectil
     Entidad <|-- Plataforma
-    Entidad <|-- Enemigo
-
-    class Plataforma { <<abstract>> }
-    class PlataformaNormal
-    class PlataformaBarro
-    class PlataformaHielo
-    class PlataformaTrampolin
-    class PlataformaRompible
-    class PlataformaMovil
-
+    Entidad <|-- Puerta
+    EntidadHostil <|-- Enemigo
+    EntidadHostil <|-- Proyectil
+    
     Plataforma <|-- PlataformaNormal
     Plataforma <|-- PlataformaBarro
     Plataforma <|-- PlataformaHielo
-    Plataforma <|-- PlataformaTrampolin
-    Plataforma <|-- PlataformaRompible
     Plataforma <|-- PlataformaMovil
-
-    class Enemigo { <<abstract>> }
-    class EnemigoTerrestre
-    class EnemigoVolador
-    class EnemigoTorreta
-    class EnemigoAcorazado
-    class EnemigoAcechador
+    Plataforma <|-- PlataformaRompible
+    Plataforma <|-- PlataformaTrampolin
 
     Enemigo <|-- EnemigoTerrestre
     Enemigo <|-- EnemigoVolador
-    Enemigo <|-- EnemigoTorreta
-    Enemigo <|-- EnemigoAcorazado
     Enemigo <|-- EnemigoAcechador
+    Enemigo <|-- EnemigoAcorazado
+    Enemigo <|-- EnemigoTorreta
 
-    %% PERSISTENCIA
-    class PuntajeDAOSQLite {
-        +guardarPuntaje(Puntaje p) boolean
-    }
-    PuntajeDAO <|.. PuntajeDAOSQLite
+    EntidadHostil ..|> Colisionable
+    Plataforma ..|> Colisionable
+    Puerta ..|> Colisionable
 
-    %% RELACIONES ESTRUCTURALES
-    JuegoManager --> "1" Escenario : gestiona
-    JuegoManager --> "1" Heroe : controla
-    JuegoManager ..|> Observador : implementa
-    JuegoManager ..> GuardadorPuntaje : invoca al terminar partida
-    Escenario --> "*" Plataforma : contiene
-    Escenario --> "*" Enemigo : contiene
-    Escenario ..> FabricaNivel : usa para armar nivel
-    GuardadorPuntaje ..> PuntajeDAO : inyecta dependencia
+    Nivel1 ..|> Nivel
+    Nivel2 ..|> Nivel
+    Nivel3 ..|> Nivel
+    Nivel4 ..|> Nivel
+    Nivel5 ..|> Nivel
+    Nivel6 ..|> Nivel
+    Nivel7 ..|> Nivel
+
+    JuegoManager ..|> Observador
+    GuardadorPuntaje ..|> Observador
+    PuntajeDAOSQLite ..|> PuntajeDAO
+
+    %% Relaciones de Asociación y Composición
+    Escenario "1" *-- "*" Plataforma
+    Escenario "1" *-- "*" Enemigo
+    Escenario "1" *-- "*" Proyectil
+    Escenario "1" o-- "0..1" Puerta
+
+    Heroe "1" o-- "*" Observador
+    JuegoManager "1" o-- "1" Escenario
+    JuegoManager "1" o-- "1" Heroe
+    JuegoManager "1" --> "1" PanelJuego
+    
+    ControladorTeclado --> Heroe
+    ControladorTeclado --> Escenario
+    GuardadorPuntaje --> PuntajeDAO
+
+    PanelJuego --> CatalogoSprites
+    CatalogoSprites ..> Sprites
+    PuntajeDAOSQLite --> Conexion
 ```
 
 #### **Prototipo de la IGU (Wireframe)**
