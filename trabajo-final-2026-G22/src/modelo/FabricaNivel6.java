@@ -34,9 +34,7 @@ public class FabricaNivel6 implements FabricaNivel {
         List<Enemigo> enemigos = new ArrayList<>();
 
         // Custodia la puerta: empuja al heroe hacia el vacio (hay que saltarlo)
-        EnemigoAcorazado acorazado1 = new EnemigoAcorazado(615, 120);
-        acorazado1.setSprite(Sprites.cargar("/assets/enemigo_acorazado.png"));
-        enemigos.add(acorazado1);
+        enemigos.add(new EnemigoAcorazado(615, 120));
         enemigos.add(new EnemigoTorreta(35, 240));
         enemigos.add(new EnemigoAcechador(0, 0, 1.3));
         enemigos.add(new EnemigoAcechador(0, 0, 1.8));

@@ -40,6 +40,8 @@ public class PanelJuego extends JPanel {
     private static final int MS_POR_FOTOGRAMA = 90;
     private static final int MS_POR_FOTOGRAMA_ORBE = 65; // antes: 4 ticks
     private static final int DIST_CABEZA = 9;            // la cabeza del orbe está 9 px adelante del centro del dibujo
+    private static final int MS_POR_FOTOGRAMA_ENEMIGO = 130;
+    private static final int ALTO_SPRITE_ENEMIGO = 50; 
 
     private final CatalogoSprites catalogo = new CatalogoSprites();
 
@@ -99,7 +101,7 @@ public class PanelJuego extends JPanel {
             if (!enemigo.debeDibujarse()) {
                 continue;
             }
-            dibujarEntidad(g2, enemigo);
+            dibujarEnemigo(g2, enemigo);
         }
 
         for (Proyectil proyectil : escenario.getProyectiles()) {
@@ -153,6 +155,18 @@ public class PanelJuego extends JPanel {
             dibujarSinSprite(g, plataforma);
         }
         dibujarNombre(g, plataforma, y);
+    }
+
+    private void dibujarEnemigo(Graphics2D g, Enemigo enemigo) {
+        BufferedImage[] fotogramas = catalogo.fotogramasDe(enemigo.getTipo(), enemigo.mirandoDerecha());
+        if (fotogramas == null) {
+            dibujarEntidad(g, enemigo);  // Acechador y Torreta, hasta la etapa 5
+            return;
+        }
+        int i = (int) (System.currentTimeMillis() / MS_POR_FOTOGRAMA_ENEMIGO % fotogramas.length);
+        int y = (int) enemigo.getY();
+        g.drawImage(fotogramas[i], (int) enemigo.getX(), y, enemigo.getAncho(), ALTO_SPRITE_ENEMIGO, null);
+        dibujarNombre(g, enemigo, y);
     }
 
     private void dibujarPuerta(Graphics2D g, Puerta puerta) {

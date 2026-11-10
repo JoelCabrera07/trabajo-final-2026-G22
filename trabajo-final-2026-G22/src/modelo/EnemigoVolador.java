@@ -1,6 +1,5 @@
 package modelo;
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 
 public class EnemigoVolador extends Enemigo {
     
@@ -15,12 +14,7 @@ public class EnemigoVolador extends Enemigo {
     //Que tan rapido se mueve
     private static final double VELOCIDAD_ANGULAR = 0.03;
 
-    // Animación de aleteo en vuelo (igual que EnemigoTerrestre con su caminata)
-    private BufferedImage[] animacionVueloDerecha;
-    private BufferedImage[] animacionVueloIzquierda;
-    private int frameActual = 0;
-    private int tickAnimacion = 0;
-    private int velocidadAnimacion = 8; // Cada 8 ticks cambia el cuadro del aleteo
+    private boolean mirandoDerecha = true;
 
     public EnemigoVolador(double x, double y) {
         // Un poco más frágil pero molesto (ajustamos a 35x30 para mejor proporción visual)
@@ -28,14 +22,6 @@ public class EnemigoVolador extends Enemigo {
         this.amplitudVuelo = 50.0; // Píxeles que se mueve de su eje
         this.centroY = y;
         this.angulo = 0;
-
-        // Cargamos la animación de aleteo
-        this.animacionVueloDerecha = Sprites.getEnemigoVolador();
-        this.animacionVueloIzquierda = Sprites.voltearAnimacion(this.animacionVueloDerecha);
-
-        if (this.animacionVueloDerecha != null && this.animacionVueloDerecha.length > 0) {
-            this.setSprite(this.animacionVueloDerecha[0]);
-        }
     }
 
     public void flotarVerticalmente() {
@@ -49,27 +35,17 @@ public class EnemigoVolador extends Enemigo {
         this.setY(nuevoY);
     }
 
-    public void actualizarAnimacion(Heroe heroe) {
-        if (animacionVueloDerecha == null || animacionVueloIzquierda == null) return;
-        tickAnimacion++;
-
-        if (tickAnimacion >= velocidadAnimacion) {
-            tickAnimacion = 0;
-            frameActual = (frameActual + 1) % animacionVueloDerecha.length;
-
-            // Orienta el murciélago mirando hacia donde está el héroe
-            if (heroe != null && heroe.getX() < this.getX()) {
-                this.setSprite(animacionVueloIzquierda[frameActual]);
-            } else {
-                this.setSprite(animacionVueloDerecha[frameActual]);
-            }
-        }
+    @Override
+    public boolean mirandoDerecha() {
+        return mirandoDerecha; 
     }
 
     @Override 
     public void actualizar(Heroe heroe, Escenario escenario) {
         flotarVerticalmente();
-        actualizarAnimacion(heroe);
+        if (heroe != null) {
+            mirandoDerecha = heroe.getX() >= this.getX();  // mira hacia donde está el héroe
+        }
     }
 
     @Override

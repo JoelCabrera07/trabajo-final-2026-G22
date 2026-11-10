@@ -21,6 +21,8 @@ public abstract class Enemigo extends Entidad implements Colisionable {
 
     public abstract TipoEnemigo getTipo();
 
+    public boolean mirandoDerecha() { return true; }
+
     @Override 
     public void aplicarEfectoColision(Heroe h){
         // Aplicamos polimorfismo: le saca vida al héroe según el ataque de x enemigo
