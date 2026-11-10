@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -35,6 +36,7 @@ public class PanelJuego extends JPanel {
     // Tamaño "logico" del juego: la fisica y las colisiones siempre usan estas medidas
     private static final int ANCHO_JUEGO = 800;
     private static final int ALTO_JUEGO = 600;
+    private final CatalogoSprites catalogo = new CatalogoSprites();
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
         this.escenario = escenario;
@@ -139,9 +141,10 @@ public class PanelJuego extends JPanel {
         int ancho = plataforma.getAncho();
         int alto = plataforma.getAlto();
 
-        if (plataforma.getSprite() != null) {
-            dibujarSpritePlataforma(g, plataforma.getSprite(), x, y, ancho, alto);
-        } else {    // Si no tiene sprite, dibuja un rectángulo de color
+        BufferedImage img = catalogo.imagenDe(plataforma.getTipo());
+        if (img != null) {
+            dibujarSpritePlataforma(g, img, x, y, ancho, alto);
+        } else {
             dibujarSinSprite(g, plataforma);
         }
         dibujarNombre(g, plataforma, y);

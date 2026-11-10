@@ -2,14 +2,12 @@ package modelo;
 import java.awt.Color;
 
 public class PlataformaTrampolin extends Plataforma {
-    
+
     private double multiplicadorRebote;
 
     public PlataformaTrampolin(double x, double y, int ancho, int alto) {
         // Un verde llamativo
         super("Trampolín", x, y, ancho, alto, Color.GREEN);
-        setSprite(Sprites.getSpritesPlataforma(4)[0]); // sprite de trampolín fila 4, columna 0
-        
         // Multiplica la fuerza del salto por 1.5
         this.multiplicadorRebote = 1.5;
     }
@@ -25,7 +23,7 @@ public class PlataformaTrampolin extends Plataforma {
         h.setEnElSuelo(false); // Le avisamos que ya no está en el suelo para que no pueda saltar de nuevo hasta tocar otra plataforma
     }
 
-    @Override 
+    @Override
     public TipoPlataforma getTipo(){
         return TipoPlataforma.TRAMPOLIN;
     }

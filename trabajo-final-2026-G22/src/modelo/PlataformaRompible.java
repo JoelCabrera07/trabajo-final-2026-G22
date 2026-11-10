@@ -2,14 +2,12 @@ package modelo;
 import java.awt.Color;
 
 public class PlataformaRompible extends Plataforma {
-    
+
     private boolean destruida;
 
     public PlataformaRompible(double x, double y, int ancho, int alto) {
         // Color gris oscuro
         super("Plataforma Rompible", x, y, ancho, alto, Color.DARK_GRAY);
-        setSprite(Sprites.getSpritesPlataforma(3)[0]); // sprite de plataforma rompible fila 3, columna 0
-        
         this.destruida = false;
     }
 
@@ -18,7 +16,7 @@ public class PlataformaRompible extends Plataforma {
         // Solo marca el estado, JuegoManager se encargará de eliminarla del escenario en la siguiente actualización
     }
 
-    
+
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
@@ -29,18 +27,18 @@ public class PlataformaRompible extends Plataforma {
         this.romper(); // La plataforma se rompe al primer contacto, sin importar si el héroe está en el suelo o no
     }
 
-    @Override 
+    @Override
     public boolean debeEliminarse() {
         return this.destruida; // Juegomanager usa esto para sacarla de la lista de plataformas del escenario.
     }
 
-    @Override 
+    @Override
     public void golpeadaDesdeAbajo() {
         // Si el héroe golpea la plataforma desde abajo, se rompe
         this.romper();
     }
 
-    @Override 
+    @Override
     public TipoPlataforma getTipo(){
         return TipoPlataforma.ROMPIBLE;
     }

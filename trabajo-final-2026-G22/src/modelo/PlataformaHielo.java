@@ -2,14 +2,12 @@ package modelo;
 import java.awt.Color;
 
 public class PlataformaHielo extends Plataforma {
-    
+
     private double nivelFriccion;
 
     public PlataformaHielo(double x, double y, int ancho, int alto) {
         // Le mandamos un color celestito
         super("Plataforma de Hielo", x, y, ancho, alto, new Color(173, 216, 230));
-        setSprite(Sprites.getSpritesPlataforma(2)[0]); // sprite de hielo fila 2, columna 0
-        
         // Friccion baja para que el personaje patine cuando intente frenar
         this.nivelFriccion = 0.2;
     }
@@ -20,11 +18,11 @@ public class PlataformaHielo extends Plataforma {
 
     @Override
     public void aplicarEfectoColision(Heroe h) {
-        h.setVelocidadY(0); 
+        h.setVelocidadY(0);
         h.setEnElSuelo(true);
-        
+
         // Efecto resbalón: Si el jugador soltó la tecla y su velocidad horizontal es 0
-        if (h.getVelocidadX() == 0) { 
+        if (h.getVelocidadX() == 0) {
             if (h.isMirandoDerecha()) {
                 h.setVelocidadX(2.0); // Patina hacia la derecha (más lento que caminar que es 4)
             } else {
@@ -33,7 +31,7 @@ public class PlataformaHielo extends Plataforma {
         }
     }
 
-    @Override 
+    @Override
     public TipoPlataforma getTipo(){
         return TipoPlataforma.HIELO;
     }
