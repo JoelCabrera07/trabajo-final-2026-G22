@@ -38,6 +38,9 @@ public class PanelJuego extends JPanel {
     private static final int ANCHO_JUEGO = 800;
     private static final int ALTO_JUEGO = 600;
     private static final int MS_POR_FOTOGRAMA = 90;
+    private static final int MS_POR_FOTOGRAMA_ORBE = 65; // antes: 4 ticks
+    private static final int DIST_CABEZA = 9;            // la cabeza del orbe está 9 px adelante del centro del dibujo
+
     private final CatalogoSprites catalogo = new CatalogoSprites();
 
     public PanelJuego(Escenario escenario, Heroe heroe) {
@@ -100,7 +103,7 @@ public class PanelJuego extends JPanel {
         }
 
         for (Proyectil proyectil : escenario.getProyectiles()) {
-            dibujarEntidad(g2, proyectil);
+            dibujarOrbe(g2, proyectil);
         }
 
         if (heroe != null) {
@@ -172,6 +175,28 @@ public class PanelJuego extends JPanel {
 
             // 4. El nombre va arriba de lo más alto entre la hitbox y el dibujo
             dibujarNombre(g, puerta, Math.min((int) puerta.getY(), y));
+    }
+
+    private void dibujarOrbe(Graphics2D g, Proyectil p) {
+        BufferedImage[] fotogramas = catalogo.fotogramasOrbe();
+        if (fotogramas == null) {
+            dibujarSinSprite(g, p); 
+            dibujarNombre(g, p, (int) p.getY() - 17);
+            return;
+        }
+        int i = (int) (System.currentTimeMillis() / MS_POR_FOTOGRAMA_ORBE % fotogramas.length);
+        BufferedImage img = fotogramas[i];
+
+        double centroX = p.getX() + p.getAncho() / 2.0;
+        double centroY = p.getY() + p.getAlto() / 2.0;
+
+        Graphics2D g2 = (Graphics2D) g.create();   // copia: la rotación no afecta al resto
+        g2.translate(centroX, centroY);
+        g2.rotate(p.getAngulo());
+        g2.drawImage(img, -img.getWidth() / 2 - DIST_CABEZA, -img.getHeight() / 2, null);
+        g2.dispose();
+
+        dibujarNombre(g, p, (int) p.getY() - 17);  // con el g original, no el rotado
     }
 
     private void dibujarSinSprite(Graphics2D g, Entidad entidad) {

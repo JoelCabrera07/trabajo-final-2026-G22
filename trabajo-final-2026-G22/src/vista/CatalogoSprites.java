@@ -10,6 +10,8 @@ public class CatalogoSprites {
 
     private final Map<TipoPlataforma, BufferedImage> plataformas = new EnumMap<>(TipoPlataforma.class);
     private final BufferedImage[] portal = Sprites.getPortal();
+    private final BufferedImage[] orbe = Sprites.getOrbe();
+
     public CatalogoSprites() {
         plataformas.put(TipoPlataforma.NORMAL,     Sprites.getSpritesPlataforma(0)[0]);
         plataformas.put(TipoPlataforma.BARRO,      Sprites.getSpritesPlataforma(1)[0]);
@@ -17,7 +19,6 @@ public class CatalogoSprites {
         plataformas.put(TipoPlataforma.MOVIL,      Sprites.getSpritesPlataforma(0)[0]);
         plataformas.put(TipoPlataforma.ROMPIBLE,   Sprites.getSpritesPlataforma(3)[0]);
         plataformas.put(TipoPlataforma.TRAMPOLIN,  Sprites.getSpritesPlataforma(4)[0]);
-        // plataformas: BARRO, HIELO, MOVIL, ROMPIBLE, TRAMPOLIN con su fila de la tabla
     }
 
     public BufferedImage imagenDe(TipoPlataforma tipo) {
@@ -25,5 +26,8 @@ public class CatalogoSprites {
     }
     public BufferedImage[] fotogramasPortal(){
         return portal;
+    }
+    public BufferedImage[] fotogramasOrbe(){
+        return orbe;
     }
 }
