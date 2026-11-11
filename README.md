@@ -149,7 +149,7 @@ classDiagram
     }
     class Colisionable {
         <<interface>>
-        +getHitbox() Rectangle
+        +aplicarEfectoColision(Heroe h) void    
     }
     class PuntajeDAO {
         <<interface>>
