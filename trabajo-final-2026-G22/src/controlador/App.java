@@ -3,7 +3,7 @@ package controlador;
 import javax.swing.SwingUtilities;
 import modelo.Escenario;
 import modelo.Heroe;
-import modelo.FabricaNivel1;
+import modelo.Niveles;
 import vista.MenuPrincipal;
 import vista.PanelJuego;
 import vista.PantallaGameOver;
@@ -15,7 +15,7 @@ public class App {
 
         // --- 1. Armar el modelo ---
         Escenario escenario = new Escenario();
-        escenario.cargarPantalla(1, new FabricaNivel1());
+        escenario.cargarPantalla(1, Niveles.get(1));
 
         // Heroe con dimensiones proporcionales a su hoja de sprites (32x48)
         Heroe heroe = new Heroe("Heroe", 50, 500, 32, 48, 30);
@@ -98,7 +98,7 @@ public class App {
                     heroe.setHp(heroe.getHpMax());
                     heroe.setX(50);
                     heroe.setY(500);
-                    escenario.cargarPantalla(1, new FabricaNivel1()); // siempre se arranca desde la pantalla 1
+                    escenario.cargarPantalla(1, Niveles.get(1)); // siempre se arranca desde la pantalla 1
                     panel.cargarFondoNivel(1);
                     ventana.cambiarPanel(panel); 
                     
@@ -181,7 +181,7 @@ public class App {
                     heroe.setY(500);
 
                     // Recargamos el escenario y mostramos el panel del juego
-                    escenario.cargarPantalla(1, new FabricaNivel1());
+                    escenario.cargarPantalla(1, Niveles.get(1));
                     panel.cargarFondoNivel(1);
                     ventana.cambiarPanel(panel);
 

@@ -19,17 +19,15 @@ public class Escenario {
         this.proyectiles = new ArrayList<>();
     }
 
-   public void cargarPantalla(int numeroPantalla, FabricaNivel fabrica) { //Se aplica la fábrica para crear enemigos y plataformas según el nivel dejandolo mas limpio al codigo y no sobrecargado de código
-        this.pantallaActual = numeroPantalla; 
-        this.plataformas.clear(); 
-        this.enemigos.clear(); 
-        this.proyectiles.clear(); 
-        System.out.println("Cargando pantalla " + numeroPantalla + " con el Patrón Factory...");
-
-        // La fábrica se encarga de instanciar todo, el Escenario solo lo guarda
-        this.plataformas.addAll(fabrica.crearPlataformas());
-        this.enemigos.addAll(fabrica.crearEnemigos());
-        this.puerta = fabrica.crearPuerta(); // Puede ser null si la pantalla no tiene puerta
+   public void cargarPantalla(int numeroPantalla, Nivel nivel) { 
+        this.pantallaActual = numeroPantalla;
+        this.plataformas.clear();
+        this.enemigos.clear();  
+        this.proyectiles.clear();
+        // El nivel pide las entidades a FabricaEntidades, el Escenario solo las guardad
+        this.plataformas.addAll(nivel.crearPlataformas());
+        this.enemigos.addAll(nivel.crearEnemigos());
+        this.puerta = nivel.crearPuerta(); // Puede ser null si la pantalla no tiene puerta
     }
     public int getPantallaActual() {
         return pantallaActual;

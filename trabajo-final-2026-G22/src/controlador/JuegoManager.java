@@ -8,7 +8,6 @@ public class JuegoManager implements Observador {
     private static JuegoManager instance;
 
     // La torre tiene 6 pantallas; la puerta de la meta esta en la ultima
-    public static final int TOTAL_PANTALLAS = 7;
     private static final int PRIMERA_PANTALLA_CON_TORMENTA = 4;
 
     private Escenario escenarioActual;
@@ -119,7 +118,7 @@ public class JuegoManager implements Observador {
         // Transicion de pantalla hacia arriba: si el heroe supera el techo
         if (heroe.getY() < 0) {
             int pantalla = escenarioActual.getPantallaActual();
-            if (pantalla < TOTAL_PANTALLAS) {
+            if (pantalla < Niveles.total()) {
                 cambiarPantalla(pantalla + 1);
                 heroe.setY(520); // aparece abajo de la pantalla nueva, todavia subiendo
             } else {
@@ -144,23 +143,8 @@ public class JuegoManager implements Observador {
         }
     }
 
-    // Patron Factory: cada pantalla de la torre tiene su propia fabrica.
-    // Para agregar un nivel nuevo alcanza con sumar un case y subir TOTAL_PANTALLAS.
-    public static FabricaNivel crearFabrica(int pantalla) {
-        switch (pantalla) {
-            case 1: return new FabricaNivel1();
-            case 2: return new FabricaNivel2();
-            case 3: return new FabricaNivel3();
-            case 4: return new FabricaNivel4();
-            case 5: return new FabricaNivel5();
-            case 6: return new FabricaNivel6();
-            case 7: return new FabricaNivel7();
-            default: throw new IllegalArgumentException("No existe la pantalla " + pantalla);
-        }
-    }
-
     private void cambiarPantalla(int nuevaPantalla) {
-        escenarioActual.cargarPantalla(nuevaPantalla, crearFabrica(nuevaPantalla));
+        escenarioActual.cargarPantalla(nuevaPantalla, Niveles.get(nuevaPantalla));
         if (vista != null) {
             vista.cargarFondoNivel(nuevaPantalla);
             // De la pantalla 4 para arriba se esta afuera, en la tormenta
