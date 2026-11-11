@@ -82,7 +82,8 @@ public class JuegoManager implements Observador {
             try {
                 Thread.sleep(16); // 16 milisegundos = aprox 60 FPS
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt(); // Restaurar el estado de interrupción del hilo
+                juegoCorriendo = false; // Salir del bucle si el hilo fue interrumpido
             }
         }
     }
