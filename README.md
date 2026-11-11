@@ -62,6 +62,22 @@ El sistema sera un videojuego funcional desarrollado bajo el paradigma de Progra
 ![Game Over](docs/img/gameover.png)
 
 ## 4. Arquitectura y Diseño
+### Arquitectura MVC
+
+El proyecto está separado en tres capas, y cada una tiene una única responsabilidad:
+
+| Capa | Paquete | Qué hace |
+|---|---|---|
+| Modelo | `modelo` | Estado y reglas del juego (posiciones, física, vida, colisiones). No importa Swing, ni la vista, ni el controlador, así que funciona y se puede probar sin ventana. |
+| Vista | `vista` | Todo lo que se dibuja: `PanelJuego`, `CatalogoSprites` (carga de imágenes) y `Sprites`. Lee el modelo por getters y decide qué fotograma mostrar. |
+| Controlador | `controlador` | `App` arma todo, `ControladorTeclado` traduce teclas en acciones del héroe y `JuegoManager` corre el bucle del juego. |
+
+Decisiones de diseño:
+
+- **El modelo no conoce imágenes ni colores.** En lugar de guardar un sprite, cada entidad expone *qué es* (`TipoEnemigo`, `TipoPlataforma`) y *qué está haciendo* (`EstadoHeroe`, `FaseEnemigo`). La vista usa esos enums para buscar la imagen en `CatalogoSprites`.
+- **Los métodos "consulta" de `Enemigo`** (`debeDibujarse()`, `mirandoDerecha()`, `getFase()`, `getMsEnFase()`) tienen un valor por defecto y cada enemigo redefine solo los que necesita. Así la vista no pregunta de qué clase es cada enemigo y no hay ningún `instanceof` en el proyecto.
+- **`java.awt.Rectangle` se mantiene en el modelo** solo como figura geométrica para detectar colisiones. No dibuja nada y funciona sin ventana.
+- **Observer:** `Heroe` avisa los eventos (`HEROE_MURIO`, `NIVEL_COMPLETADO`) a sus observadores (`JuegoManager` y `GuardadorPuntaje`), que implementan `Observador`.
 
 ## Entrega: Aplicación de Patrones de Diseño
 ### 1. El problema: un enfoque con errores de diseño
@@ -82,42 +98,39 @@ Si sumamos más enemigos y plataformas, este bloque crece sin control...
 
 -**Con 10 o 20 niveles y decenas de elementos por nivel, la clase Escenario se convertía en un archivo inmanejable de cientos de líneas dedicadas puramente a la instanciación de objetos.**
 
-2. **Patrón aplicado: Abstract Factory (Fábrica Abstracta)**
+### 2. Segunda versión: una clase por nivel (y por qué no era un patrón)
 
-Para resolver este problema se implementó el patrón Abstract Factory. Se delegó la creación de las familias de elementos de cada pantalla (plataformas y enemigos) a fábricas especializadas e intercambiables, desacoplando completamente a Escenario de las clases concretas.
+Se movió cada nivel a su propia clase (`FabricaNivel1..7`) que implementaba una interfaz `FabricaNivel`, y `JuegoManager` elegía cuál usar con un `switch`. Se presentó como Abstract Factory, pero no lo era: cada clase armaba un nivel fijo escrito a mano, no había una familia de productos intercambiable, y la elección dependía de un `switch`. Eran siete clases casi iguales y, para agregar un nivel, había que tocar el `switch`.
 
+### 3. Versión actual: niveles como datos y un Factory de entidades
 
-Diagrama de clases
-<img width="669" height="885" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/a2dc8943-fea0-46ad-a191-9bac4064eea8" />
+Un **Factory** es una clase que, a partir de un dato, decide qué clase concreta instanciar, de modo que el resto del código no escribe `new` de clases concretas. Acá el dato es el *tipo* (`TipoPlataforma`, `TipoEnemigo`).
 
-Implementación
-FabricaNivel.java (Interfaz de la Fábrica)
-<img width="999" height="197" alt="image" src="https://github.com/user-attachments/assets/8e343037-d82f-4067-9720-721e39ce9d91" />
+<img src="docs/img/factory.png" alt="Diagrama del patrón Factory en Jumping Hero" width="100%" />
 
-FabricaNivel1.java (Fábrica de la Pantalla 1)
-<img width="1009" height="659" alt="image" src="https://github.com/user-attachments/assets/3aa7d81b-24e8-4941-acf0-1bf8af4a8f90" />
-<img width="1005" height="276" alt="image" src="https://github.com/user-attachments/assets/28117a22-4d6a-4bd2-9d8c-ce45cd8c8b5b" />
+`FabricaEntidades` es el Factory: es la única clase que escribe los `new` de plataformas y enemigos, y la clase concreta la decide un dato (el tipo, `TipoPlataforma` o `TipoEnemigo`) y no una variante de creador, por eso no es Factory Method. `Nivel` (el cliente) solo describe qué contiene un nivel, y `Escenario` guarda lo que se creó sin conocer ninguna clase concreta.
 
-FabricaNivel2.java (Fábrica de la Pantalla 2)
-<img width="1005" height="658" alt="image" src="https://github.com/user-attachments/assets/d03da90e-f697-4f5c-919d-f76ee1c40fbb" />
+#### Beneficios
 
-Escenario.java (Cliente actualizado)
-<img width="1004" height="285" alt="image" src="https://github.com/user-attachments/assets/483b9520-d5ee-4492-b9df-a7c64da9f754" />
+- **Abierto/Cerrado:** para agregar un nivel solo se suma un `Nivel` a `Niveles`. Para agregar un tipo de enemigo se agrega una línea en el `Map` de la fábrica. No se modifica `Escenario` ni `JuegoManager`.
+- **Menos código:** se eliminaron `FabricaNivel` y `FabricaNivel1..7` (8 clases) y el `switch`.
+- **Desacoplamiento:** `Escenario` y `Nivel` trabajan con `Plataforma` y `Enemigo`, y solo `FabricaEntidades` conoce las clases concretas.
 
-Con este diseño tenemos beneficios:
+#### Limitaciones Existentes 
 
--**Extensibilidad**: Si queremos agregar un Nivel 3, solo creamos la clase FabricaNivel3 implements FabricaNivel. No se toca ni una sola línea de código existente en Escenario.
+- Los métodos de `FabricaEntidades` son `static`, así que no se pueden reemplazar en un test (es una desventaja que menciona la teoría del Factory).
+- Los parámetros viajan como `double...` posicionales, que son menos seguros que un constructor con tipos.
+- Agregar un tipo nuevo toca el enum, el `Map` de la fábrica y `CatalogoSprites`.
 
--**Cohesión y legibilidad**: Cada nivel administra sus propias coordenadas y composición de manera aislada y ordenada.
-
--**Desacoplamiento**: Escenario solo conoce las abstracciones FabricaNivel, Plataforma y Enemigo. No conoce constructores ni implementaciones concretas.
 
 ### Diagramas de Diseño
 
 #### **Diagrama de Clases UML (Conceptual)**
 ```mermaid
 classDiagram
-    %% CONTROLADOR
+    direction TB
+
+    %% ===== CONTROLADOR =====
     class JuegoManager {
         <<Singleton>>
         -JuegoManager instance
@@ -125,94 +138,69 @@ classDiagram
         -Heroe heroe
         +getInstance() JuegoManager
         +iniciarJuego() void
-        +buclePrincipal() void
     }
+    class GuardadorPuntaje
+    class ControladorTeclado
 
-    class GuardadorPuntaje {
-        +guardar(Puntaje p) void
-    }
-
-    %% INTERFACES Y PATRONES (MODELO)
+    %% ===== INTERFACES =====
     class Observador {
         <<interface>>
-        +actualizar(EventoJuego evento) void
+        +actualizar(EventoJuego evento, Heroe heroe) void
     }
-
     class Colisionable {
         <<interface>>
         +getHitbox() Rectangle
     }
-
     class PuntajeDAO {
         <<interface>>
         +guardarPuntaje(Puntaje p) boolean
     }
+    class PuntajeDAOSQLite
 
-    %% ENTIDADES BASE
-    class Escenario {
-        -List~Plataforma~ plataformas
-        -List~Enemigo~ enemigos
-        +cargarMapa(FabricaNivel fabrica) void
-    }
-
+    %% ===== MODELO: ENTIDADES =====
     class Entidad {
         <<abstract>>
         -String nombre
         -double x
         -double y
-        -int alto
         -int ancho
+        -int alto
+        +getHitbox() Rectangle
+    }
+    class Heroe {
         -int hp
+        -double velocidadX
+        -double velocidadY
+        -EstadoHeroe estado
+        +actualizar() void
+        +getEstado() EstadoHeroe
         +recibirDanio(int cantidad) void
     }
+    class Proyectil
+    class Puerta
 
-    class Heroe {
-        -double velocidadY
-        -double velocidadX
-        +cargarSalto(long tiempoPulsado) void
+    class Plataforma {
+        <<abstract>>
+        +aplicarEfectoColision(Heroe h) void
+        +getTipo() TipoPlataforma
+    }
+    class Enemigo {
+        <<abstract>>
+        -int ataque
+        +actualizar(Heroe h, Escenario e) void
+        +getTipo() TipoEnemigo
+        +getFase() FaseEnemigo
+        +debeDibujarse() boolean
     }
 
-    class Proyectil {
-        -double velocidadX
-        -double velocidadY
-        +mover() void
-    }
-
-    %% FÁBRICAS DE NIVELES (PATRÓN BUILDER / FACTORY)
-    class FabricaNivel {
-        <<interface>>
-        +crearPlataformas() List~Plataforma~
-        +crearEnemigos() List~Enemigo~
-    }
-
-    class FabricaNivel1
-    class FabricaNivel2
-    class FabricaNivel3
-    class FabricaNivel4
-    class FabricaNivel5
-    class FabricaNivel6
-
-    FabricaNivel <|.. FabricaNivel1
-    FabricaNivel <|.. FabricaNivel2
-    FabricaNivel <|.. FabricaNivel3
-    FabricaNivel <|.. FabricaNivel4
-    FabricaNivel <|.. FabricaNivel5
-    FabricaNivel <|.. FabricaNivel6
-
-    %% HERENCIA Y POLIMORFISMO
-    Colisionable <|.. Entidad
     Entidad <|-- Heroe
     Entidad <|-- Proyectil
+    Entidad <|-- Puerta
     Entidad <|-- Plataforma
     Entidad <|-- Enemigo
-
-    class Plataforma { <<abstract>> }
-    class PlataformaNormal
-    class PlataformaBarro
-    class PlataformaHielo
-    class PlataformaTrampolin
-    class PlataformaRompible
-    class PlataformaMovil
+    Colisionable <|.. Plataforma
+    Colisionable <|.. Enemigo
+    Colisionable <|.. Puerta
 
     Plataforma <|-- PlataformaNormal
     Plataforma <|-- PlataformaBarro
@@ -221,34 +209,83 @@ classDiagram
     Plataforma <|-- PlataformaRompible
     Plataforma <|-- PlataformaMovil
 
-    class Enemigo { <<abstract>> }
-    class EnemigoTerrestre
-    class EnemigoVolador
-    class EnemigoTorreta
-    class EnemigoAcorazado
-    class EnemigoAcechador
-
     Enemigo <|-- EnemigoTerrestre
     Enemigo <|-- EnemigoVolador
     Enemigo <|-- EnemigoTorreta
     Enemigo <|-- EnemigoAcorazado
     Enemigo <|-- EnemigoAcechador
 
-    %% PERSISTENCIA
-    class PuntajeDAOSQLite {
-        +guardarPuntaje(Puntaje p) boolean
+    %% ===== MODELO: PATRON FACTORY =====
+    class Niveles {
+        -List~Nivel~ NIVELES
+        +get(int pantalla) Nivel
+        +total() int
     }
-    PuntajeDAO <|.. PuntajeDAOSQLite
+    class Nivel {
+        +plataforma(TipoPlataforma tipo, double... p) Nivel
+        +enemigo(TipoEnemigo tipo, double... p) Nivel
+        +puerta(double x, double y) Nivel
+        +crearPlataformas() List~Plataforma~
+        +crearEnemigos() List~Enemigo~
+        +crearPuerta() Puerta
+    }
+    class FabricaEntidades {
+        <<Factory>>
+        -Map PLATAFORMAS
+        -Map ENEMIGOS
+        +crearPlataforma(TipoPlataforma tipo, double... p)$ Plataforma
+        +crearEnemigo(TipoEnemigo tipo, double... p)$ Enemigo
+        +crearPuerta(double x, double y)$ Puerta
+    }
+    class Escenario {
+        -List~Plataforma~ plataformas
+        -List~Enemigo~ enemigos
+        -List~Proyectil~ proyectiles
+        +cargarPantalla(int n, Nivel nivel) void
+    }
 
-    %% RELACIONES ESTRUCTURALES
+    Niveles o-- Nivel : 7 niveles
+    Escenario ..> Nivel : recibe
+    Nivel ..> FabricaEntidades : pide la creacion
+    FabricaEntidades ..> Plataforma : crea
+    FabricaEntidades ..> Enemigo : crea
+    FabricaEntidades ..> Puerta : crea
+
+    %% ===== ENUMS (el modelo dice QUE ES y QUE HACE) =====
+    class TipoPlataforma { <<enum>> }
+    class TipoEnemigo { <<enum>> }
+    class EstadoHeroe { <<enum>> }
+    class FaseEnemigo { <<enum>> }
+
+    %% ===== VISTA =====
+    class PanelJuego
+    class CatalogoSprites
+    class Sprites
+
+    PanelJuego --> CatalogoSprites : busca imagenes
+    CatalogoSprites ..> Sprites : carga
+    PanelJuego ..> Escenario : lee por getters
+    PanelJuego ..> Heroe : lee por getters
+    CatalogoSprites ..> TipoPlataforma
+    CatalogoSprites ..> TipoEnemigo
+    CatalogoSprites ..> FaseEnemigo
+    PanelJuego ..> EstadoHeroe
+
+    %% ===== RELACIONES ESTRUCTURALES =====
     JuegoManager --> "1" Escenario : gestiona
     JuegoManager --> "1" Heroe : controla
-    JuegoManager ..|> Observador : implementa
-    JuegoManager ..> GuardadorPuntaje : invoca al terminar partida
-    Escenario --> "*" Plataforma : contiene
-    Escenario --> "*" Enemigo : contiene
-    Escenario ..> FabricaNivel : usa para armar nivel
-    GuardadorPuntaje ..> PuntajeDAO : inyecta dependencia
+    JuegoManager --> PanelJuego : repinta
+    JuegoManager ..> Niveles : pide el nivel
+    ControladorTeclado ..> Heroe : mueve
+    Escenario --> "*" Plataforma
+    Escenario --> "*" Enemigo
+    Escenario --> "*" Proyectil
+    Escenario --> "0..1" Puerta
+    Heroe --> "*" Observador : avisa eventos
+    Observador <|.. JuegoManager
+    Observador <|.. GuardadorPuntaje
+    GuardadorPuntaje ..> PuntajeDAO : usa
+    PuntajeDAO <|.. PuntajeDAOSQLite
 ```
 
 #### **Prototipo de la IGU (Wireframe)**
@@ -275,15 +312,21 @@ Nota: con Java 22 o superior aparece un aviso de SQLite sobre acceso nativo. No 
 - **Framework de IGU:** Java Swing 
 - **Control de Versiones:** Git y GitHub
 
-## 7. Herencia y Polimorfismo(Segunda Entrega)
+## 7. Herencia y Polimorfismo (Segunda Entrega)
 
-1. Herencia (Para no repetir código)
-Básicamente aplicamos herencia simple para no escribir mil veces los mismos atributos y mantener la arquitectura ordenada.
+### Herencia
 
-Sistema de Entidades: En vez de programarle la vida, el nombre y las coordenadas al Héroe y después hacer lo mismo de cero para el Enemigo, creamos una clase abstracta padre llamada Entidad. De ahí heredan Heroe y Enemigo, llevándose toda esa base y sumando solo sus mecánicas específicas.
+Se usa herencia simple para no repetir atributos ni código:
 
-Plataformas: Hicimos la misma jugada. Tenemos una clase base Plataforma que se encarga de lo genérico (dibujarse en pantalla, detectar colisiones). De ahí sacamos las clases hijas como PlataformaHielo o PlataformaBarro, que heredan toda la física base pero modifican cosas puntuales como la fricción o la velocidad del jugador.
+- **`Entidad`** es la clase abstracta base. Guarda lo mínimo que comparten todos los objetos del mapa: `nombre`, posición (`x`, `y`) y tamaño (`ancho`, `alto`), y calcula su `getHitbox()`. De ella heredan `Heroe`, `Enemigo`, `Plataforma`, `Proyectil` y `Puerta`. La vida, la velocidad y los demás datos propios están en cada clase que los necesita (por ejemplo `hp` en `Heroe`).
+- **`Plataforma`** define lo genérico de una plataforma. Sus hijas (`PlataformaHielo`, `PlataformaBarro`, `PlataformaMovil`, `PlataformaRompible`, `PlataformaTrampolin`, `PlataformaNormal`) redefinen solo lo que cambia, como la fricción o el efecto sobre el héroe.
+- **`Enemigo`** define lo común (ataque, colisión con el héroe) y cada tipo (`EnemigoTerrestre`, `EnemigoVolador`, `EnemigoTorreta`, `EnemigoAcorazado`, `EnemigoAcechador`) implementa su propio comportamiento en `actualizar(...)`.
 
-2. Polimorfismo
-Lo implementamos más que nada en el sistema de interacciones y colisiones para mantener el motor del juego limpio.
-En lugar de armar una cadena enorme de if/else preguntando con qué tipo de bloque o entidad chocó el jugador, usamos un método general. Gracias a la sobrescritura en las clases hijas, cuando ocurre una colisión, es el propio objeto el que define qué efecto aplicar (por ejemplo, alterar la velocidad si es hielo ). De esta forma, el bucle principal del juego solo llama a la acción genérica, y si el día de mañana agregamos un obstáculo nuevo, no necesitamos modificar la lógica del motor, solo creamos la clase nueva.
+### Polimorfismo
+
+Se aplica para que el motor del juego no tenga que preguntar de qué clase es cada objeto. No hay ningún `instanceof` ni cadenas de `if/else` por tipo:
+
+- **Colisiones:** `JuegoManager` llama a `plataforma.aplicarEfectoColision(heroe)` o `enemigo.aplicarEfectoColision(heroe)`, y cada clase hija decide qué efecto aplica (hielo que resbala, trampolín que impulsa, enemigo que daña). Si se agrega un obstáculo nuevo, no se modifica el motor: solo se crea la clase.
+- **Comportamiento por tipo:** `actualizar(...)` en `Enemigo` es abstracto y cada enemigo lo implementa a su manera (patrulla, vuelo, disparo, persecución).
+- **Dibujo sin `instanceof`:** la vista le pregunta a cada enemigo `getTipo()`, `getFase()`, `mirandoDerecha()` y `debeDibujarse()`. Cada clase devuelve su propio valor (o el valor por defecto de `Enemigo`) y `CatalogoSprites` elige la imagen según esos datos.
+- **Creación:** el Factory (`FabricaEntidades`) devuelve objetos del tipo abstracto (`Plataforma`, `Enemigo`), de modo que `Nivel` y `Escenario` los usan sin conocer la clase concreta.
